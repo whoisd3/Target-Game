@@ -1,5 +1,23 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js';
 
+// Game state management
+const GameState = {
+  MENU: 'menu',
+  PLAYING: 'playing',
+  PAUSED: 'paused',
+  GAME_OVER: 'game_over',
+  LEADERBOARD: 'leaderboard',
+  SETTINGS: 'settings'
+};
+
+let currentState = GameState.MENU;
+let gameSettings = {
+  playerName: 'Anonymous',
+  soundEnabled: true,
+  particlesEnabled: true
+};
+
+// Three.js setup
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
@@ -40,12 +58,105 @@ const timerEl = document.getElementById('reaction');
 const infoEl = document.getElementById('info');
 const progressBar = document.getElementById('progressBar');
 
+// Game variables
 let score = 0, highScore = 0, level = 1, gameTime = 30, timer = null;
 let spawnDelay = 1500, shapeIndex = 0, reactionStart = null;
+let isPaused = false, isShapeChanging = false;
 const shapes = ['sphere', 'cube', 'torus', 'icosahedron', 'octahedron'];
 const colorMap = [0xff69b4, 0x00ffff, 0x00ff00, 0xffa500, 0xff0000];
 
-// Shape generator
+// Load settings and high score from localStorage
+function loadGameData() {
+  const savedSettings = localStorage.getItem('targetGameSettings');
+  if (savedSettings) {
+    gameSettings = { ...gameSettings, ...JSON.parse(savedSettings) };
+  }
+  
+  const savedHighScore = localStorage.getItem('targetGameHighScore');
+  if (savedHighScore) {
+    highScore = parseInt(savedHighScore);
+  }
+  
+  // Apply settings
+  document.getElementById('playerNameInput').value = gameSettings.playerName;
+  document.getElementById('soundToggle').checked = gameSettings.soundEnabled;
+  document.getElementById('particleToggle').checked = gameSettings.particlesEnabled;
+  
+  bgParticles.visible = gameSettings.particlesEnabled;
+}
+
+// Save settings and high score
+function saveGameData() {
+  localStorage.setItem('targetGameSettings', JSON.stringify(gameSettings));
+  localStorage.setItem('targetGameHighScore', highScore.toString());
+}
+
+// Leaderboard management
+function getLeaderboard() {
+  const saved = localStorage.getItem('targetGameLeaderboard');
+  return saved ? JSON.parse(saved) : [];
+}
+
+function saveScore(playerName, score) {
+  const leaderboard = getLeaderboard();
+  leaderboard.push({ name: playerName, score: score, date: new Date().toLocaleDateString() });
+  leaderboard.sort((a, b) => b.score - a.score);
+  const topScores = leaderboard.slice(0, 10); // Keep top 10
+  localStorage.setItem('targetGameLeaderboard', JSON.stringify(topScores));
+}
+
+function displayLeaderboard() {
+  const leaderboard = getLeaderboard();
+  const listEl = document.getElementById('leaderboardList');
+  
+  if (leaderboard.length === 0) {
+    listEl.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No scores yet!</div>';
+    return;
+  }
+  
+  listEl.innerHTML = leaderboard.map((entry, index) => `
+    <div class="leaderboard-entry">
+      <span class="leaderboard-rank">#${index + 1}</span>
+      <span class="leaderboard-name">${entry.name}</span>
+      <span class="leaderboard-score">${entry.score}</span>
+    </div>
+  `).join('');
+}
+
+// State management functions
+function setState(newState) {
+  currentState = newState;
+  
+  // Hide all menus
+  document.querySelectorAll('.overlay-menu').forEach(menu => menu.classList.add('hidden'));
+  document.getElementById('hud').classList.add('hidden');
+  
+  // Show appropriate UI
+  switch (newState) {
+    case GameState.MENU:
+      document.getElementById('mainMenu').classList.remove('hidden');
+      break;
+    case GameState.PLAYING:
+      document.getElementById('hud').classList.remove('hidden');
+      break;
+    case GameState.PAUSED:
+      document.getElementById('hud').classList.remove('hidden');
+      document.getElementById('pauseMenu').classList.remove('hidden');
+      break;
+    case GameState.GAME_OVER:
+      document.getElementById('gameOverMenu').classList.remove('hidden');
+      break;
+    case GameState.LEADERBOARD:
+      document.getElementById('leaderboardMenu').classList.remove('hidden');
+      displayLeaderboard();
+      break;
+    case GameState.SETTINGS:
+      document.getElementById('settingsMenu').classList.remove('hidden');
+      break;
+  }
+}
+
+// Shape generator (unchanged)
 function createParticleShape(type, color) {
   const particleCount = 1200;
   const positions = new Float32Array(particleCount * 3);
@@ -95,6 +206,8 @@ let targetMesh = createParticleShape(shapes[shapeIndex], colorMap[0]);
 scene.add(targetMesh);
 
 function spawnTarget() {
+  if (isPaused || currentState !== GameState.PLAYING) return;
+  
   const newX = (Math.random() - 0.5) * 6;
   const newY = (Math.random() - 0.5) * 4;
   targetMesh.position.set(newX, newY, 0);
@@ -110,22 +223,66 @@ function updateUI() {
 }
 
 function startGame() {
-  score = 0; level = 1; gameTime = 30; spawnDelay = 1500;
-  updateUI(); spawnTarget();
+  score = 0; 
+  level = 1; 
+  gameTime = 30; 
+  spawnDelay = 1500;
+  isPaused = false;
+  isShapeChanging = false;
+  
+  setState(GameState.PLAYING);
+  updateUI(); 
+  spawnTarget();
+  
   if (timer) clearInterval(timer);
   timer = setInterval(() => {
-    gameTime--;
-    updateUI();
-    if (gameTime <= 0) {
-      clearInterval(timer);
-      if (score > highScore) highScore = score;
+    if (!isPaused && currentState === GameState.PLAYING) {
+      gameTime--;
       updateUI();
-      alert("⏰ Time's up! Final score: " + score);
+      if (gameTime <= 0) {
+        endGame();
+      }
     }
   }, 1000);
 }
 
+function endGame() {
+  clearInterval(timer);
+  setState(GameState.GAME_OVER);
+  
+  if (score > highScore) {
+    highScore = score;
+    saveGameData();
+  }
+  
+  // Save score to leaderboard
+  saveScore(gameSettings.playerName, score);
+  
+  // Display final score
+  document.getElementById('finalScoreDisplay').innerHTML = `
+    <div style="font-size: 1.5em; margin-bottom: 10px;">Final Score: ${score}</div>
+    <div>Level Reached: ${level}</div>
+    ${score > 0 ? `<div style="margin-top: 10px; color: #00ffff;">Added to Leaderboard!</div>` : ''}
+  `;
+}
+
+function pauseGame() {
+  if (currentState === GameState.PLAYING) {
+    isPaused = true;
+    setState(GameState.PAUSED);
+  }
+}
+
+function resumeGame() {
+  if (currentState === GameState.PAUSED) {
+    isPaused = false;
+    setState(GameState.PLAYING);
+  }
+}
+
 function handleClick(event) {
+  if (currentState !== GameState.PLAYING || isPaused || isShapeChanging) return;
+  
   const rect = renderer.domElement.getBoundingClientRect();
   const mouse = new THREE.Vector2(
     ((event.clientX - rect.left) / rect.width) * 2 - 1,
@@ -134,12 +291,14 @@ function handleClick(event) {
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObject(targetMesh);
+  
   if (intersects.length > 0) {
     const reactionTime = ((performance.now() - reactionStart) / 1000).toFixed(2);
     console.log(`Reaction time: ${reactionTime}s`);
     score++;
     scoreEl.classList.add('updated');
     setTimeout(() => scoreEl.classList.remove('updated'), 400);
+    
     if (score % 5 === 0) {
       level++;
       spawnDelay = Math.max(500, spawnDelay - 200);
@@ -152,23 +311,93 @@ function handleClick(event) {
 }
 
 // Event Listeners
-document.getElementById('startButton').addEventListener('click', startGame);
-document.getElementById('restartGameBtn').addEventListener('click', startGame);
+document.getElementById('playButton').addEventListener('click', startGame);
+document.getElementById('playAgainBtn').addEventListener('click', startGame);
+
+document.getElementById('leaderboardButton').addEventListener('click', () => setState(GameState.LEADERBOARD));
+document.getElementById('settingsButton').addEventListener('click', () => setState(GameState.SETTINGS));
+
+document.getElementById('backFromLeaderboardBtn').addEventListener('click', () => setState(GameState.MENU));
+document.getElementById('backFromSettingsBtn').addEventListener('click', () => setState(GameState.MENU));
+
+document.getElementById('mainMenuFromPauseBtn').addEventListener('click', () => {
+  clearInterval(timer);
+  setState(GameState.MENU);
+});
+
+document.getElementById('mainMenuFromGameOverBtn').addEventListener('click', () => setState(GameState.MENU));
+
+document.getElementById('pauseButton').addEventListener('click', pauseGame);
+document.getElementById('resumeButton').addEventListener('click', resumeGame);
+document.getElementById('restartFromPauseBtn').addEventListener('click', () => {
+  clearInterval(timer);
+  startGame();
+});
+
+document.getElementById('clearLeaderboardBtn').addEventListener('click', () => {
+  localStorage.removeItem('targetGameLeaderboard');
+  displayLeaderboard();
+});
+
+// Settings event listeners
+document.getElementById('playerNameInput').addEventListener('change', (e) => {
+  gameSettings.playerName = e.target.value || 'Anonymous';
+  saveGameData();
+});
+
+document.getElementById('soundToggle').addEventListener('change', (e) => {
+  gameSettings.soundEnabled = e.target.checked;
+  saveGameData();
+});
+
+document.getElementById('particleToggle').addEventListener('change', (e) => {
+  gameSettings.particlesEnabled = e.target.checked;
+  bgParticles.visible = e.target.checked;
+  saveGameData();
+});
 
 window.addEventListener('click', handleClick);
 window.addEventListener('touchstart', (e) => {
-  const touch = e.touches[0];
-  handleClick({ clientX: touch.clientX, clientY: touch.clientY });
+  if (currentState === GameState.PLAYING && !isPaused) {
+    const touch = e.touches[0];
+    handleClick({ clientX: touch.clientX, clientY: touch.clientY });
+  }
 });
 
 document.getElementById('shape-btn').addEventListener('click', () => {
+  if (currentState !== GameState.PLAYING || isPaused) return;
+  
+  isShapeChanging = true; // Prevent scoring during shape change
   scene.remove(targetMesh);
   shapeIndex = (shapeIndex + 1) % shapes.length;
   const color = colorMap[(level - 1) % colorMap.length];
   targetMesh = createParticleShape(shapes[shapeIndex], color);
   scene.add(targetMesh);
   infoEl.textContent = `Shape: ${shapes[shapeIndex].charAt(0).toUpperCase() + shapes[shapeIndex].slice(1)}`;
-  spawnTarget();
+  
+  setTimeout(() => {
+    spawnTarget();
+    isShapeChanging = false; // Re-enable scoring after shape change
+  }, 500);
+});
+
+// Keyboard controls
+window.addEventListener('keydown', (e) => {
+  switch (e.code) {
+    case 'Escape':
+      if (currentState === GameState.PLAYING) {
+        pauseGame();
+      } else if (currentState === GameState.PAUSED) {
+        resumeGame();
+      }
+      break;
+    case 'Space':
+      if (currentState === GameState.PAUSED) {
+        resumeGame();
+      }
+      e.preventDefault();
+      break;
+  }
 });
 
 window.addEventListener('resize', () => {
@@ -179,9 +408,21 @@ window.addEventListener('resize', () => {
 
 function animate() {
   requestAnimationFrame(animate);
-  bgParticles.rotation.y += 0.0005;
-  targetMesh.rotation.y += 0.01;
-  targetMesh.rotation.x += 0.005;
+  
+  if (gameSettings.particlesEnabled) {
+    bgParticles.rotation.y += 0.0005;
+  }
+  
+  if (!isPaused) {
+    targetMesh.rotation.y += 0.01;
+    targetMesh.rotation.x += 0.005;
+  }
+  
   renderer.render(scene, camera);
 }
+
+// Initialize game
+loadGameData();
+updateUI();
+setState(GameState.MENU);
 animate();

@@ -1,17 +1,124 @@
-<!-- HTML -->
-<canvas id="webglCanvas"></canvas>
-<div id="ui">
-  <div id="scoreBoard">
-    🎯 Score: <span id="score">0</span><br>
-    🏆 High Score: <span id="highScore">0</span><br>
-    ⬆️ Level: <span id="level">1</span><br>
-    ⏱️ Time: <span id="reaction">30</span>s
-    <div id="progressBarContainer">
-      <div id="progressBar"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Target Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="webglCanvas"></canvas>
+    
+    <!-- Main Menu -->
+    <div id="mainMenu" class="overlay-menu">
+        <div class="menu-container">
+            <h1 class="game-title">🎯 TARGET NEXUS</h1>
+            <div class="menu-buttons">
+                <button id="playButton" class="menu-btn primary">PLAY GAME</button>
+                <button id="leaderboardButton" class="menu-btn">LEADERBOARD</button>
+                <button id="settingsButton" class="menu-btn">SETTINGS</button>
+            </div>
+            <div class="game-description">
+                <p>Click the particle targets as fast as you can!</p>
+                <p>Level up to unlock new shapes and colors.</p>
+            </div>
+        </div>
     </div>
-  </div>
-  <button id="startButton">Start Game</button>
-  <button id="restartGameBtn">Restart Game</button>
-  <button id="shape-btn">Change Shape</button>
-  <div id="info">Shape: Particle Sphere</div>
-</div>
+
+    <!-- Leaderboard Menu -->
+    <div id="leaderboardMenu" class="overlay-menu hidden">
+        <div class="menu-container">
+            <h2 class="menu-title">🏆 LEADERBOARD</h2>
+            <div id="leaderboardList" class="leaderboard-list">
+                <!-- Populated by JavaScript -->
+            </div>
+            <button id="clearLeaderboardBtn" class="menu-btn danger">Clear Scores</button>
+            <button id="backFromLeaderboardBtn" class="menu-btn">BACK</button>
+        </div>
+    </div>
+
+    <!-- Settings Menu -->
+    <div id="settingsMenu" class="overlay-menu hidden">
+        <div class="menu-container">
+            <h2 class="menu-title">⚙️ SETTINGS</h2>
+            <div class="settings-options">
+                <label>
+                    Player Name: 
+                    <input type="text" id="playerNameInput" maxlength="10" placeholder="Anonymous">
+                </label>
+                <label>
+                    <input type="checkbox" id="soundToggle" checked> Sound Effects
+                </label>
+                <label>
+                    <input type="checkbox" id="particleToggle" checked> Background Particles
+                </label>
+            </div>
+            <button id="backFromSettingsBtn" class="menu-btn">BACK</button>
+        </div>
+    </div>
+
+    <!-- Pause Menu -->
+    <div id="pauseMenu" class="overlay-menu hidden">
+        <div class="menu-container">
+            <h2 class="menu-title">⏸️ PAUSED</h2>
+            <div class="menu-buttons">
+                <button id="resumeButton" class="menu-btn primary">RESUME</button>
+                <button id="restartFromPauseBtn" class="menu-btn">RESTART</button>
+                <button id="mainMenuFromPauseBtn" class="menu-btn">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Menu -->
+    <div id="gameOverMenu" class="overlay-menu hidden">
+        <div class="menu-container">
+            <h2 class="menu-title">🎯 GAME OVER</h2>
+            <div id="finalScoreDisplay" class="final-score">
+                <!-- Populated by JavaScript -->
+            </div>
+            <div class="menu-buttons">
+                <button id="playAgainBtn" class="menu-btn primary">PLAY AGAIN</button>
+                <button id="mainMenuFromGameOverBtn" class="menu-btn">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HUD (Heads-Up Display) -->
+    <div id="hud" class="hidden">
+        <div id="topHud" class="hud-section">
+            <div class="hud-stat">
+                <span class="hud-label">SCORE</span>
+                <span id="score" class="hud-value">0</span>
+            </div>
+            <div class="hud-stat">
+                <span class="hud-label">LEVEL</span>
+                <span id="level" class="hud-value">1</span>
+            </div>
+            <div class="hud-stat">
+                <span class="hud-label">TIME</span>
+                <span id="reaction" class="hud-value">30</span>
+            </div>
+        </div>
+        
+        <div id="bottomHud" class="hud-section">
+            <div class="hud-controls">
+                <button id="pauseButton" class="hud-btn">⏸️</button>
+                <button id="shape-btn" class="hud-btn">🔄</button>
+            </div>
+            <div id="info" class="hud-info">Shape: Particle Sphere</div>
+        </div>
+        
+        <div id="sideHud" class="hud-section">
+            <div class="hud-stat vertical">
+                <span class="hud-label">HIGH SCORE</span>
+                <span id="highScore" class="hud-value">0</span>
+            </div>
+            <div id="progressBarContainer" class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="script.js"></script>
+</body>
+</html>
