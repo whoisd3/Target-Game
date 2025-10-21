@@ -1,5 +1,167 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js';
 
+// PWA Installation and Service Worker
+let deferredPrompt;
+let isStandalone = false;
+
+// Check if app is running in standalone mode
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+  isStandalone = true;
+}
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      console.log('ServiceWorker registered successfully:', registration.scope);
+      
+      // Check for updates
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateNotification();
+          }
+        });
+      });
+    } catch (error) {
+      console.log('ServiceWorker registration failed:', error);
+    }
+  });
+}
+
+// Show update notification
+function showUpdateNotification() {
+  const updateBanner = document.createElement('div');
+  updateBanner.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #00ffff, #0080ff);
+    color: #000;
+    padding: 15px;
+    text-align: center;
+    z-index: 10000;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+  `;
+  updateBanner.innerHTML = `
+    <div>🔄 New version available!</div>
+    <button onclick="updateApp()" style="margin-left: 10px; padding: 5px 15px; background: #000; color: #00ffff; border: none; border-radius: 5px; cursor: pointer;">Update Now</button>
+    <button onclick="this.parentElement.remove()" style="margin-left: 5px; padding: 5px 15px; background: transparent; color: #000; border: 1px solid #000; border-radius: 5px; cursor: pointer;">Later</button>
+  `;
+  document.body.appendChild(updateBanner);
+}
+
+// Update app function
+window.updateApp = () => {
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+    window.location.reload();
+  }
+};
+
+// Install prompt handling
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showInstallButton();
+});
+
+// Show install button
+function showInstallButton() {
+  if (isStandalone || !deferredPrompt) return;
+  
+  const installButton = document.createElement('button');
+  installButton.id = 'installButton';
+  installButton.className = 'menu-btn primary';
+  installButton.innerHTML = '📱 INSTALL APP';
+  installButton.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1001;
+    animation: pulse 2s infinite;
+  `;
+  
+  installButton.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User ${outcome} the install prompt`);
+      deferredPrompt = null;
+      installButton.remove();
+    }
+  });
+  
+  document.body.appendChild(installButton);
+}
+
+// Handle app installation
+window.addEventListener('appinstalled', () => {
+  console.log('PWA was installed');
+  const installButton = document.getElementById('installButton');
+  if (installButton) {
+    installButton.remove();
+  }
+  
+  // Show thank you message
+  setTimeout(() => {
+    if (currentState === GameState.MENU) {
+      showInstallSuccessMessage();
+    }
+  }, 1000);
+});
+
+// Show install success message
+function showInstallSuccessMessage() {
+  const successDiv = document.createElement('div');
+  successDiv.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 100, 255, 0.1));
+    border: 2px solid #00ffff;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    z-index: 10000;
+    font-family: 'Orbitron', monospace;
+    color: #00ffff;
+    backdrop-filter: blur(10px);
+  `;
+  successDiv.innerHTML = `
+    <h3>🎉 Installation Complete!</h3>
+    <p style="margin: 15px 0;">Target Nexus is now installed on your device!</p>
+    <button onclick="this.parentElement.remove()" style="padding: 10px 20px; background: #00ffff; color: #000; border: none; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', monospace; font-weight: 700;">AWESOME!</button>
+  `;
+  document.body.appendChild(successDiv);
+  
+  setTimeout(() => {
+    if (successDiv.parentElement) {
+      successDiv.remove();
+    }
+  }, 5000);
+}
+
+// Handle URL parameters for shortcuts
+function handleURLParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const action = urlParams.get('action');
+  
+  switch (action) {
+    case 'play':
+      setTimeout(() => startGame(), 1000);
+      break;
+    case 'leaderboard':
+      setTimeout(() => setState(GameState.LEADERBOARD), 1000);
+      break;
+  }
+}
+
 // Game state management
 const GameState = {
   MENU: 'menu',
@@ -425,4 +587,5 @@ function animate() {
 loadGameData();
 updateUI();
 setState(GameState.MENU);
+handleURLParams(); // Handle URL shortcuts
 animate();
