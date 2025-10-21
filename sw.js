@@ -6,6 +6,7 @@ const STATIC_CACHE_URLS = [
   '/script.js',
   '/manifest.json',
   'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js',
+  'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js',
   'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap'
 ];
 

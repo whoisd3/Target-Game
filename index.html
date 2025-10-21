@@ -76,6 +76,10 @@
     <!-- Preload critical resources -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" as="style">
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js" as="script">
+    
+    <!-- Audio Library -->
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="style.css">
@@ -91,6 +95,7 @@
                 <button id="playButton" class="menu-btn primary">PLAY GAME</button>
                 <button id="leaderboardButton" class="menu-btn">LEADERBOARD</button>
                 <button id="settingsButton" class="menu-btn">SETTINGS</button>
+                <button id="howToInstallButton" class="menu-btn">📱 HOW TO INSTALL</button>
             </div>
             <div class="game-description">
                 <p>Click the particle targets as fast as you can!</p>
@@ -124,10 +129,72 @@
                     <input type="checkbox" id="soundToggle" checked> Sound Effects
                 </label>
                 <label>
+                    Sound Volume: 
+                    <input type="range" id="volumeSlider" min="0" max="100" value="70">
+                    <span id="volumeValue">70%</span>
+                </label>
+                <label>
                     <input type="checkbox" id="particleToggle" checked> Background Particles
                 </label>
+                <label>
+                    <input type="checkbox" id="timeBonusToggle" checked> Time Bonuses
+                </label>
+            </div>
+            <div class="sound-test-section">
+                <h4 style="color: #00ffff; margin-bottom: 10px;">🎵 Sound Test</h4>
+                <div class="sound-test-buttons">
+                    <button id="testTargetHit" class="test-btn">Target Hit</button>
+                    <button id="testLevelUp" class="test-btn">Level Up</button>
+                    <button id="testCombo" class="test-btn">Combo</button>
+                    <button id="testTimeBonus" class="test-btn">Time Bonus</button>
+                </div>
             </div>
             <button id="backFromSettingsBtn" class="menu-btn">BACK</button>
+        </div>
+    </div>
+
+    <!-- How to Install Menu -->
+    <div id="howToInstallMenu" class="overlay-menu hidden">
+        <div class="menu-container">
+            <h2 class="menu-title">📱 HOW TO INSTALL</h2>
+            <div class="install-instructions">
+                <div class="install-section">
+                    <h3>🤖 Android (Chrome)</h3>
+                    <ol>
+                        <li>Open this page in Chrome browser</li>
+                        <li>Tap the menu (⋮) in top right</li>
+                        <li>Select "Add to Home Screen"</li>
+                        <li>Tap "Add" to confirm</li>
+                    </ol>
+                </div>
+                <div class="install-section">
+                    <h3>🍎 iPhone/iPad (Safari)</h3>
+                    <ol>
+                        <li>Open this page in Safari browser</li>
+                        <li>Tap the Share button (□↗)</li>
+                        <li>Scroll down and tap "Add to Home Screen"</li>
+                        <li>Tap "Add" to confirm</li>
+                    </ol>
+                </div>
+                <div class="install-section">
+                    <h3>💻 Desktop (Chrome/Edge)</h3>
+                    <ol>
+                        <li>Look for install icon (⊕) in address bar</li>
+                        <li>Click it and select "Install"</li>
+                        <li>Or use browser menu → "Install Target Nexus"</li>
+                    </ol>
+                </div>
+                <div class="install-benefits">
+                    <h4>🌟 Benefits of Installing:</h4>
+                    <ul>
+                        <li>⚡ Faster loading</li>
+                        <li>📱 App icon on home screen</li>
+                        <li>🌐 Works offline</li>
+                        <li>🎮 Full screen gaming</li>
+                    </ul>
+                </div>
+            </div>
+            <button id="backFromInstallBtn" class="menu-btn">BACK</button>
         </div>
     </div>
 
@@ -159,10 +226,17 @@
 
     <!-- HUD (Heads-Up Display) -->
     <div id="hud" class="hidden">
+        <!-- Critical Notifications Zone (Top Left) -->
+        <div id="criticalNotifications" class="critical-notifications-zone">
+            <!-- Level up, combo milestones appear here -->
+        </div>
+        
         <div id="topHud" class="hud-section">
-            <div class="hud-stat">
+            <div class="hud-stat" id="scoreContainer">
                 <span class="hud-label">SCORE</span>
                 <span id="score" class="hud-value">0</span>
+                <!-- Floating score notifications appear here -->
+                <div id="floatingNotifications" class="floating-notifications"></div>
             </div>
             <div class="hud-stat">
                 <span class="hud-label">LEVEL</span>
@@ -171,6 +245,23 @@
             <div class="hud-stat">
                 <span class="hud-label">TIME</span>
                 <span id="reaction" class="hud-value">30</span>
+            </div>
+            <div class="hud-stat">
+                <span class="hud-label">COMBO</span>
+                <span id="combo" class="hud-value">0</span>
+            </div>
+        </div>
+        
+        <div id="leftHud" class="hud-section">
+            <div class="reaction-meter">
+                <div class="hud-label">REACTION TIME</div>
+                <div id="currentReactionTime" class="reaction-display">0.00s</div>
+                <div class="reaction-bar-container">
+                    <div id="reactionBar" class="reaction-bar"></div>
+                </div>
+                <div class="reaction-best">
+                    Best: <span id="bestReactionTime">0.00s</span>
+                </div>
             </div>
         </div>
         
@@ -190,6 +281,20 @@
             <div id="progressBarContainer" class="progress-container">
                 <div id="progressBar" class="progress-bar"></div>
             </div>
+        </div>
+        
+        <!-- Time Bonus Notifications -->
+        <div id="notificationFeed" class="notification-feed">
+            <div class="feed-title">ACTIVITY FEED</div>
+            <div id="bonusNotifications" class="bonus-notifications">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Combo Multiplier Display -->
+        <div id="comboDisplay" class="combo-display hidden">
+            <div class="combo-text">COMBO x<span id="comboMultiplier">1</span></div>
+            <div class="combo-streak">STREAK ACTIVE!</div>
         </div>
     </div>
     
