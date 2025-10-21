@@ -1,0 +1,104 @@
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #000;
+  color: #fff;
+}
+
+/* Canvas glow */
+canvas#webglCanvas {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  border: 4px solid #0ff;
+  box-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+  border-radius: 12px;
+}
+
+/* UI container */
+#ui {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  max-width: 90vw;
+}
+
+/* Scoreboard text */
+#scoreBoard {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+/* Info label */
+#info {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #0ff;
+  font-weight: bold;
+  text-shadow: 0 0 5px #0ff;
+}
+
+/* Buttons */
+button {
+  margin-top: 8px;
+  margin-right: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  background-color: #0ff;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #00aaff;
+}
+
+/* Progress bar container */
+#progressBarContainer {
+  margin-top: 6px;
+  width: 100%;
+  height: 8px;
+  background-color: #444;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Progress bar fill */
+#progressBar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #0ff, #00f6ff, #0ff);
+  border-radius: 4px;
+  transition: width 0.3s ease-in-out;
+}
+
+/* Glow animation */
+#scoreBoard span.updated {
+  animation: pulse 0.4s ease-in-out;
+  color: #0ff;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); color: #fff; }
+  50% { transform: scale(1.3); color: #0ff; }
+  100% { transform: scale(1); color: #fff; }
+}
