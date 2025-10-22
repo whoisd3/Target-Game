@@ -7,10 +7,17 @@ A futuristic 3D target shooting game built with Three.js and designed as a Progr
 - **3D Graphics**: Powered by Three.js for smooth, immersive 3D gameplay
 - **Progressive Web App**: Install and play offline on any device
 - **Mobile Optimized**: Touch controls and responsive design for mobile devices
-- **Particle Effects**: Dynamic visual effects for enhanced gaming experience
-- **Multiple Target Shapes**: Various target geometries for diverse gameplay
-- **Fullscreen Mode**: Immersive fullscreen experience
-- **Cross-Platform**: Works on desktop, mobile, and tablet devices
+- **Multiple Game Modes**: Classic, Time Attack, Survival, Precision, and Multiplayer modes
+- **Advanced Particle Effects**: Dynamic visual effects with custom shaders and multiple particle types
+- **Enhanced Sound System**: Howler.js-powered audio with background music and spatial effects
+- **Real-time Multiplayer**: WebRTC-based peer-to-peer multiplayer with room codes
+- **VR/AR Support**: WebXR compatibility for immersive virtual and augmented reality gameplay
+- **Smart Leaderboard**: Local storage-based scoring with game mode tracking
+- **Combo System**: Chain hits for multiplier bonuses and special effects
+- **Reaction Time Tracking**: Precise timing measurements and best time records
+- **Adaptive Difficulty**: Progressive challenge scaling with target size and spawn rate changes
+- **Fullscreen Mode**: Immersive fullscreen experience with optimized UI
+- **Cross-Platform**: Works seamlessly on desktop, mobile, tablet, VR headsets, and AR devices
 
 ## 🚀 Quick Start
 
@@ -127,12 +134,21 @@ This project is open source. Please check the license file for details.
 
 ## 🔮 Future Enhancements
 
-- [ ] Multiple game modes
-- [ ] Leaderboard system
-- [ ] Sound effects and background music
-- [ ] Multiplayer support
-- [ ] Advanced particle systems
-- [ ] VR/AR support
+✅ **IMPLEMENTED FEATURES:**
+- [x] Multiple game modes (Classic, Time Attack, Survival, Precision, Multiplayer)
+- [x] Enhanced leaderboard system with mode tracking
+- [x] Advanced sound effects and background music system
+- [x] Real-time multiplayer support with WebRTC
+- [x] Advanced particle systems with dynamic effects
+- [x] VR/AR support using WebXR API
+
+🚀 **Additional Enhancement Ideas:**
+- [ ] Advanced AI opponents with different difficulty levels
+- [ ] Tournament mode with brackets and competitions
+- [ ] Social features and player profiles
+- [ ] Achievement system and unlockables
+- [ ] Custom target shapes and themes
+- [ ] Replay system and ghost mode
 
 ---
 
