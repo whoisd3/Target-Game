@@ -277,6 +277,15 @@ class SoundManager {
           ],
           volume: 0.25,
           preload: true
+        }),
+        
+        miss: new Howl({
+          src: [
+            // Miss sound - disappointed/negative tone
+            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
+          ],
+          volume: 0.35,
+          preload: true
         })
       };
 
@@ -355,6 +364,9 @@ class SoundManager {
         break;
       case 'shapeChange':
         this.createMultiTone([500, 700], [0.1, 0.1], volume);
+        break;
+      case 'miss':
+        this.createMultiTone([200, 150], [0.15, 0.2], volume);
         break;
     }
   }
@@ -443,6 +455,11 @@ class SoundManager {
     this.playSound('shapeChange', 0.9);
   }
 
+  playMiss() {
+    // 🎵 MISS SOUND: Disappointed/negative tone for missing a target
+    this.playSound('miss', 1);
+  }
+
   // Utility methods
   setMasterVolume(volume) {
     if (typeof Howler !== 'undefined') {
@@ -505,12 +522,13 @@ let score = 0, highScore = 0, level = 1, gameTime = 30, timer = null;
 let spawnDelay = 1500, shapeIndex = 0, reactionStart = null;
 let isPaused = false, isShapeChanging = false;
 let combo = 0, comboTimer = null, bestReactionTime = 999;
-let currentReactionTime = 0;
+let currentReactionTime = 0, misses = 0;
 const shapes = ['sphere', 'cube', 'torus', 'icosahedron', 'octahedron'];
 const colorMap = [0xff69b4, 0x00ffff, 0x00ff00, 0xffa500, 0xff0000];
 
 // UI Elements (add new ones)
 const comboEl = document.getElementById('combo');
+const missesEl = document.getElementById('misses');
 const currentReactionEl = document.getElementById('currentReactionTime');
 const bestReactionEl = document.getElementById('bestReactionTime');
 const reactionBar = document.getElementById('reactionBar');
@@ -685,6 +703,7 @@ function updateUI() {
   levelEl.textContent = level;
   timerEl.textContent = gameTime;
   comboEl.textContent = combo;
+  missesEl.textContent = misses;
   currentReactionEl.textContent = currentReactionTime.toFixed(2) + 's';
   bestReactionEl.textContent = bestReactionTime.toFixed(2) + 's';
   progressBar.style.width = `${(gameTime / 30) * 100}%`;
@@ -710,6 +729,7 @@ function startGame() {
   isPaused = false;
   isShapeChanging = false;
   combo = 0;
+  misses = 0;
   currentReactionTime = 0;
   
   // Initialize sound system on first user interaction
@@ -761,6 +781,7 @@ function endGame() {
     <div>Level Reached: ${level}</div>
     <div>Best Reaction: ${bestReactionTime.toFixed(2)}s</div>
     <div>Max Combo: ${combo}</div>
+    <div style="color: #ff6666;">Misses: ${misses}</div>
     ${score > 0 ? `<div style="margin-top: 10px; color: #00ffff;">Added to Leaderboard!</div>` : ''}
   `;
 }
@@ -986,11 +1007,33 @@ function handleClick(event) {
     updateUI();
     spawnTarget();
   } else {
-    // Miss penalty - reset combo
+    // Miss penalty - increment miss counter, lose time, and reset combo
+    misses++;
+    
+    // Time penalty for missing (lose 2 seconds)
+    gameTime = Math.max(0, gameTime - 2);
+    
+    // Play miss sound and show visual feedback
+    soundManager.playMiss(); // 🎵 MISS SOUND
+    
+    // Reset combo if any
     if (combo > 0) {
       resetCombo();
       showBonusNotification('COMBO LOST!', 'combo');
     }
+    
+    // Show miss notifications
+    showFloatingNotification('-2s TIME!', 'penalty');
+    showBonusNotification('MISSED! -2 SECONDS', 'miss');
+    showCriticalNotification('❌ MISS!', 'miss');
+    
+    // Flash the misses counter to draw attention
+    if (missesEl) {
+      missesEl.classList.add('penalty-flash');
+      setTimeout(() => missesEl.classList.remove('penalty-flash'), 600);
+    }
+    
+    updateUI();
   }
 }
 
@@ -1122,6 +1165,10 @@ document.getElementById('testCombo').addEventListener('click', () => {
 
 document.getElementById('testTimeBonus').addEventListener('click', () => {
   soundManager.initialize().then(() => soundManager.playTimeBonus());
+});
+
+document.getElementById('testMiss').addEventListener('click', () => {
+  soundManager.initialize().then(() => soundManager.playMiss());
 });
 
 window.addEventListener('click', handleClick);
