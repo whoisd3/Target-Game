@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#003366;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+    </radialGradient>
+    <radialGradient id="targetGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#00ffff;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#0080ff;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#00ffff;stop-opacity:0.6" />
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bgGrad)" rx="80"/>
+  
+  <!-- Outer target ring -->
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#00ffff" stroke-width="8" opacity="0.6" filter="url(#glow)"/>
+  
+  <!-- Middle target ring -->
+  <circle cx="256" cy="256" r="140" fill="none" stroke="#00ffff" stroke-width="6" opacity="0.8" filter="url(#glow)"/>
+  
+  <!-- Inner target ring -->
+  <circle cx="256" cy="256" r="80" fill="none" stroke="#00ffff" stroke-width="4" opacity="1" filter="url(#glow)"/>
+  
+  <!-- Center target -->
+  <circle cx="256" cy="256" r="30" fill="url(#targetGrad)" filter="url(#glow)"/>
+  
+  <!-- Crosshair -->
+  <line x1="256" y1="200" x2="256" y2="312" stroke="#ffffff" stroke-width="3" opacity="0.9"/>
+  <line x1="200" y1="256" x2="312" y2="256" stroke="#ffffff" stroke-width="3" opacity="0.9"/>
+  
+  <!-- Particles effect -->
+  <circle cx="350" cy="150" r="3" fill="#00ffff" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="400" cy="200" r="2" fill="#0080ff" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="120" cy="350" r="2.5" fill="#00ffff" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.3;0.7" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="80" cy="180" r="2" fill="#0080ff" opacity="0.5">
+    <animate attributeName="opacity" values="0.5;0.2;0.5" dur="2.2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Game title hint -->
+  <text x="256" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#00ffff" opacity="0.8">TARGET NEXUS</text>
+</svg>

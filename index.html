@@ -2,8 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Target Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Target Nexus - 3D Target Game</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="A futuristic 3D target shooting game with particle effects and multiple shapes">
+    <meta name="keywords" content="game, target, shooting, 3D, WebGL, mobile, PWA">
+    <meta name="author" content="Target Nexus">
+    <meta name="robots" content="index, follow">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#00ffff">
+    <meta name="msapplication-TileColor" content="#000000">
+    <meta name="msapplication-navbutton-color" content="#00ffff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- PWA Display -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Target Nexus">
+    <meta name="application-name" content="Target Nexus">
+    
+    <!-- iOS Splash Screens -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Icons for various devices -->
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/icons/icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="/icons/icon-57x57.png">
+    
+    <!-- Android Chrome Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+    <meta name="msapplication-square70x70logo" content="/icons/icon-70x70.png">
+    <meta name="msapplication-square150x150logo" content="/icons/icon-150x150.png">
+    <meta name="msapplication-wide310x150logo" content="/icons/icon-310x150.png">
+    <meta name="msapplication-square310x310logo" content="/icons/icon-310x310.png">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Target Nexus - 3D Target Game">
+    <meta property="og:description" content="A futuristic 3D target shooting game with particle effects and multiple shapes">
+    <meta property="og:image" content="/icons/icon-512x512.png">
+    <meta property="og:url" content="/">
+    <meta property="og:site_name" content="Target Nexus">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Target Nexus - 3D Target Game">
+    <meta name="twitter:description" content="A futuristic 3D target shooting game with particle effects and multiple shapes">
+    <meta name="twitter:image" content="/icons/icon-512x512.png">
+    
+    <!-- Performance and Security -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="address=no">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js" as="script">
+    
+    <!-- Audio Library -->
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,10 +95,60 @@
                 <button id="playButton" class="menu-btn primary">PLAY GAME</button>
                 <button id="leaderboardButton" class="menu-btn">LEADERBOARD</button>
                 <button id="settingsButton" class="menu-btn">SETTINGS</button>
+                <button id="howToInstallButton" class="menu-btn">📱 HOW TO INSTALL</button>
             </div>
             <div class="game-description">
                 <p>Click the particle targets as fast as you can!</p>
                 <p>Level up to unlock new shapes and colors.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Mode Selection Menu -->
+    <div id="modeSelectMenu" class="overlay-menu hidden">
+        <div class="menu-container">
+            <h2 class="menu-title">🎮 SELECT GAME MODE</h2>
+            <div class="game-modes">
+                <div class="mode-card" data-mode="classic">
+                    <div class="mode-icon">🎯</div>
+                    <h3>Classic Mode</h3>
+                    <p>Standard target shooting with increasing difficulty. Perfect your aim and reaction time!</p>
+                    <div class="mode-stats">30 seconds • Progressive difficulty</div>
+                </div>
+                
+                <div class="mode-card" data-mode="time_attack">
+                    <div class="mode-icon">⚡</div>
+                    <h3>Time Attack</h3>
+                    <p>Fast-paced action! Hit as many targets as possible in 60 seconds.</p>
+                    <div class="mode-stats">60 seconds • Rapid fire</div>
+                </div>
+                
+                <div class="mode-card" data-mode="survival">
+                    <div class="mode-icon">🛡️</div>
+                    <h3>Survival Mode</h3>
+                    <p>Endless gameplay! Survive as long as you can with limited misses.</p>
+                    <div class="mode-stats">Unlimited time • 5 lives</div>
+                </div>
+                
+                <div class="mode-card" data-mode="precision">
+                    <div class="mode-icon">🔍</div>
+                    <h3>Precision Mode</h3>
+                    <p>Ultimate accuracy challenge! Smaller targets, perfect precision required.</p>
+                    <div class="mode-stats">45 seconds • No misses allowed</div>
+                </div>
+                
+                <div class="mode-card" data-mode="multiplayer">
+                    <div class="mode-icon">👥</div>
+                    <h3>Multiplayer</h3>
+                    <p>Compete against other players in real-time! [Coming Soon]</p>
+                    <div class="mode-stats">Real-time • Global competition</div>
+                </div>
+            </div>
+            <div class="menu-buttons">
+                <button id="startSelectedModeBtn" class="menu-btn primary" disabled>
+                    <span id="startButtonText">SELECT A MODE</span>
+                </button>
+                <button id="backFromModeSelectBtn" class="menu-btn">BACK</button>
             </div>
         </div>
     </div>
@@ -50,10 +178,73 @@
                     <input type="checkbox" id="soundToggle" checked> Sound Effects
                 </label>
                 <label>
+                    Sound Volume: 
+                    <input type="range" id="volumeSlider" min="0" max="100" value="70">
+                    <span id="volumeValue">70%</span>
+                </label>
+                <label>
                     <input type="checkbox" id="particleToggle" checked> Background Particles
                 </label>
+                <label>
+                    <input type="checkbox" id="timeBonusToggle" checked> Time Bonuses
+                </label>
+            </div>
+            <div class="sound-test-section">
+                <h4 style="color: #00ffff; margin-bottom: 10px;">🎵 Sound Test</h4>
+                <div class="sound-test-buttons">
+                    <button id="testTargetHit" class="test-btn">Target Hit</button>
+                    <button id="testLevelUp" class="test-btn">Level Up</button>
+                    <button id="testCombo" class="test-btn">Combo</button>
+                    <button id="testTimeBonus" class="test-btn">Time Bonus</button>
+                    <button id="testMiss" class="test-btn">Miss</button>
+                </div>
             </div>
             <button id="backFromSettingsBtn" class="menu-btn">BACK</button>
+        </div>
+    </div>
+
+    <!-- How to Install Menu -->
+    <div id="howToInstallMenu" class="overlay-menu hidden">
+        <div class="menu-container">
+            <h2 class="menu-title">📱 HOW TO INSTALL</h2>
+            <div class="install-instructions">
+                <div class="install-section">
+                    <h3>🤖 Android (Chrome)</h3>
+                    <ol>
+                        <li>Open this page in Chrome browser</li>
+                        <li>Tap the menu (⋮) in top right</li>
+                        <li>Select "Add to Home Screen"</li>
+                        <li>Tap "Add" to confirm</li>
+                    </ol>
+                </div>
+                <div class="install-section">
+                    <h3>🍎 iPhone/iPad (Safari)</h3>
+                    <ol>
+                        <li>Open this page in Safari browser</li>
+                        <li>Tap the Share button (□↗)</li>
+                        <li>Scroll down and tap "Add to Home Screen"</li>
+                        <li>Tap "Add" to confirm</li>
+                    </ol>
+                </div>
+                <div class="install-section">
+                    <h3>💻 Desktop (Chrome/Edge)</h3>
+                    <ol>
+                        <li>Look for install icon (⊕) in address bar</li>
+                        <li>Click it and select "Install"</li>
+                        <li>Or use browser menu → "Install Target Nexus"</li>
+                    </ol>
+                </div>
+                <div class="install-benefits">
+                    <h4>🌟 Benefits of Installing:</h4>
+                    <ul>
+                        <li>⚡ Faster loading</li>
+                        <li>📱 App icon on home screen</li>
+                        <li>🌐 Works offline</li>
+                        <li>🎮 Full screen gaming</li>
+                    </ul>
+                </div>
+            </div>
+            <button id="backFromInstallBtn" class="menu-btn">BACK</button>
         </div>
     </div>
 
@@ -85,10 +276,17 @@
 
     <!-- HUD (Heads-Up Display) -->
     <div id="hud" class="hidden">
+        <!-- Critical Notifications Zone (Top Left) -->
+        <div id="criticalNotifications" class="critical-notifications-zone">
+            <!-- Level up, combo milestones appear here -->
+        </div>
+        
         <div id="topHud" class="hud-section">
-            <div class="hud-stat">
+            <div class="hud-stat" id="scoreContainer">
                 <span class="hud-label">SCORE</span>
                 <span id="score" class="hud-value">0</span>
+                <!-- Floating score notifications appear here -->
+                <div id="floatingNotifications" class="floating-notifications"></div>
             </div>
             <div class="hud-stat">
                 <span class="hud-label">LEVEL</span>
@@ -97,6 +295,27 @@
             <div class="hud-stat">
                 <span class="hud-label">TIME</span>
                 <span id="reaction" class="hud-value">30</span>
+            </div>
+            <div class="hud-stat">
+                <span class="hud-label">COMBO</span>
+                <span id="combo" class="hud-value">0</span>
+            </div>
+            <div class="hud-stat">
+                <span class="hud-label">MISSES</span>
+                <span id="misses" class="hud-value">0</span>
+            </div>
+        </div>
+        
+        <div id="leftHud" class="hud-section">
+            <div class="reaction-meter">
+                <div class="hud-label">REACTION TIME</div>
+                <div id="currentReactionTime" class="reaction-display">0.00s</div>
+                <div class="reaction-bar-container">
+                    <div id="reactionBar" class="reaction-bar"></div>
+                </div>
+                <div class="reaction-best">
+                    Best: <span id="bestReactionTime">0.00s</span>
+                </div>
             </div>
         </div>
         
@@ -117,8 +336,26 @@
                 <div id="progressBar" class="progress-bar"></div>
             </div>
         </div>
+        
+        <!-- Time Bonus Notifications -->
+        <div id="notificationFeed" class="notification-feed">
+            <div class="feed-title">ACTIVITY FEED</div>
+            <div id="bonusNotifications" class="bonus-notifications">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Combo Multiplier Display -->
+        <div id="comboDisplay" class="combo-display hidden">
+            <div class="combo-text">COMBO x<span id="comboMultiplier">1</span></div>
+            <div class="combo-streak">STREAK ACTIVE!</div>
+        </div>
     </div>
     
+    <!-- Game Enhancement Scripts -->
+    <script src="scripts/particles.js"></script>
+    <script src="scripts/multiplayer.js"></script>
+    <script src="scripts/xr.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
