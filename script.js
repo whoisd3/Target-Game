@@ -915,7 +915,7 @@ function spawnTarget() {
   const newY = (Math.random() - 0.5) * 4;
   targetMesh.position.set(newX, newY, 0);
   
-  // Adjust target size based on game mode
+  // Adjust target size based on game mode and level
   let targetScale = 1;
   if (currentGameMode === GameMode.PRECISION) {
     targetScale = 0.6; // Smaller targets for precision mode
@@ -923,7 +923,15 @@ function spawnTarget() {
     targetScale = 1.2; // Slightly larger for fast-paced mode
   }
   
+  // Progressive size reduction with each level (all modes)
+  const levelSizeReduction = Math.max(0.4, 1 - (level - 1) * 0.03); // Reduces by 3% per level, minimum 40% of original size
+  targetScale *= levelSizeReduction;
+  
   targetMesh.scale.setScalar(targetScale);
+  
+  // Progressive opacity reduction with each level
+  const levelOpacityReduction = Math.max(0.3, 1 - (level - 1) * 0.02); // Reduces by 2% per level, minimum 30% opacity
+  targetMesh.material.opacity = 0.85 * levelOpacityReduction;
   
   // Trigger spawn particle effect
   if (advancedParticles) {
@@ -947,6 +955,12 @@ function updateUI() {
     timerEl.textContent = `Lives: ${5 - misses}`;
     progressBar.style.width = `${((5 - misses) / 5) * 100}%`;
     progressBar.style.backgroundColor = misses >= 3 ? '#ff6666' : '#00ffff';
+  } else if (currentGameMode === GameMode.CLASSIC) {
+    // Classic mode shows both time and lives
+    timerEl.textContent = `${gameTime}s | Lives: ${3 - misses}`;
+    // Progress bar shows time remaining, but color indicates lives status
+    progressBar.style.width = `${(gameTime / 30) * 100}%`;
+    progressBar.style.backgroundColor = misses >= 2 ? '#ff6666' : (misses >= 1 ? '#ffa500' : '#00ffff');
   } else {
     timerEl.textContent = gameTime;
     let maxTime = 30; // Default
@@ -1622,8 +1636,16 @@ function handleClick(event) {
         endGame();
         return;
       }
+    } else if (currentGameMode === GameMode.CLASSIC) {
+      // Classic mode: 3 miss limit like Survival mode but lower threshold
+      if (misses >= 3) {
+        endGame();
+        return;
+      }
+      // Classic mode: Time penalty for missing (but less severe since lives are limited)
+      gameTime = Math.max(0, gameTime - 1);
     } else {
-      // Classic and Time Attack: Time penalty for missing
+      // Time Attack: Time penalty for missing
       gameTime = Math.max(0, gameTime - 2);
     }
     
@@ -1652,7 +1674,11 @@ function handleClick(event) {
       const livesLeft = 5 - misses;
       showFloatingNotification(`${livesLeft} LIVES LEFT!`, 'penalty');
       showBonusNotification(`MISSED! ${livesLeft} LIVES REMAINING`, 'miss');
-    } else if (currentGameMode !== GameMode.PRECISION) {
+    } else if (currentGameMode === GameMode.CLASSIC) {
+      const livesLeft = 3 - misses;
+      showFloatingNotification(`${livesLeft} LIVES LEFT!`, 'penalty');
+      showBonusNotification(`MISSED! ${livesLeft} LIVES REMAINING`, 'miss');
+    } else if (currentGameMode === GameMode.TIME_ATTACK) {
       showFloatingNotification('-2s TIME!', 'penalty');
       showBonusNotification('MISSED! -2 SECONDS', 'miss');
     }
