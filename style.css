@@ -1,3 +1,6 @@
+/* Import futuristic font - Must be first */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
 /* Reset and base styles */
 * {
   margin: 0;
@@ -12,9 +15,6 @@ body {
   color: #fff;
   user-select: none;
 }
-
-/* Import futuristic font */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
 /* Canvas styling */
 canvas#webglCanvas {
