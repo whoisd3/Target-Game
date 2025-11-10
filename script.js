@@ -165,7 +165,6 @@ function handleURLParams() {
 // Game state management
 const GameState = {
   MENU: 'menu',
-  MODE_SELECT: 'mode_select',
   PLAYING: 'playing',
   PAUSED: 'paused',
   GAME_OVER: 'game_over',
@@ -173,24 +172,13 @@ const GameState = {
   SETTINGS: 'settings'
 };
 
-// Game Modes
-const GameMode = {
-  CLASSIC: 'classic',
-  TIME_ATTACK: 'time_attack',
-  SURVIVAL: 'survival',
-  PRECISION: 'precision',
-  MULTIPLAYER: 'multiplayer'
-};
-
 let currentState = GameState.MENU;
-let currentGameMode = GameMode.CLASSIC;
 let gameSettings = {
   playerName: 'Anonymous',
   soundEnabled: true,
   particlesEnabled: true,
   volume: 70,
-  timeBonusEnabled: true,
-  selectedGameMode: GameMode.CLASSIC
+  timeBonusEnabled: true
 };
 
 // Enhanced Sound System using Howler.js
@@ -555,83 +543,9 @@ class SoundManager {
       this.currentBackgroundMusic.volume(volume);
     }
   }
-  
-  getMusicForGameMode(gameMode) {
-    switch (gameMode) {
-      case GameMode.TIME_ATTACK:
-      case GameMode.SURVIVAL:
-        return 'intense';
-      case GameMode.PRECISION:
-      case GameMode.CLASSIC:
-      default:
-        return 'gameplay';
-    }
-  }
 }
 
 const soundManager = new SoundManager();
-
-// Multiplayer System
-let multiplayerManager = null;
-let multiplayerUI = null;
-let isMultiplayerMode = false;
-
-// Initialize multiplayer if supported
-function initializeMultiplayer() {
-  if (typeof MultiplayerManager !== 'undefined') {
-    multiplayerManager = new MultiplayerManager();
-    multiplayerUI = new MultiplayerUI(multiplayerManager);
-    console.log('🎮 Multiplayer system ready');
-    return true;
-  } else {
-    console.warn('⚠️ Multiplayer not available');
-    return false;
-  }
-}
-
-// Advanced Particle System
-let advancedParticles = null;
-
-// Initialize advanced particle system
-function initializeAdvancedParticles() {
-  if (typeof AdvancedParticleSystem !== 'undefined') {
-    advancedParticles = new AdvancedParticleSystem(scene, renderer);
-    console.log('🌟 Advanced particle system ready');
-    return true;
-  } else {
-    console.warn('⚠️ Advanced particles not available');
-    return false;
-  }
-}
-
-// XR (VR/AR) System
-let xrManager = null;
-let xrUIManager = null;
-
-// Initialize XR system
-function initializeXR() {
-  if (typeof XRManager !== 'undefined') {
-    xrManager = new XRManager(scene, camera, renderer);
-    xrUIManager = new XRUIManager(xrManager);
-    
-    // Set up XR event handlers
-    xrManager.onTargetHit = (position) => {
-      // Handle XR target hit
-      handleXRTargetHit(position);
-    };
-    
-    xrManager.onTargetMiss = () => {
-      // Handle XR target miss
-      handleXRTargetMiss();
-    };
-    
-    console.log('🥽 XR system ready');
-    return true;
-  } else {
-    console.warn('⚠️ XR not available');
-    return false;
-  }
-}
 
 // Three.js setup
 const scene = new THREE.Scene();
@@ -679,7 +593,7 @@ let score = 0, highScore = 0, level = 1, gameTime = 30, timer = null;
 let spawnDelay = 1500, shapeIndex = 0, reactionStart = null;
 let isPaused = false, isShapeChanging = false;
 let combo = 0, comboTimer = null, bestReactionTime = 999;
-let currentReactionTime = 0, misses = 0;
+let currentReactionTime = 0, misses = 0, lives = 3;
 let gameStartTime = 0; // Track when game started to prevent immediate clicks
 const shapes = ['sphere', 'cube', 'torus', 'icosahedron', 'octahedron'];
 const colorMap = [0xff69b4, 0x00ffff, 0x00ff00, 0xffa500, 0xff0000];
@@ -735,21 +649,12 @@ function getLeaderboard() {
   return saved ? JSON.parse(saved) : [];
 }
 
-function saveScore(playerName, score, gameMode = 'classic') {
+function saveScore(playerName, score) {
   const leaderboard = getLeaderboard();
-  const modeDisplay = {
-    'classic': '🎯',
-    'time_attack': '⚡',
-    'survival': '🛡️',
-    'precision': '🔍',
-    'multiplayer': '👥'
-  };
   
   leaderboard.push({ 
     name: playerName, 
     score: score, 
-    mode: gameMode,
-    modeIcon: modeDisplay[gameMode] || '🎯',
     date: new Date().toLocaleDateString() 
   });
   leaderboard.sort((a, b) => b.score - a.score);
@@ -769,7 +674,6 @@ function displayLeaderboard() {
   listEl.innerHTML = leaderboard.map((entry, index) => `
     <div class="leaderboard-entry">
       <span class="leaderboard-rank">#${index + 1}</span>
-      <span class="leaderboard-mode">${entry.modeIcon || '🎯'}</span>
       <span class="leaderboard-name">${entry.name}</span>
       <span class="leaderboard-score">${entry.score}</span>
     </div>
@@ -788,70 +692,30 @@ function setState(newState) {
   switch (newState) {
     case GameState.MENU:
       document.getElementById('mainMenu').classList.remove('hidden');
-      soundManager.playBackgroundMusic('menu');
-      break;
-    case GameState.MODE_SELECT:
-      document.getElementById('modeSelectMenu').classList.remove('hidden');
-      soundManager.playBackgroundMusic('menu');
-      // Auto-select classic mode if none is selected
-      if (!currentGameMode) {
-        currentGameMode = GameMode.CLASSIC;
-        setTimeout(() => {
-          const classicCard = document.querySelector('.mode-card[data-mode="classic"]');
-          if (classicCard) {
-            classicCard.classList.add('selected');
-          }
-          // Update start button
-          const startBtn = document.getElementById('startSelectedModeBtn');
-          const startBtnText = document.getElementById('startButtonText');
-          if (startBtn && startBtnText) {
-            startBtn.disabled = false;
-            startBtn.classList.remove('disabled');
-            startBtnText.textContent = 'START GAME';
-          }
-        }, 100);
-      } else {
-        // Mode already selected, update button immediately
-        const startBtn = document.getElementById('startSelectedModeBtn');
-        const startBtnText = document.getElementById('startButtonText');
-        if (startBtn && startBtnText) {
-          startBtn.disabled = false;
-          startBtn.classList.remove('disabled');
-          startBtnText.textContent = 'START GAME';
-        }
-        // Ensure the selected mode card is highlighted
-        setTimeout(() => {
-          const selectedCard = document.querySelector(`.mode-card[data-mode="${currentGameMode}"]`);
-          if (selectedCard) {
-            document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
-            selectedCard.classList.add('selected');
-          }
-        }, 100);
-      }
+      if (soundManager.playBackgroundMusic) soundManager.playBackgroundMusic('menu');
       break;
     case GameState.PLAYING:
       document.getElementById('hud').classList.remove('hidden');
-      const musicTrack = soundManager.getMusicForGameMode(currentGameMode);
-      soundManager.playBackgroundMusic(musicTrack);
+      if (soundManager.playBackgroundMusic) soundManager.playBackgroundMusic('gameplay');
       break;
     case GameState.PAUSED:
       document.getElementById('hud').classList.remove('hidden');
       document.getElementById('pauseMenu').classList.remove('hidden');
       // Keep current music but lower volume
-      soundManager.setBackgroundMusicVolume(0.1);
+      if (soundManager.setBackgroundMusicVolume) soundManager.setBackgroundMusicVolume(0.1);
       break;
     case GameState.GAME_OVER:
       document.getElementById('gameOverMenu').classList.remove('hidden');
-      soundManager.fadeOutBackgroundMusic(2000);
+      if (soundManager.fadeOutBackgroundMusic) soundManager.fadeOutBackgroundMusic(2000);
       break;
     case GameState.LEADERBOARD:
       document.getElementById('leaderboardMenu').classList.remove('hidden');
       displayLeaderboard();
-      soundManager.playBackgroundMusic('menu');
+      if (soundManager.playBackgroundMusic) soundManager.playBackgroundMusic('menu');
       break;
     case GameState.SETTINGS:
       document.getElementById('settingsMenu').classList.remove('hidden');
-      soundManager.playBackgroundMusic('menu');
+      if (soundManager.playBackgroundMusic) soundManager.playBackgroundMusic('menu');
       break;
     case 'install':
       document.getElementById('howToInstallMenu').classList.remove('hidden');
@@ -925,11 +789,6 @@ function spawnTarget() {
   
   targetMesh.scale.setScalar(targetScale);
   
-  // Trigger spawn particle effect
-  if (advancedParticles) {
-    advancedParticles.triggerSpawnEffect(targetMesh.position.clone());
-  }
-  
   reactionStart = performance.now();
 }
 
@@ -942,31 +801,12 @@ function updateUI() {
   currentReactionEl.textContent = currentReactionTime.toFixed(2) + 's';
   bestReactionEl.textContent = bestReactionTime.toFixed(2) + 's';
   
-  // Update timer and progress bar based on game mode
-  if (currentGameMode === GameMode.SURVIVAL) {
-    timerEl.textContent = `Lives: ${5 - misses}`;
-    progressBar.style.width = `${((5 - misses) / 5) * 100}%`;
-    progressBar.style.backgroundColor = misses >= 3 ? '#ff6666' : '#00ffff';
-  } else {
-    timerEl.textContent = gameTime;
-    let maxTime = 30; // Default
-    
-    switch (currentGameMode) {
-      case GameMode.TIME_ATTACK:
-        maxTime = 60;
-        break;
-      case GameMode.PRECISION:
-        maxTime = 45;
-        break;
-      case GameMode.CLASSIC:
-      default:
-        maxTime = 30;
-        break;
-    }
-    
-    progressBar.style.width = `${(gameTime / maxTime) * 100}%`;
-    progressBar.style.backgroundColor = gameTime <= 10 ? '#ff6666' : '#00ffff';
-  }
+  // Update timer and lives display
+  timerEl.textContent = `${gameTime}s | Lives: ${lives}`;
+  
+  // Update progress bar based on time
+  progressBar.style.width = `${(gameTime / 30) * 100}%`;
+  progressBar.style.backgroundColor = gameTime <= 10 || lives <= 1 ? '#ff6666' : '#00ffff';
   
   // Update reaction bar (green = fast, red = slow)
   const reactionPercent = Math.min((currentReactionTime / 2) * 100, 100);
@@ -985,25 +825,19 @@ function startGame() {
   // Reset basic game variables
   score = 0; 
   level = 1; 
+  gameTime = 30;
+  spawnDelay = 1500;
   isPaused = false;
   isShapeChanging = false;
   combo = 0;
   misses = 0;
+  lives = 3; // Reset lives to 3 for classic mode
   currentReactionTime = 0;
   gameStartTime = performance.now(); // Record when game started
   
   // Initialize sound system on first user interaction
   soundManager.initialize();
   soundManager.playGameStart(); // 🎵 GAME START SOUND
-  
-  // Configure game based on selected mode
-  configureGameMode();
-  
-  // Set up XR if active
-  if (xrManager) {
-    xrManager.setGameActive(true);
-    xrManager.setTargetMesh(targetMesh);
-  }
   
   setState(GameState.PLAYING);
   updateUI(); 
@@ -1014,52 +848,16 @@ function startGame() {
   
   timer = setInterval(() => {
     if (!isPaused && currentState === GameState.PLAYING) {
-      if (currentGameMode === GameMode.SURVIVAL) {
-        // Survival mode doesn't have a time limit, but check for game over conditions
-        if (misses >= 5) {
-          endGame();
-        }
-      } else {
-        // All other modes have time limits
-        gameTime--;
-        updateUI();
-        if (gameTime <= 0) {
-          endGame();
-        }
+      gameTime--;
+      updateUI();
+      if (gameTime <= 0 || lives <= 0) {
+        endGame();
       }
     }
   }, 1000);
 }
 
 // Configure game settings based on selected mode
-function configureGameMode() {
-  switch (currentGameMode) {
-    case GameMode.CLASSIC:
-      gameTime = 30;
-      spawnDelay = 1500;
-      break;
-      
-    case GameMode.TIME_ATTACK:
-      gameTime = 60;
-      spawnDelay = 800; // Faster spawning
-      break;
-      
-    case GameMode.SURVIVAL:
-      gameTime = 999; // Effectively unlimited
-      spawnDelay = 1200;
-      break;
-      
-    case GameMode.PRECISION:
-      gameTime = 45;
-      spawnDelay = 2000; // Slower, more precise
-      break;
-      
-    default:
-      gameTime = 30;
-      spawnDelay = 1500;
-  }
-}
-
 function endGame() {
   clearInterval(timer);
   if (comboTimer) clearTimeout(comboTimer);
@@ -1078,39 +876,19 @@ function endGame() {
     saveGameData();
   }
   
-  // Save score to leaderboard with mode info
-  saveScore(gameSettings.playerName, score, currentGameMode);
-  
-  // Generate mode-specific final display
-  let modeInfo = '';
-  let modeTitle = '';
-  
-  switch (currentGameMode) {
-    case GameMode.CLASSIC:
-      modeTitle = '🎯 Classic Mode';
-      break;
-    case GameMode.TIME_ATTACK:
-      modeTitle = '⚡ Time Attack Mode';
-      break;
-    case GameMode.SURVIVAL:
-      modeTitle = '🛡️ Survival Mode';
-      modeInfo = `<div>Survival Time: ${Math.max(0, 999 - gameTime)}s</div>`;
-      break;
-    case GameMode.PRECISION:
-      modeTitle = '🔍 Precision Mode';
-      modeInfo = misses === 0 ? '<div style="color: #00ff00;">🎉 PERFECT! No misses!</div>' : '<div style="color: #ff6666;">💥 Game over on miss</div>';
-      break;
-  }
+  // Save score to leaderboard
+  saveScore(gameSettings.playerName, score);
   
   // Display final score
+  const endReason = lives <= 0 ? 'No Lives Left!' : 'Time Up!';
   document.getElementById('finalScoreDisplay').innerHTML = `
-    <div style="font-size: 1.2em; margin-bottom: 15px; color: #00ffff;">${modeTitle}</div>
+    <div style="font-size: 1.2em; margin-bottom: 15px; color: #00ffff;">🎯 Classic Mode - ${endReason}</div>
     <div style="font-size: 1.5em; margin-bottom: 10px;">Final Score: ${score}</div>
     <div>Level Reached: ${level}</div>
     <div>Best Reaction: ${bestReactionTime.toFixed(2)}s</div>
     <div>Max Combo: ${combo}</div>
     <div style="color: #ff6666;">Misses: ${misses}</div>
-    ${modeInfo}
+    <div>Lives Used: ${3 - lives}/3</div>
     ${score > 0 ? `<div style="margin-top: 10px; color: #00ffff;">Added to Leaderboard!</div>` : ''}
   `;
 }
@@ -1297,86 +1075,6 @@ function showNotification(message, type = 'info') {
 }
 
 // XR Event Handlers
-function handleXRTargetHit(position) {
-  // Simulate a target hit in XR mode
-  if (currentState === GameState.PLAYING && !isPaused) {
-    const reactionTime = (performance.now() - reactionStart) / 1000;
-    currentReactionTime = reactionTime;
-    
-    // Update best reaction time
-    if (reactionTime < bestReactionTime) {
-      bestReactionTime = reactionTime;
-      showBonusNotification('NEW BEST REACTION!', 'reaction');
-    }
-    
-    // Combo system
-    combo++;
-    if (comboTimer) clearTimeout(comboTimer);
-    comboTimer = setTimeout(resetCombo, 3000);
-    
-    // Score calculation
-    const basePoints = 1;
-    const comboMultiplier = Math.min(combo, 10);
-    const points = basePoints * comboMultiplier;
-    score += points;
-    
-    // Sound and particle effects
-    soundManager.playTargetHit();
-    if (advancedParticles) {
-      advancedParticles.triggerHitEffect(new THREE.Vector3().copy(position), comboMultiplier);
-    }
-    
-    // Level progression
-    if (score % 5 === 0) {
-      level++;
-      soundManager.playLevelUp();
-      if (advancedParticles) {
-        advancedParticles.triggerLevelUpEffect();
-      }
-      showBonusNotification(`LEVEL ${level}!`, 'level');
-    }
-    
-    updateUI();
-    spawnTarget();
-  }
-}
-
-function handleXRTargetMiss() {
-  // Handle miss in XR mode
-  if (currentState === GameState.PLAYING && !isPaused) {
-    misses++;
-    
-    // Handle misses based on game mode
-    if (currentGameMode === GameMode.PRECISION) {
-      endGame();
-      return;
-    } else if (currentGameMode === GameMode.SURVIVAL) {
-      if (misses >= 5) {
-        endGame();
-        return;
-      }
-    } else {
-      gameTime = Math.max(0, gameTime - 2);
-    }
-    
-    soundManager.playMiss();
-    if (advancedParticles) {
-      const missPos = new THREE.Vector3(
-        (Math.random() - 0.5) * 6,
-        (Math.random() - 0.5) * 4,
-        0
-      );
-      advancedParticles.triggerMissEffect(missPos);
-    }
-    
-    if (combo > 0) {
-      resetCombo();
-    }
-    
-    updateUI();
-  }
-}
-
 // Critical notifications (level up, major combos) - slides in from left
 function showCriticalNotification(text, type = 'normal') {
   const criticalContainer = document.getElementById('criticalNotifications');
@@ -1487,11 +1185,6 @@ function resetCombo() {
 function addTimeBonus(seconds, reason) {
   if (!gameSettings.timeBonusEnabled) return;
   
-  // Disable time bonuses for Time Attack mode to maintain strict 60-second limit
-  if (currentGameMode === GameMode.TIME_ATTACK) {
-    return;
-  }
-  
   gameTime += seconds;
   soundManager.playTimeBonus(); // 🎵 TIME BONUS SOUND
   showBonusNotification(`+${seconds}s TIME! ${reason}`, 'time');
@@ -1550,14 +1243,6 @@ function handleClick(event) {
       soundManager.playComboSound(combo); // 🎵 COMBO SOUND
     }
     
-    // Particle effects
-    if (advancedParticles) {
-      advancedParticles.triggerHitEffect(targetMesh.position.clone(), comboMultiplier);
-      if (combo >= 5) {
-        advancedParticles.triggerComboEffect(targetMesh.position.clone(), combo);
-      }
-    }
-    
     // Visual feedback
     scoreEl.classList.add('updated');
     setTimeout(() => scoreEl.classList.remove('updated'), 400);
@@ -1596,11 +1281,6 @@ function handleClick(event) {
       showBonusNotification(`LEVEL ${level}!`, 'level');
       showCriticalNotification(`⬆️ LEVEL ${level}!`, 'level');
       
-      // Level up particle effect
-      if (advancedParticles) {
-        advancedParticles.triggerLevelUpEffect();
-      }
-      
       // Level up time bonus
       addTimeBonus(3, 'LEVEL UP');
     }
@@ -1608,38 +1288,12 @@ function handleClick(event) {
     updateUI();
     spawnTarget();
   } else {
-    // Miss penalty - increment miss counter, lose time, and reset combo
+    // Miss penalty - increment miss counter, lose a life
     misses++;
-    
-    // Handle misses based on game mode
-    if (currentGameMode === GameMode.PRECISION) {
-      // Precision mode: Game over on any miss
-      endGame();
-      return;
-    } else if (currentGameMode === GameMode.SURVIVAL) {
-      // Survival mode: Check if max misses reached (handled in timer)
-      if (misses >= 5) {
-        endGame();
-        return;
-      }
-    } else {
-      // Classic and Time Attack: Time penalty for missing
-      gameTime = Math.max(0, gameTime - 2);
-    }
+    lives--;
     
     // Play miss sound and show visual feedback
     soundManager.playMiss(); // 🎵 MISS SOUND
-    
-    // Particle effects for miss
-    if (advancedParticles) {
-      // Create a miss effect at a random position around the screen
-      const missPos = new THREE.Vector3(
-        (Math.random() - 0.5) * 6,
-        (Math.random() - 0.5) * 4,
-        0
-      );
-      advancedParticles.triggerMissEffect(missPos);
-    }
     
     // Reset combo if any
     if (combo > 0) {
@@ -1647,14 +1301,14 @@ function handleClick(event) {
       showBonusNotification('COMBO LOST!', 'combo');
     }
     
-    // Show appropriate miss notifications based on mode
-    if (currentGameMode === GameMode.SURVIVAL) {
-      const livesLeft = 5 - misses;
+    // Show miss notifications with lives remaining
+    const livesLeft = lives;
+    if (livesLeft > 0) {
       showFloatingNotification(`${livesLeft} LIVES LEFT!`, 'penalty');
       showBonusNotification(`MISSED! ${livesLeft} LIVES REMAINING`, 'miss');
-    } else if (currentGameMode !== GameMode.PRECISION) {
-      showFloatingNotification('-2s TIME!', 'penalty');
-      showBonusNotification('MISSED! -2 SECONDS', 'miss');
+    } else {
+      showFloatingNotification('GAME OVER!', 'penalty');
+      showBonusNotification('NO LIVES LEFT!', 'miss');
     }
     
     showCriticalNotification('❌ MISS!', 'miss');
@@ -1672,89 +1326,10 @@ function handleClick(event) {
 // Event Listeners
 document.getElementById('playButton').addEventListener('click', () => {
   soundManager.playButtonClick(); // 🎵 BUTTON CLICK SOUND
-  setState(GameState.MODE_SELECT);
+  startGame(); // Go directly to game
 });
 
 // Game Mode Selection Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize multiplayer system
-  initializeMultiplayer();
-  
-  // Initialize advanced particle system
-  initializeAdvancedParticles();
-  
-  // Initialize XR system
-  initializeXR();
-  
-  // Create XR buttons if supported
-  if (xrUIManager && (xrManager?.vrSupported || xrManager?.arSupported)) {
-    xrUIManager.createXRButtons();
-  }
-  
-  // Mode card selection
-  document.querySelectorAll('.mode-card').forEach(card => {
-    card.addEventListener('click', () => {
-      soundManager.playButtonClick();
-      
-      // Handle multiplayer mode
-      if (card.dataset.mode === 'multiplayer') {
-        if (multiplayerManager) {
-          handleMultiplayerModeSelection();
-        } else {
-          showNotification('Multiplayer not available', 'error');
-        }
-        return;
-      }
-      
-      // Remove previous selection
-      document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
-      
-      // Select current card
-      card.classList.add('selected');
-      currentGameMode = card.dataset.mode;
-      gameSettings.selectedGameMode = currentGameMode;
-      
-      // Update start button
-      const startBtn = document.getElementById('startSelectedModeBtn');
-      const startBtnText = document.getElementById('startButtonText');
-      if (startBtn && startBtnText) {
-        startBtn.disabled = false;
-        startBtn.classList.remove('disabled');
-        startBtnText.textContent = 'START GAME';
-      }
-      
-      saveGameData();
-    });
-  });
-  
-  // Start selected mode button
-  document.getElementById('startSelectedModeBtn').addEventListener('click', () => {
-    // Ensure a mode is selected - default to classic if none selected
-    if (!currentGameMode) {
-      currentGameMode = GameMode.CLASSIC;
-      // Visually select the classic mode card
-      document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
-      const classicCard = document.querySelector('.mode-card[data-mode="classic"]');
-      if (classicCard) {
-        classicCard.classList.add('selected');
-      }
-    }
-    
-    soundManager.playButtonClick();
-    
-    // Add a small delay before starting the game to prevent touch issues
-    setTimeout(() => {
-      startGame();
-    }, 150);
-  });
-  
-  // Back from mode select
-  document.getElementById('backFromModeSelectBtn').addEventListener('click', () => {
-    soundManager.playButtonClick();
-    setState(GameState.MENU);
-  });
-});
-
 document.getElementById('playAgainBtn').addEventListener('click', () => {
   soundManager.playButtonClick(); // 🎵 BUTTON CLICK SOUND
   startGame();
@@ -1979,24 +1554,6 @@ function animate() {
   if (!isPaused) {
     targetMesh.rotation.y += 0.01;
     targetMesh.rotation.x += 0.005;
-  }
-  
-  // Update advanced particle system
-  if (advancedParticles) {
-    advancedParticles.update();
-  }
-  
-  // Update XR system
-  if (xrManager && xrManager.isXRActive) {
-    const frame = renderer.xr.getFrame();
-    const referenceSpace = renderer.xr.getReferenceSpace();
-    
-    xrManager.update(frame, referenceSpace);
-    
-    // Update XR UI
-    if (xrManager.xrMode) {
-      xrManager.updateXRUI(score, level, gameTime);
-    }
   }
   
   renderer.render(scene, camera);
