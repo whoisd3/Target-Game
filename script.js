@@ -305,311 +305,106 @@ class SoundManager {
     osc.start(this.audioContext.currentTime);
     osc.stop(this.audioContext.currentTime + duration);
   }
-        
-          src: [
-            // Power-up/magic sound
-          ],
-          volume: 0.3,
-          preload: true
-        }),
-        
-          src: [
-            // Quick combo hit
-          ],
-          volume: 0.25,
-          preload: true
-        }),
-        
-          src: [
-            // Game start fanfare
-          ],
-          volume: 0.4,
-          preload: true
-        }),
-        
-          src: [
-            // Sad game over sound
-          ],
-          volume: 0.35,
-          preload: true
-        }),
-        
-          src: [
-            // UI click sound
-          ],
-          volume: 0.2,
-          preload: true
-        }),
-        
-          src: [
-            // Gentle pause tone
-          ],
-          volume: 0.3,
-          preload: true
-        }),
-        
-          src: [
-            // Transformation sound
-          ],
-          volume: 0.25,
-          preload: true
-        }),
-        
-          src: [
-            // Miss sound - disappointed/negative tone
-          ],
-          volume: 0.35,
-          preload: true
-        }),
-        
-        // Background music tracks
-        backgroundMusic: {
-            src: [
-              // Menu ambient music - placeholder for now, using synthetic
-            ],
-            volume: 0.15,
-            loop: true,
-            preload: true
-          }),
-          
-            src: [
-              // Gameplay music - energetic background track
-            ],
-            volume: 0.2,
-            loop: true,
-            preload: true
-          }),
-          
-            src: [
-              // Intense music for high-speed modes
-            ],
-            volume: 0.18,
-            loop: true,
-            preload: true
-          })
-        }
-      };
-
-      // Since we can't easily access external sound files, let's create better synthetic sounds
-      this.createSyntheticSounds();
-      
-      this.initialized = true;
-      this.loadingSounds = false;
-      console.log('Sound system initialized with Howler.js');
-      
-    } catch (error) {
-      console.warn('Sound system initialization failed, using fallback:', error);
-      this.createSyntheticSounds();
-      this.initialized = true;
-      this.loadingSounds = false;
-    }
-  }
-
-  // Create better synthetic sounds as fallback
-  createSyntheticSounds() {
-    // We'll create better synthetic sounds using Howler's built-in capabilities
-    // Since external files aren't available, we'll enhance the synthetic approach
-    this.syntheticMode = true;
-  }
-
-  // Helper method to play with volume control
-  playSound(soundName, volumeMultiplier = 1) {
-    if (!gameSettings.soundEnabled || !this.initialized) return;
-
-    const volume = (gameSettings.volume / 100) * volumeMultiplier;
-    
-    if (this.sounds[soundName] && !this.syntheticMode) {
-      this.sounds[soundName].volume(volume);
-      this.sounds[soundName].play();
-    } else {
-      // Fallback to enhanced synthetic sounds
-      this.createEnhancedTone(soundName, volume);
-    }
-  }
-
-  // Enhanced synthetic sound generation
-  createEnhancedTone(soundType, volume) {
-    if (typeof Howl === 'undefined') {
-      // Fallback to Web Audio if Howler isn't available
-      this.createWebAudioTone(soundType, volume);
-      return;
-    }
-
-    // Create better synthetic sounds based on type
-    const audioContext = Howler.ctx || new (window.AudioContext || window.webkitAudioContext)();
-    
-    switch (soundType) {
-      case 'targetHit':
-        this.createMultiTone([800, 1000], [0.05, 0.03], volume);
-        break;
-      case 'levelUp':
-        this.createMultiTone([400, 600, 800], [0.1, 0.1, 0.2], volume);
-        break;
-      case 'timeBonus':
-        this.createMultiTone([1000, 1200, 1400], [0.1, 0.1, 0.15], volume);
-        break;
-      case 'combo':
-        this.createMultiTone([600 + (Math.random() * 400)], [0.08], volume);
-        break;
-      case 'gameStart':
-        this.createMultiTone([300, 450, 600], [0.15, 0.15, 0.2], volume);
-        break;
-      case 'gameOver':
-        this.createMultiTone([400, 350, 300], [0.2, 0.2, 0.3], volume * 0.8);
-        break;
-      case 'buttonClick':
-        this.createMultiTone([600], [0.05], volume * 0.7);
-        break;
-      case 'pause':
-        this.createMultiTone([400], [0.2], volume);
-        break;
-      case 'shapeChange':
-        this.createMultiTone([500, 700], [0.1, 0.1], volume);
-        break;
-      case 'miss':
-        this.createMultiTone([200, 150], [0.15, 0.2], volume);
-        break;
-    }
-  }
-
-  createMultiTone(frequencies, durations, volume) {
-    frequencies.forEach((freq, index) => {
-      setTimeout(() => {
-        this.createSingleTone(freq, durations[index] || 0.1, volume);
-      }, index * 100);
-    });
-  }
-
-  createSingleTone(frequency, duration, volume) {
-    try {
-      const audioContext = Howler.ctx || new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-      oscillator.type = 'sine';
-      
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-      gainNode.gain.linearRampToValueAtTime(volume * 0.3, audioContext.currentTime + 0.01);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + duration);
-    } catch (error) {
-      console.warn('Tone generation failed:', error);
-    }
-  }
-
-  // Web Audio fallback
-  createWebAudioTone(soundType, volume) {
-    // Previous implementation as fallback
-    // ... (keeping the old implementation for maximum compatibility)
-  }
 
   // Public methods for game events
   playTargetHit() {
-    // 🎵 TARGET HIT SOUND: Satisfying "ping" or "ding" sound
-    this.playSound('targetHit', 1);
+    if (this.sounds.targetHit) {
+      this.sounds.targetHit.play();
+    }
   }
 
   playLevelUp() {
-    // 🎵 LEVEL UP SOUND: Rising pitch celebration sound
-    this.playSound('levelUp', 1.2);
+    if (this.sounds.levelUp) {
+      this.sounds.levelUp.play();
+    }
   }
 
   playTimeBonus() {
-    // 🎵 TIME BONUS SOUND: Magical "chime" or power-up sound
-    this.playSound('timeBonus', 1);
+    if (this.sounds.timeBonus) {
+      this.sounds.timeBonus.play();
+    }
   }
 
   playComboSound(comboCount) {
-    // 🎵 COMBO SOUND: Increasing pitch with combo count
-    const volumeMultiplier = 0.8 + (Math.min(comboCount, 10) * 0.02);
-    this.playSound('combo', volumeMultiplier);
+    if (comboCount >= 10 && this.sounds.comboSounds?.combo10) {
+      this.sounds.comboSounds.combo10.play();
+    } else if (comboCount >= 5 && this.sounds.comboSounds?.combo5) {
+      this.sounds.comboSounds.combo5.play();
+    } else if (comboCount >= 3 && this.sounds.comboSounds?.combo3) {
+      this.sounds.comboSounds.combo3.play();
+    } else if (this.sounds.combo) {
+      this.sounds.combo.play();
+    }
   }
 
   playGameStart() {
-    // 🎵 GAME START SOUND: Energetic startup sound
-    this.playSound('gameStart', 1.2);
+    if (this.sounds.gameStart) {
+      this.sounds.gameStart.play();
+    }
   }
 
   playGameOver() {
-    // 🎵 GAME OVER SOUND: Descending sad trombone effect
-    this.playSound('gameOver', 1);
+    if (this.sounds.gameOver) {
+      this.sounds.gameOver.play();
+    }
   }
 
   playButtonClick() {
-    // 🎵 BUTTON CLICK SOUND: Short click sound
-    this.playSound('buttonClick', 0.8);
+    if (this.sounds.buttonClick) {
+      this.sounds.buttonClick.play();
+    }
   }
 
   playPause() {
-    // 🎵 PAUSE SOUND: Gentle pause tone
-    this.playSound('pause', 1);
+    if (this.sounds.pause) {
+      this.sounds.pause.play();
+    }
   }
 
   playShapeChange() {
-    // 🎵 SHAPE CHANGE SOUND: Transformation/morph sound
-    this.playSound('shapeChange', 0.9);
+    if (this.sounds.shapeChange) {
+      this.sounds.shapeChange.play();
+    }
   }
 
   playMiss() {
-    // 🎵 MISS SOUND: Disappointed/negative tone for missing a target
-    this.playSound('miss', 1);
+    if (this.sounds.miss) {
+      this.sounds.miss.play();
+    }
   }
 
   // Utility methods
   setMasterVolume(volume) {
-    if (typeof Howler !== 'undefined') {
-      Howler.volume(volume / 100);
-    }
+    // No-op for Web Audio API implementation
+    console.log(`Master volume set to: ${volume}%`);
   }
 
   stopAllSounds() {
-    if (typeof Howler !== 'undefined') {
-      Howler.stop();
-    }
+    // No-op for Web Audio API implementation
+    console.log('Stopping all sounds');
   }
   
-  // Background Music Management
+  // Background Music Management (simplified for Web Audio API)
   currentBackgroundMusic = null;
   
   playBackgroundMusic(track = 'menu') {
-    if (!gameSettings.soundEnabled || !this.initialized) return;
-    
-    // Stop current background music
-    this.stopBackgroundMusic();
-    
-    if (this.sounds.backgroundMusic && this.sounds.backgroundMusic[track]) {
-      this.currentBackgroundMusic = this.sounds.backgroundMusic[track];
-      this.currentBackgroundMusic.play();
-      console.log(`🎵 Playing background music: ${track}`);
-    }
+    // Simplified - no background music for now with Web Audio API
+    console.log(`🎵 Background music track: ${track} (Web Audio API - simplified)`);
   }
   
   stopBackgroundMusic() {
-    if (this.currentBackgroundMusic) {
-      this.currentBackgroundMusic.stop();
-      this.currentBackgroundMusic = null;
-    }
+    // Simplified - no background music for now
+    this.currentBackgroundMusic = null;
   }
   
   fadeOutBackgroundMusic(duration = 1000) {
-    if (this.currentBackgroundMusic) {
-      this.currentBackgroundMusic.fade(this.currentBackgroundMusic.volume(), 0, duration);
-      setTimeout(() => {
-        this.stopBackgroundMusic();
-      }, duration);
-    }
+    // Simplified - no background music for now
+    this.stopBackgroundMusic();
   }
   
   setBackgroundMusicVolume(volume) {
-    if (this.currentBackgroundMusic) {
-      this.currentBackgroundMusic.volume(volume);
-    }
+    // Simplified - no background music for now
+    console.log(`Background music volume: ${volume}`);
   }
   
   getMusicForGameMode(gameMode) {
