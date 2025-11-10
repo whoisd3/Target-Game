@@ -1340,9 +1340,9 @@ function showBonusNotification(text, type = 'bonus') {
     }, 300);
   }, 3000);
   
-  // Keep only the latest 5 notifications
+  // Keep only the latest 3 notifications (mobile optimized)
   const notifications = bonusNotifications.children;
-  if (notifications.length > 5) {
+  if (notifications.length > 3) {
     notifications[0].remove();
   }
 }

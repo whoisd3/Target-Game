@@ -1025,20 +1025,23 @@ canvas#webglCanvas {
   
   /* MOBILE HUD SYSTEM - Redesigned for smaller screens */
   
-  /* Top HUD - Compact mobile layout */
+  /* Top HUD - Compact mobile layout - MINIMIZED to avoid target interference */
   #topHud {
     gap: 8px;
-    padding: 8px 15px;
-    top: 5px;
+    padding: 6px 12px; /* Reduced padding from 8px 15px */
+    top: 2px; /* Reduced from 5px to 2px */
     left: 5px;
     right: 5px;
     transform: none;
     max-width: none;
     width: calc(100% - 10px);
-    border-radius: 15px;
+    border-radius: 12px; /* Reduced from 15px */
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    /* Make it more transparent to reduce interference */
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.05), rgba(0, 0, 0, 0.2));
+    border: 1px solid rgba(0, 255, 255, 0.2); /* More transparent border */
   }
   
   .hud-stat {
@@ -1056,12 +1059,12 @@ canvas#webglCanvas {
     margin-bottom: 2px;
   }
   
-  /* Mobile notification feed - Relocated and resized */
+  /* Mobile notification feed - Relocated and resized - LIMITED to 3 items */
   .notification-feed {
-    top: 60px;
+    top: 35px; /* Adjusted to new topHud position */
     right: 5px;
     width: 200px;
-    max-height: 150px;
+    max-height: 120px; /* Limited height for max 3-4 notifications */
     border-radius: 10px;
   }
   
@@ -1075,12 +1078,22 @@ canvas#webglCanvas {
     padding: 4px 8px;
     margin: 3px 0;
     border-radius: 6px;
+    /* Ensure consistent height for predictable layout */
+    min-height: 26px;
+    display: flex;
+    align-items: center;
   }
   
-  /* Mobile left HUD - Repositioned */
+  .bonus-notifications {
+    padding: 8px;
+    max-height: 88px; /* Strictly limit to show max 3 notifications */
+    overflow: hidden; /* Hide overflow instead of scrolling */
+  }
+  
+  /* Mobile left HUD - Repositioned to accommodate bottom HUD move */
   #leftHud {
     left: 5px;
-    bottom: 80px;
+    bottom: 100px; /* Increased from 80px to 100px due to bottom HUD move */
     top: auto;
     transform: none;
   }
@@ -1099,17 +1112,17 @@ canvas#webglCanvas {
     font-size: 0.8em;
   }
   
-  /* Mobile side HUD - Bottom positioning */
+  /* Mobile side HUD - Bottom positioning adjusted */
   #sideHud {
     right: 5px;
-    bottom: 80px;
+    bottom: 100px; /* Increased from 80px to 100px due to bottom HUD move */
     top: auto;
     transform: none;
   }
   
-  /* Mobile bottom HUD - Improved layout */
+  /* Mobile bottom HUD - Improved layout - MOVED UP for better visibility */
   #bottomHud {
-    bottom: 5px;
+    bottom: 25px; /* Moved up from 5px to 25px for better mobile visibility */
     padding: 8px 15px;
     gap: 10px;
     left: 5px;
@@ -1135,9 +1148,9 @@ canvas#webglCanvas {
     white-space: nowrap;
   }
   
-  /* Mobile combo display - Better positioning */
+  /* Mobile combo display - Better positioning adjusted */
   .combo-display {
-    top: 60px;
+    top: 35px; /* Adjusted to new topHud position */
     right: 5px;
     /* Move down when notifications are showing */
   }
@@ -1150,9 +1163,9 @@ canvas#webglCanvas {
     font-size: 0.75em;
   }
   
-  /* Mobile critical notifications - Repositioned */
+  /* Mobile critical notifications - Repositioned adjusted */
   .critical-notifications-zone {
-    top: 60px;
+    top: 35px; /* Adjusted to new topHud position */
     left: 5px;
     width: 200px;
     max-height: 120px;
@@ -1233,8 +1246,12 @@ canvas#webglCanvas {
   
   #topHud {
     gap: 6px;
-    padding: 6px 10px;
-    font-size: 0.9em;
+    padding: 4px 8px; /* Even more compact for portrait */
+    font-size: 0.85em; /* Smaller font for portrait to reduce interference */
+    top: 1px; /* Even closer to top */
+    /* Make even more transparent for portrait mode */
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.03), rgba(0, 0, 0, 0.15));
+    border: 1px solid rgba(0, 255, 255, 0.15);
   }
   
   .hud-stat {
@@ -1251,13 +1268,18 @@ canvas#webglCanvas {
   
   .notification-feed {
     width: 180px;
-    max-height: 120px;
-    top: 50px;
+    max-height: 100px; /* Even more limited for portrait */
+    top: 30px; /* Adjusted for new topHud position */
   }
   
   .bonus-notification {
     font-size: 0.65em;
     padding: 3px 6px;
+  }
+  
+  .bonus-notifications {
+    max-height: 72px; /* Strictly limit to 2-3 notifications in portrait */
+    overflow: hidden;
   }
   
   .reaction-meter {
@@ -1272,6 +1294,7 @@ canvas#webglCanvas {
   #bottomHud {
     padding: 6px 10px;
     gap: 8px;
+    bottom: 20px; /* Moved up for portrait visibility */
   }
   
   .hud-btn {
@@ -1322,9 +1345,12 @@ canvas#webglCanvas {
   }
   
   #topHud {
-    top: 3px;
-    padding: 5px 12px;
+    top: 1px; /* Minimal top spacing for landscape */
+    padding: 4px 10px; /* Compact padding */
     gap: 6px;
+    /* Ultra-transparent for landscape to minimize target interference */
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.02), rgba(0, 0, 0, 0.1));
+    border: 1px solid rgba(0, 255, 255, 0.1);
   }
   
   .hud-value {
@@ -1332,26 +1358,31 @@ canvas#webglCanvas {
   }
   
   .notification-feed {
-    top: 40px;
-    max-height: 100px;
-    width: 180px;
+    top: 25px; /* Adjusted for new topHud position */
+    max-height: 80px; /* Very limited for landscape */
+    width: 170px; /* Narrower for landscape */
+  }
+  
+  .bonus-notifications {
+    max-height: 55px; /* Max 2 notifications in landscape */
+    overflow: hidden;
   }
   
   #leftHud {
-    bottom: 60px;
+    bottom: 80px; /* Adjusted for bottom HUD move */
   }
   
   #sideHud {
-    bottom: 60px;
+    bottom: 80px; /* Adjusted for bottom HUD move */
   }
   
   #bottomHud {
-    bottom: 3px;
+    bottom: 15px; /* Moved up for landscape visibility */
     padding: 5px 12px;
   }
   
   .combo-display {
-    top: 40px;
+    top: 25px; /* Adjusted for new topHud position */
   }
   
   .combo-text {
@@ -1359,8 +1390,8 @@ canvas#webglCanvas {
   }
   
   .critical-notifications-zone {
-    top: 40px;
-    max-height: 80px;
+    top: 25px; /* Adjusted for new topHud position */
+    max-height: 60px; /* Reduced for landscape */
   }
   
   .critical-notification {
