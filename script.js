@@ -205,96 +205,158 @@ class SoundManager {
     if (this.initialized || this.loadingSounds) return;
     
     this.loadingSounds = true;
-    console.log('Loading sound effects...');
+    console.log('🔊 Initializing sound system with Web Audio API...');
     
     try {
-      // Initialize Howler sounds with fallback synthetic sounds
+      // Use Web Audio API for reliable sound generation
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      this.audioContext = new AudioContext();
+      
+      // Create simple beep sounds - no corrupted base64 data
       this.sounds = {
-        targetHit: new Howl({
-          src: [
-            // Primary: Nice click/ping sound (data URL encoded sound)
-            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
-          ],
-          volume: 0.3,
-          preload: true
-        }),
+        targetHit: this.createBeep(800, 0.1),
+        levelUp: this.createBeep([523, 659, 784], 0.3),
+        timeBonus: this.createBeep([440, 554], 0.2),
+        combo: this.createBeep(1000, 0.05),
+        gameStart: this.createBeep([262, 330, 392], 0.4),
+        gameOver: this.createBeep([220, 185], 0.5),
+        buttonClick: this.createBeep(600, 0.08),
+        pause: this.createBeep(400, 0.2),
+        shapeChange: this.createBeep([500, 700], 0.15),
+        miss: this.createBeep(150, 0.25),
+        comboSounds: {
+          combo3: this.createBeep([800, 1000], 0.15),
+          combo5: this.createBeep([800, 1000, 1200], 0.2),
+          combo10: this.createBeep([800, 1000, 1200, 1500], 0.3)
+        }
+      };
+
+      this.initialized = true;
+      this.loadingSounds = false;
+      console.log('✅ Sound system initialized successfully with Web Audio API');
+    } catch (error) {
+      console.warn('Sound system initialization failed, using silent fallback:', error);
+      this.initialized = false;
+      this.loadingSounds = false;
+      
+      // Create silent fallback sounds
+      this.sounds = {
+        targetHit: { play: () => {} },
+        levelUp: { play: () => {} },
+        timeBonus: { play: () => {} },
+        combo: { play: () => {} },
+        gameStart: { play: () => {} },
+        gameOver: { play: () => {} },
+        buttonClick: { play: () => {} },
+        pause: { play: () => {} },
+        shapeChange: { play: () => {} },
+        miss: { play: () => {} },
+        comboSounds: {
+          combo3: { play: () => {} },
+          combo5: { play: () => {} },
+          combo10: { play: () => {} }
+        }
+      };
+    }
+  }
+
+  createBeep(frequency, duration) {
+    return {
+      play: () => {
+        if (!gameSettings.soundEnabled || !this.audioContext) return;
         
-        levelUp: new Howl({
-          src: [
-            // Celebration/success sound
-            'data:audio/wav;base64,UklGRnoGAABXQVZFZm1gIBAAAAAABAAgAEAfAAAEAfAABAAgAGRhdGEKBgAAhYWKhWxdX3SYr6yQYTY1YKHs2qthHAY/mtvyw3IlBSyBzvLYiTcIGWi77eeeRAIHUKfj8LZjHAI4kdfyzHkjBZe'
-          ],
-          volume: 0.4,
-          preload: true
-        }),
+        try {
+          if (this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
+          }
+
+          if (Array.isArray(frequency)) {
+            frequency.forEach((freq, index) => {
+              setTimeout(() => {
+                this.playTone(freq, duration / frequency.length);
+              }, index * (duration / frequency.length * 1000));
+            });
+          } else {
+            this.playTone(frequency, duration);
+          }
+        } catch (e) {
+          // Silent fallback
+        }
+      }
+    };
+  }
+
+  playTone(freq, duration) {
+    if (!this.audioContext) return;
+    const osc = this.audioContext.createOscillator();
+    const gain = this.audioContext.createGain();
+    
+    osc.connect(gain);
+    gain.connect(this.audioContext.destination);
+    
+    osc.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+    osc.type = 'sine';
+    
+    const vol = (gameSettings.volume / 100) * 0.1;
+    gain.gain.setValueAtTime(0, this.audioContext.currentTime);
+    gain.gain.linearRampToValueAtTime(vol, this.audioContext.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+    
+    osc.start(this.audioContext.currentTime);
+    osc.stop(this.audioContext.currentTime + duration);
+  }
         
-        timeBonus: new Howl({
           src: [
             // Power-up/magic sound
-            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
           ],
           volume: 0.3,
           preload: true
         }),
         
-        combo: new Howl({
           src: [
             // Quick combo hit
-            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
           ],
           volume: 0.25,
           preload: true
         }),
         
-        gameStart: new Howl({
           src: [
             // Game start fanfare
-            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
           ],
           volume: 0.4,
           preload: true
         }),
         
-        gameOver: new Howl({
           src: [
             // Sad game over sound
-            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
           ],
           volume: 0.35,
           preload: true
         }),
         
-        buttonClick: new Howl({
           src: [
             // UI click sound
-            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
           ],
           volume: 0.2,
           preload: true
         }),
         
-        pause: new Howl({
           src: [
             // Gentle pause tone
-            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
           ],
           volume: 0.3,
           preload: true
         }),
         
-        shapeChange: new Howl({
           src: [
             // Transformation sound
-            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
           ],
           volume: 0.25,
           preload: true
         }),
         
-        miss: new Howl({
           src: [
             // Miss sound - disappointed/negative tone
-            'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
           ],
           volume: 0.35,
           preload: true
@@ -302,30 +364,24 @@ class SoundManager {
         
         // Background music tracks
         backgroundMusic: {
-          menu: new Howl({
             src: [
               // Menu ambient music - placeholder for now, using synthetic
-              'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
             ],
             volume: 0.15,
             loop: true,
             preload: true
           }),
           
-          gameplay: new Howl({
             src: [
               // Gameplay music - energetic background track
-              'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
             ],
             volume: 0.2,
             loop: true,
             preload: true
           }),
           
-          intense: new Howl({
             src: [
               // Intense music for high-speed modes
-              'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSMFl'
             ],
             volume: 0.18,
             loop: true,
