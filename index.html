@@ -73,13 +73,9 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" as="style">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js" as="script">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js" as="script">
-    
-    <!-- Audio Library -->
-    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
+    <!-- Preload critical resources with proper attributes -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"></noscript>
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="style.css">
@@ -353,6 +349,7 @@
     </div>
     
     <!-- Game Enhancement Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
     <script src="scripts/particles.js"></script>
     <script src="scripts/multiplayer.js"></script>
     <script src="scripts/xr.js"></script>
