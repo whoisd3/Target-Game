@@ -30,19 +30,10 @@ jobs:
         fi
         echo "✅ Service account file created successfully"
         
-    - name: Verify Firebase project access
-      run: |
-        echo "🔍 Verifying Firebase project access..."
-        firebase projects:list
-        firebase use target-nexus-game
-        echo "✅ Project access verified"
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: ./service-account-key.json
-      
     - name: Deploy to Firebase
       run: |
         echo "🚀 Starting Firebase deployment..."
-        firebase deploy --project target-nexus-game --debug
+        firebase deploy --project target-nexus-game
         echo "✅ Deployment completed successfully!"
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ./service-account-key.json
