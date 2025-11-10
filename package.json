@@ -1,0 +1,27 @@
+{
+  "name": "target-nexus-game",
+  "version": "2.0.0",
+  "description": "Target Nexus - A futuristic 3D target shooting game with multiple game modes",
+  "main": "index.html",
+  "scripts": {
+    "serve": "python3 -m http.server 3000",
+    "deploy": "firebase deploy --project target-nexus-game",
+    "deploy:preview": "firebase hosting:channel:deploy preview --project target-nexus-game"
+  },
+  "keywords": [
+    "game",
+    "3d",
+    "target-shooting",
+    "threejs",
+    "pwa",
+    "webgl",
+    "multiplayer"
+  ],
+  "author": "whoisd3",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/whoisd3/Target-Game.git"
+  },
+  "homepage": "https://target-nexus-game.web.app"
+}
