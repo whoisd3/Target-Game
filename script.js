@@ -1848,7 +1848,53 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  
+  // Update dynamic viewport height for mobile browsers
+  updateMobileViewport();
 });
+
+// Handle orientation changes with dynamic viewport updates
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    updateMobileViewport();
+  }, 100);
+});
+
+// Update mobile viewport height dynamically
+function updateMobileViewport() {
+  // Only run on mobile devices
+  if (window.innerWidth <= 768) {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    
+    // Ensure bottom HUD visibility
+    const bottomHud = document.getElementById('bottomHud');
+    if (bottomHud) {
+      const isLandscape = window.innerWidth > window.innerHeight;
+      const safeAreaBottom = 'env(safe-area-inset-bottom, 0px)';
+      
+      if (isLandscape) {
+        bottomHud.style.bottom = `calc(25px + ${safeAreaBottom})`;
+      } else {
+        bottomHud.style.bottom = `calc(50px + ${safeAreaBottom})`;
+      }
+      
+      // Force visibility check
+      setTimeout(() => {
+        const rect = bottomHud.getBoundingClientRect();
+        if (rect.bottom > window.innerHeight) {
+          // Move up further if still not visible
+          const adjustment = rect.bottom - window.innerHeight + 20;
+          const currentBottom = parseInt(getComputedStyle(bottomHud).bottom);
+          bottomHud.style.bottom = `${currentBottom + adjustment}px`;
+        }
+      }, 100);
+    }
+  }
+}
 
 function animate() {
   requestAnimationFrame(animate);
@@ -1896,6 +1942,14 @@ window.addEventListener('load', () => {
     // Set initial master volume
     soundManager.setMasterVolume(gameSettings.volume);
   });
+  
+  // Initialize mobile viewport handling
+  updateMobileViewport();
+});
+
+// Also update viewport when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  updateMobileViewport();
 });
 
 animate();
