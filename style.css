@@ -1266,6 +1266,20 @@ canvas#webglCanvas {
     min-height: 44px; /* iOS minimum touch target */
     /* Ensure HUD is clickable */
     pointer-events: auto !important;
+    /* Mobile-specific enhancements */
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Ensure hud-controls are clickable */
+  .hud-controls {
+    pointer-events: auto !important;
+    z-index: 350;
+    display: flex;
+    gap: 8px;
+    align-items: center;
   }
   
   .hud-btn {
@@ -1285,6 +1299,37 @@ canvas#webglCanvas {
     user-select: none;
     position: relative;
     z-index: 300; /* Ensure buttons are above all other elements */
+    /* Additional mobile-specific fixes */
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    border: 2px solid #00ffff;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 0, 0, 0.8));
+    color: #00ffff;
+    font-family: 'Orbitron', monospace;
+    font-weight: bold;
+    transition: all 0.2s ease;
+  }
+
+  /* Enhanced mobile pause button */
+  #pauseButton {
+    z-index: 400 !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    -webkit-touch-callout: none !important;
+  }
+
+  /* Button hover and active states for mobile feedback */
+  .hud-btn:hover, .hud-btn:focus {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(0, 0, 0, 0.9));
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+    transform: scale(1.05);
+  }
+
+  .hud-btn:active, .hud-btn:focus:active {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.6), rgba(0, 0, 0, 1));
+    transform: scale(0.95);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
   }
   
   /* Mobile-specific bottom HUD backup positioning - SIMPLIFIED */

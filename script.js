@@ -1728,10 +1728,36 @@ document.getElementById('mainMenuFromGameOverBtn').addEventListener('click', () 
   setState(GameState.MENU);
 });
 
-document.getElementById('pauseButton').addEventListener('click', () => {
-  soundManager.playPause(); // 🎵 PAUSE SOUND
-  pauseGame();
-});
+// Mobile-specific pause button event handling
+function setupPauseButton() {
+  const pauseButton = document.getElementById('pauseButton');
+  
+  // Multiple event types for better mobile compatibility
+  const pauseHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Pause button clicked!'); // Debug log
+    soundManager.playPause(); // 🎵 PAUSE SOUND
+    pauseGame();
+  };
+  
+  // Add multiple event listeners for mobile compatibility
+  pauseButton.addEventListener('click', pauseHandler, { passive: false });
+  pauseButton.addEventListener('touchstart', pauseHandler, { passive: false });
+  pauseButton.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, { passive: false });
+  
+  // Ensure button is visible and clickable
+  pauseButton.style.pointerEvents = 'auto';
+  pauseButton.style.touchAction = 'manipulation';
+  
+  console.log('Pause button setup complete');
+}
+
+// Call setup function
+setupPauseButton();
 
 document.getElementById('resumeButton').addEventListener('click', () => {
   soundManager.playButtonClick(); // 🎵 BUTTON CLICK SOUND
