@@ -386,14 +386,16 @@ canvas#webglCanvas {
   gap: 20px;
 }
 
-/* Side HUD */
+/* Side HUD - Positioned below notification feed */
 #sideHud {
   right: 20px;
-  top: 50%;
+  top: 60%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   gap: 20px;
+  /* Ensure it's below notification feed */
+  margin-top: 20px;
 }
 
 /* Reaction Time Meter */
@@ -438,20 +440,22 @@ canvas#webglCanvas {
   margin-top: 5px;
 }
 
-/* Bonus Notifications - Redesigned for HUD */
+/* Bonus Notifications - Positioned above Side HUD */
 .notification-feed {
   position: fixed;
-  top: 20px;
+  top: 80px;
   right: 20px;
-  width: 280px;
-  max-height: 300px;
+  width: 260px;
+  max-height: 250px;
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.4));
   border: 1px solid #00ffff40;
-  border-radius: 15px;
+  border-radius: 12px;
   backdrop-filter: blur(10px);
   overflow: hidden;
-  z-index: 150;
+  z-index: 160; /* Above side HUD */
   pointer-events: none;
+  /* Positioned to stack above side HUD */
+  margin-bottom: 20px;
 }
 
 .feed-title {
@@ -459,15 +463,16 @@ canvas#webglCanvas {
   color: #000;
   font-family: 'Orbitron', monospace;
   font-weight: 700;
-  font-size: 0.8em;
-  padding: 8px 15px;
+  font-size: 0.75em;
+  padding: 6px 12px;
   text-align: center;
   letter-spacing: 1px;
+  border-radius: 8px 8px 0 0;
 }
 
 .bonus-notifications {
-  padding: 10px;
-  max-height: 250px;
+  padding: 8px;
+  max-height: 200px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -930,7 +935,10 @@ canvas#webglCanvas {
   }
   
   .notification-feed {
-    top: calc(60px + env(safe-area-inset-top, 0px));
+    top: calc(80px + env(safe-area-inset-top, 0px));
+    right: 15px;
+    width: 220px;
+    max-height: 200px;
   }
   
   .combo-display {
@@ -1116,19 +1124,21 @@ canvas#webglCanvas {
     margin-bottom: 1px;
   }
   
-  /* Mobile notification feed - OPTIMIZED sizing */
+  /* Mobile notification feed - OPTIMIZED sizing and positioned above side HUD */
   .notification-feed {
-    top: calc(35px + env(safe-area-inset-top, 0px));
-    right: 2px;
-    width: 180px; /* Narrower for mobile */
-    max-height: 100px; /* Smaller for mobile */
+    top: calc(70px + env(safe-area-inset-top, 0px));
+    right: 5px;
+    width: 160px; /* Compact for mobile */
+    max-height: 120px; /* Limited height for mobile */
     border-radius: 8px;
-    font-size: 0.8em; /* Smaller text */
+    font-size: 0.75em; /* Readable text size */
+    z-index: 170; /* Above side HUD on mobile */
   }
   
   .feed-title {
-    font-size: 0.65em;
-    padding: 4px 8px;
+    font-size: 0.6em;
+    padding: 3px 6px;
+    border-radius: 6px 6px 0 0;
   }
   
   .bonus-notification {
@@ -1170,12 +1180,14 @@ canvas#webglCanvas {
     font-size: 0.8em;
   }
   
-  /* Mobile side HUD - Bottom positioning adjusted for higher bottom HUD */
+  /* Mobile side HUD - Positioned below notification feed and above bottom HUD */
   #sideHud {
     right: 5px;
-    bottom: calc(120px + env(safe-area-inset-bottom, 0px)); /* Increased significantly */
+    bottom: calc(140px + env(safe-area-inset-bottom, 0px)); /* Space for bottom HUD */
     top: auto;
     transform: none;
+    /* Ensure adequate spacing from notification feed */
+    margin-top: 0;
   }
   
   /* Mobile bottom HUD - OPTIMAL positioning for mobile browsers */
@@ -1349,9 +1361,12 @@ canvas#webglCanvas {
   }
   
   .notification-feed {
-    width: 180px;
-    max-height: 100px; /* Even more limited for portrait */
-    top: 30px; /* Adjusted for new topHud position */
+    width: 160px;
+    max-height: 90px; /* Limited for portrait */
+    top: calc(35px + env(safe-area-inset-top, 0px)); /* Above side HUD */
+    right: 5px;
+    font-size: 0.75em;
+    z-index: 170; /* Above side HUD */
   }
   
   .bonus-notification {
@@ -1371,6 +1386,13 @@ canvas#webglCanvas {
   
   .reaction-display {
     font-size: 1em;
+  }
+
+  #sideHud {
+    right: 5px;
+    bottom: calc(160px + env(safe-area-inset-bottom, 0px)); /* Below notification feed, above bottom HUD */
+    top: auto;
+    transform: none;
   }
   
   #bottomHud {
@@ -1452,22 +1474,28 @@ canvas#webglCanvas {
   }
   
   .notification-feed {
-    top: 25px; /* Adjusted for new topHud position */
-    max-height: 80px; /* Very limited for landscape */
-    width: 170px; /* Narrower for landscape */
+    top: 30px; /* Above side HUD in landscape */
+    right: 8px;
+    max-height: 70px; /* Very limited for landscape */
+    width: 150px; /* Compact for landscape */
+    font-size: 0.7em;
   }
-  
+
   .bonus-notifications {
-    max-height: 55px; /* Max 2 notifications in landscape */
+    max-height: 45px; /* Max 2 notifications in landscape */
     overflow: hidden;
   }
-  
+
   #leftHud {
     bottom: calc(100px + env(safe-area-inset-bottom, 0px)); /* Adjusted for higher bottom HUD */
   }
-  
+
   #sideHud {
-    bottom: calc(100px + env(safe-area-inset-bottom, 0px)); /* Adjusted for higher bottom HUD */
+    bottom: calc(85px + env(safe-area-inset-bottom, 0px)); /* Below notification feed in landscape */
+    top: auto;
+    transform: none;
+    right: 8px;
+  }
   }
   
   #bottomHud {
@@ -1497,13 +1525,26 @@ canvas#webglCanvas {
     font-size: 1em;
     padding: 6px 10px;
   }
+
+  #bottomHud {
+    bottom: calc(25px + env(safe-area-inset-bottom, 0px)); /* Higher for landscape visibility */
+  }
 }
 
 /* Large mobile/small tablet - Better use of space */
 @media (min-width: 481px) and (max-width: 768px) {
   .notification-feed {
+    top: calc(90px + env(safe-area-inset-top, 0px));
+    right: 15px;
     width: 220px;
     max-height: 180px;
+    z-index: 165; /* Above side HUD */
+  }
+  
+  #sideHud {
+    top: 65%;
+    right: 15px;
+    transform: translateY(-50%);
   }
   
   .reaction-meter {
