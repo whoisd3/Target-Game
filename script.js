@@ -1415,9 +1415,22 @@ function handleClick(event) {
   );
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObject(targetMesh);
   
-  if (intersects.length > 0) {
+  // Calculate world position of click
+  const distance = 5; // Camera distance to target plane
+  const direction = new THREE.Vector3();
+  raycaster.ray.direction.clone().multiplyScalar(distance);
+  const clickWorldPos = raycaster.ray.origin.clone().add(raycaster.ray.direction.clone().multiplyScalar(distance));
+  
+  // Calculate distance from click to target center
+  const targetPos = targetMesh.position;
+  const clickDistance = clickWorldPos.distanceTo(targetPos);
+  
+  // Reduced hit zone - 70% of visual target size for more challenge
+  const targetScale = targetMesh.scale.x; // Current target scale
+  const hitRadius = 0.6 * targetScale; // Smaller hit zone than visual target
+  
+  if (clickDistance <= hitRadius) {
     const reactionTime = (performance.now() - reactionStart) / 1000;
     currentReactionTime = reactionTime;
     console.log(`Reaction time: ${reactionTime.toFixed(2)}s`);

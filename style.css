@@ -386,7 +386,29 @@ canvas#webglCanvas {
   gap: 20px;
 }
 
-/* Side HUD - Connected below notification feed */
+/* Decluttered Top HUD - Minimal and clean */
+#topHud.minimal-hud {
+  gap: 15px;
+  padding: 8px 15px;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.25));
+  border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.hud-stat.compact {
+  min-width: 70px;
+  padding: 6px 12px;
+}
+
+.hud-stat.compact .hud-label {
+  font-size: 0.7em;
+  margin-bottom: 2px;
+}
+
+.hud-stat.compact .hud-value {
+  font-size: 1.3em;
+}
+
+/* Side HUD - Contains notification feed */
 #sideHud {
   right: 20px;
   top: 50%;
@@ -394,22 +416,8 @@ canvas#webglCanvas {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  /* Connected to notification feed above */
   margin-top: 0;
-  /* Visual connection styling */
   position: relative;
-}
-
-/* Add connecting visual between notification feed and side HUD */
-#sideHud::before {
-  content: '';
-  position: absolute;
-  top: -220px; /* Height of notification feed + gap */
-  right: 0;
-  width: 2px;
-  height: 20px;
-  background: linear-gradient(to bottom, #00ffff40, transparent);
-  opacity: 0.6;
 }
 
 /* Reaction Time Meter */
@@ -454,22 +462,25 @@ canvas#webglCanvas {
   margin-top: 5px;
 }
 
-/* Bonus Notifications - Attached to top of Side HUD */
-.notification-feed {
-  position: fixed;
-  top: calc(50% - 180px); /* Positioned relative to side HUD */
-  right: 20px;
-  width: 260px;
-  max-height: 200px;
+/* Bonus Notifications - Attached to High Score in Side HUD */
+.notification-feed.attached-to-highscore {
+  position: relative;
+  top: 10px;
+  right: 0;
+  width: 100%;
+  max-height: 150px;
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.4));
   border: 1px solid #00ffff40;
-  border-radius: 12px 12px 0 0; /* Connected to side HUD below */
+  border-radius: 8px;
   backdrop-filter: blur(10px);
   overflow: hidden;
-  z-index: 160; /* Above side HUD */
+  z-index: 160;
   pointer-events: none;
-  /* Visually connected to side HUD */
-  border-bottom: none; /* Remove bottom border for connection */
+  margin-top: 8px;
+}
+
+.high-score-section {
+  position: relative;
 }
 
 .feed-title {
@@ -948,13 +959,13 @@ canvas#webglCanvas {
     top: calc(5px + env(safe-area-inset-top, 0px));
   }
   
-  .notification-feed {
-    top: calc(80px + env(safe-area-inset-top, 0px));
-    right: 15px;
-    width: 220px;
-    max-height: 150px;
-    border-radius: 8px 8px 0 0; /* Connected styling for mobile */
-    border-bottom: 1px solid #00ffff20; /* Subtle connection */
+  .notification-feed.attached-to-highscore {
+    position: relative;
+    top: 8px;
+    width: 100%;
+    max-height: 120px;
+    border-radius: 8px;
+    margin-top: 8px;
   }
   
   .combo-display {
@@ -1091,6 +1102,29 @@ canvas#webglCanvas {
   
   /* MOBILE HUD SYSTEM - FIXED positioning for mobile UI fitting */
   
+  /* Mobile top HUD - Decluttered and compact */
+  #topHud.minimal-hud {
+    gap: 8px;
+    padding: 4px 8px;
+    font-size: 0.85em;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.05), rgba(0, 0, 0, 0.2));
+    border: 1px solid rgba(0, 255, 255, 0.15);
+  }
+  
+  .hud-stat.compact {
+    min-width: 55px;
+    padding: 4px 8px;
+  }
+  
+  .hud-stat.compact .hud-label {
+    font-size: 0.6em;
+    margin-bottom: 1px;
+  }
+  
+  .hud-stat.compact .hud-value {
+    font-size: 1.1em;
+  }
+  
   /* HUD Container - ensure it fits in viewport */
   #hud {
     position: fixed;
@@ -1140,16 +1174,15 @@ canvas#webglCanvas {
     margin-bottom: 1px;
   }
   
-  /* Mobile notification feed - Attached to side HUD */
-  .notification-feed {
-    top: calc(70px + env(safe-area-inset-top, 0px));
-    right: 5px;
-    width: 160px; /* Compact for mobile */
-    max-height: 100px; /* Limited height for mobile */
-    border-radius: 6px 6px 0 0; /* Connected to side HUD */
-    font-size: 0.75em; /* Readable text size */
-    z-index: 170; /* Above side HUD on mobile */
-    border-bottom: 1px solid #00ffff30; /* Connection indicator */
+  /* Mobile notification feed - Attached to high score in side HUD */
+  .notification-feed.attached-to-highscore {
+    position: relative;
+    top: 5px;
+    width: 100%;
+    max-height: 80px;
+    font-size: 0.75em;
+    border-radius: 6px;
+    margin-top: 6px;
   }
   
   .feed-title {

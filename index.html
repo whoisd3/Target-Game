@@ -282,28 +282,20 @@
             <!-- Level up, combo milestones appear here -->
         </div>
         
-        <div id="topHud" class="hud-section">
-            <div class="hud-stat" id="scoreContainer">
+        <div id="topHud" class="hud-section minimal-hud">
+            <div class="hud-stat compact" id="scoreContainer">
                 <span class="hud-label">SCORE</span>
                 <span id="score" class="hud-value">0</span>
                 <!-- Floating score notifications appear here -->
                 <div id="floatingNotifications" class="floating-notifications"></div>
             </div>
-            <div class="hud-stat">
-                <span class="hud-label">LEVEL</span>
+            <div class="hud-stat compact">
+                <span class="hud-label">LVL</span>
                 <span id="level" class="hud-value">1</span>
             </div>
-            <div class="hud-stat">
+            <div class="hud-stat compact">
                 <span class="hud-label">TIME</span>
                 <span id="reaction" class="hud-value">30</span>
-            </div>
-            <div class="hud-stat">
-                <span class="hud-label">COMBO</span>
-                <span id="combo" class="hud-value">0</span>
-            </div>
-            <div class="hud-stat">
-                <span class="hud-label">MISSES</span>
-                <span id="misses" class="hud-value">0</span>
             </div>
         </div>
         
@@ -329,20 +321,27 @@
         </div>
         
         <div id="sideHud" class="hud-section">
-            <div class="hud-stat vertical">
+            <div class="hud-stat vertical high-score-section">
                 <span class="hud-label">HIGH SCORE</span>
                 <span id="highScore" class="hud-value">0</span>
+                <!-- Notification Feed Attached Here -->
+                <div id="notificationFeed" class="notification-feed attached-to-highscore">
+                    <div class="feed-title">ACTIVITY FEED</div>
+                    <div id="bonusNotifications" class="bonus-notifications">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="hud-stat vertical">
+                <span class="hud-label">COMBO</span>
+                <span id="combo" class="hud-value">0</span>
+            </div>
+            <div class="hud-stat vertical">
+                <span class="hud-label">MISSES</span>
+                <span id="misses" class="hud-value">0</span>
             </div>
             <div id="progressBarContainer" class="progress-container">
                 <div id="progressBar" class="progress-bar"></div>
-            </div>
-        </div>
-        
-        <!-- Time Bonus Notifications -->
-        <div id="notificationFeed" class="notification-feed">
-            <div class="feed-title">ACTIVITY FEED</div>
-            <div id="bonusNotifications" class="bonus-notifications">
-                <!-- Populated by JavaScript -->
             </div>
         </div>
         
