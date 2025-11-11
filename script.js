@@ -1408,29 +1408,52 @@ function handleClick(event) {
     return;
   }
   
+  // Get coordinates from either mouse or touch event
+  let clientX, clientY;
+  if (event.type === 'touchstart' || event.type === 'touchend') {
+    if (event.touches && event.touches.length > 0) {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    } else if (event.changedTouches && event.changedTouches.length > 0) {
+      clientX = event.changedTouches[0].clientX;
+      clientY = event.changedTouches[0].clientY;
+    } else {
+      return; // No valid touch data
+    }
+  } else {
+    clientX = event.clientX;
+    clientY = event.clientY;
+  }
+  
   const rect = renderer.domElement.getBoundingClientRect();
   const mouse = new THREE.Vector2(
-    ((event.clientX - rect.left) / rect.width) * 2 - 1,
-    -((event.clientY - rect.top) / rect.height) * 2 + 1
+    ((clientX - rect.left) / rect.width) * 2 - 1,
+    -((clientY - rect.top) / rect.height) * 2 + 1
   );
+  
+  console.log(`Click/Touch at: ${clientX}, ${clientY}, Mouse normalized: ${mouse.x.toFixed(3)}, ${mouse.y.toFixed(3)}`);
+  
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
   
-  // Calculate world position of click
-  const distance = 5; // Camera distance to target plane
-  const direction = new THREE.Vector3();
-  raycaster.ray.direction.clone().multiplyScalar(distance);
-  const clickWorldPos = raycaster.ray.origin.clone().add(raycaster.ray.direction.clone().multiplyScalar(distance));
+  // Calculate world position of click with better precision
+  const distance = camera.position.z; // Use actual camera distance
+  const clickWorldPos = new THREE.Vector3();
+  raycaster.ray.at(distance, clickWorldPos);
   
   // Calculate distance from click to target center
   const targetPos = targetMesh.position;
   const clickDistance = clickWorldPos.distanceTo(targetPos);
   
-  // Reduced hit zone - 70% of visual target size for more challenge
+  // Enhanced hit zone calculation for mobile
   const targetScale = targetMesh.scale.x; // Current target scale
-  const hitRadius = 0.6 * targetScale; // Smaller hit zone than visual target
+  const isMobile = window.innerWidth <= 768;
+  const hitRadius = isMobile ? 0.8 * targetScale : 0.6 * targetScale; // Larger hit zone on mobile for better usability
+  
+  console.log(`Target at: ${targetPos.x.toFixed(3)}, ${targetPos.y.toFixed(3)}, Click at: ${clickWorldPos.x.toFixed(3)}, ${clickWorldPos.y.toFixed(3)}, Distance: ${clickDistance.toFixed(3)}, Hit radius: ${hitRadius.toFixed(3)}`);
   
   if (clickDistance <= hitRadius) {
+    console.log('TARGET HIT!');
     const reactionTime = (performance.now() - reactionStart) / 1000;
     currentReactionTime = reactionTime;
     console.log(`Reaction time: ${reactionTime.toFixed(2)}s`);
@@ -1836,7 +1859,38 @@ document.getElementById('testMiss').addEventListener('click', () => {
   soundManager.initialize().then(() => soundManager.playMiss());
 });
 
+// Enhanced mobile touch and click handling
 window.addEventListener('click', handleClick);
+window.addEventListener('touchstart', (e) => {
+  e.preventDefault(); // Prevent default touch behavior
+  handleClick(e);
+}, { passive: false });
+
+// Add mobile touch optimization
+function setupMobileOptimization() {
+  // Prevent default touch behaviors that might interfere
+  document.addEventListener('touchmove', (e) => {
+    if (currentState === GameState.PLAYING) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+  
+  // Prevent zoom on double-tap
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+  
+  // Enhanced viewport handling for mobile
+  if (window.innerWidth <= 768) {
+    document.body.style.touchAction = 'manipulation';
+    document.body.style.userSelect = 'none';
+    document.body.style.webkitUserSelect = 'none';
+  }
+}
+
+setupMobileOptimization();
 
 // Enhanced mobile touch handling - only for game canvas during gameplay
 window.addEventListener('touchstart', (e) => {

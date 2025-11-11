@@ -1,9 +1,9 @@
-const CACHE_NAME = 'target-nexus-mobile-pause-fix-nov2024';
+const CACHE_NAME = 'target-nexus-mobile-ui-fix-nov2024';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
-  '/style.css?v=mobile-pause-fix-nov2024',
-  '/script.js?v=mobile-pause-fix-nov2024',
+  '/style.css?v=mobile-ui-fix-nov2024',
+  '/script.js?v=mobile-ui-fix-nov2024',
   '/manifest.json',
   'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js',
   'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js',
