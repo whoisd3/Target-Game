@@ -980,13 +980,15 @@ canvas#webglCanvas {
   }
 }
 
-/* Responsive design - Enhanced Mobile Optimizations */
+/* Responsive design - COMPREHENSIVE Mobile Optimizations */
 @media (max-width: 768px) {
   /* Mobile-first adjustments with dynamic viewport handling */
   html {
     /* Support dynamic viewport height */
     height: 100dvh;
     height: 100vh; /* Fallback for browsers without dvh support */
+    /* Prevent zoom on input focus */
+    font-size: 16px; /* Minimum to prevent iOS zoom */
   }
   
   body {
@@ -997,37 +999,54 @@ canvas#webglCanvas {
     -webkit-tap-highlight-color: transparent;
     /* Prevent iOS bounce and ensure proper viewport handling */
     position: fixed;
-    width: 100%;
+    width: 100vw;
     height: 100dvh; /* Use dynamic viewport height */
     height: 100vh; /* Fallback */
-    /* Handle safe areas for modern devices */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+    /* Remove safe area padding to fix UI fitting issues */
+    padding: 0;
+    margin: 0;
+    /* Handle safe areas more selectively */
+    box-sizing: border-box;
   }
 
-  /* Canvas adjustments for mobile with safe area consideration */
+  /* Canvas adjustments for mobile - FIX UI FITTING */
   canvas#webglCanvas {
     border: 1px solid #00ffff;
     box-shadow: 0 0 15px #00ffff30;
-    /* Ensure canvas respects safe areas */
-    width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
-    height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-    height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); /* Fallback */
+    /* Ensure canvas fits properly in mobile viewport */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    /* Use dvh when supported */
+    height: 100dvh !important;
+    z-index: 0;
+  }
+
+  /* Fix overlay menu sizing for mobile */
+  .overlay-menu {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh; /* Use dynamic height */
+    padding: 10px;
+    box-sizing: border-box;
   }
 
   .game-title {
-    font-size: 2em;
-    margin-bottom: 15px;
+    font-size: 1.8em; /* Smaller for mobile */
+    margin-bottom: 10px;
     line-height: 1.1;
   }
   
   .menu-container {
-    padding: 20px 15px;
-    max-width: 95%;
-    margin: 5px;
-    max-height: 95vh;
+    padding: 15px 10px; /* Reduced padding */
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    max-height: calc(100vh - 20px); /* Ensure it fits */
+    max-height: calc(100dvh - 20px);
+    overflow-y: auto;
     overflow-y: auto;
     /* Smooth scrolling on iOS */
     -webkit-overflow-scrolling: touch;
@@ -1046,49 +1065,65 @@ canvas#webglCanvas {
     -webkit-tap-highlight-color: rgba(0, 255, 255, 0.3);
   }
   
-  /* MOBILE HUD SYSTEM - Redesigned for smaller screens */
+  /* MOBILE HUD SYSTEM - FIXED positioning for mobile UI fitting */
   
-  /* Top HUD - Compact mobile layout - MINIMIZED to avoid target interference */
+  /* HUD Container - ensure it fits in viewport */
+  #hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height */
+    pointer-events: none;
+    z-index: 100;
+    font-family: 'Orbitron', monospace;
+    overflow: hidden; /* Prevent any overflow */
+  }
+  
+  /* Top HUD - Compact mobile layout - OPTIMIZED for mobile browsers */
   #topHud {
-    gap: 8px;
-    padding: 6px 12px; /* Reduced padding from 8px 15px */
-    top: 2px; /* Reduced from 5px to 2px */
-    left: 5px;
-    right: 5px;
+    gap: 6px;
+    padding: 4px 8px; /* Minimal padding */
+    top: env(safe-area-inset-top, 2px); /* Use safe area or minimal */
+    left: 2px;
+    right: 2px;
     transform: none;
     max-width: none;
-    width: calc(100% - 10px);
-    border-radius: 12px; /* Reduced from 15px */
+    width: calc(100vw - 4px);
+    border-radius: 8px;
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    /* Make it more transparent to reduce interference */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.05), rgba(0, 0, 0, 0.2));
-    border: 1px solid rgba(0, 255, 255, 0.2); /* More transparent border */
+    /* Minimal visual impact */
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
   }
   
   .hud-stat {
-    min-width: 60px;
+    min-width: 55px; /* Smaller for mobile */
     flex-shrink: 0;
   }
   
   .hud-value {
-    font-size: 1.4em;
+    font-size: 1.2em; /* Smaller for better fit */
     line-height: 1.1;
   }
   
   .hud-label {
-    font-size: 0.65em;
-    margin-bottom: 2px;
+    font-size: 0.6em;
+    margin-bottom: 1px;
   }
   
-  /* Mobile notification feed - Relocated and resized - LIMITED to 3 items */
+  /* Mobile notification feed - OPTIMIZED sizing */
   .notification-feed {
-    top: 35px; /* Adjusted to new topHud position */
-    right: 5px;
-    width: 200px;
-    max-height: 120px; /* Limited height for max 3-4 notifications */
-    border-radius: 10px;
+    top: calc(35px + env(safe-area-inset-top, 0px));
+    right: 2px;
+    width: 180px; /* Narrower for mobile */
+    max-height: 100px; /* Smaller for mobile */
+    border-radius: 8px;
+    font-size: 0.8em; /* Smaller text */
   }
   
   .feed-title {
@@ -1143,42 +1178,43 @@ canvas#webglCanvas {
     transform: none;
   }
   
-  /* Mobile bottom HUD - AGGRESSIVE positioning for mobile browser visibility */
+  /* Mobile bottom HUD - OPTIMAL positioning for mobile browsers */
   #bottomHud {
-    bottom: calc(40px + env(safe-area-inset-bottom, 0px)); /* Much higher position + safe area */
-    padding: 8px 15px;
-    gap: 10px;
-    left: 5px;
-    right: 5px;
+    bottom: env(safe-area-inset-bottom, 10px); /* Use safe area or minimal fallback */
+    padding: 6px 8px; /* Compact padding */
+    gap: 8px;
+    left: 2px;
+    right: 2px;
     transform: none;
-    border-radius: 15px;
+    border-radius: 8px;
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    /* Enhanced visibility */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(0, 0, 0, 0.8));
+    /* Strong visibility for mobile */
+    background: rgba(0, 255, 255, 0.1);
     border: 2px solid #00ffff;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-    z-index: 200; /* Ensure it's above everything */
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    z-index: 200;
+    min-height: 44px; /* iOS minimum touch target */
   }
   
   .hud-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 1em;
-    min-width: 48px;
+    width: 44px; /* iOS minimum touch target */
+    height: 44px;
+    font-size: 0.9em;
+    min-width: 44px;
     flex-shrink: 0;
-    border-radius: 12px;
+    border-radius: 8px;
     /* Ensure buttons are always touchable */
     touch-action: manipulation;
     -webkit-touch-callout: none;
   }
   
-  /* Mobile-specific bottom HUD backup positioning */
+  /* Mobile-specific bottom HUD backup positioning - SIMPLIFIED */
   @supports not (bottom: env(safe-area-inset-bottom)) {
     #bottomHud {
       /* Fallback for browsers without safe-area support */
-      bottom: 60px !important;
+      bottom: 20px !important;
     }
   }
   

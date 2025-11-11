@@ -1863,36 +1863,68 @@ window.addEventListener('orientationchange', () => {
   }, 100);
 });
 
-// Update mobile viewport height dynamically
+// Update mobile viewport height dynamically - COMPREHENSIVE mobile support
 function updateMobileViewport() {
   // Only run on mobile devices
   if (window.innerWidth <= 768) {
+    // Set CSS custom property for consistent viewport height
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
     
-    // Ensure bottom HUD visibility
+    // Force canvas sizing for mobile
+    const canvas = document.getElementById('webglCanvas');
+    if (canvas) {
+      canvas.style.width = '100vw';
+      canvas.style.height = '100vh';
+      canvas.style.position = 'fixed';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+    }
+    
+    // Optimize HUD positioning for mobile browsers
     const bottomHud = document.getElementById('bottomHud');
+    const topHud = document.getElementById('topHud');
+    
     if (bottomHud) {
+      // Smart bottom HUD positioning
       const isLandscape = window.innerWidth > window.innerHeight;
-      const safeAreaBottom = 'env(safe-area-inset-bottom, 0px)';
+      const viewportHeight = window.innerHeight;
+      const safeAreaBottom = getComputedStyle(document.documentElement).getPropertyValue('--sab') || '0px';
       
-      if (isLandscape) {
-        bottomHud.style.bottom = `calc(25px + ${safeAreaBottom})`;
+      // Position based on actual viewport and orientation
+      if (isLandscape && viewportHeight < 500) {
+        bottomHud.style.bottom = `max(10px, ${safeAreaBottom})`;
+      } else if (viewportHeight < 600) {
+        bottomHud.style.bottom = `max(15px, ${safeAreaBottom})`;
       } else {
-        bottomHud.style.bottom = `calc(50px + ${safeAreaBottom})`;
+        bottomHud.style.bottom = `max(20px, ${safeAreaBottom})`;
       }
       
-      // Force visibility check
-      setTimeout(() => {
-        const rect = bottomHud.getBoundingClientRect();
-        if (rect.bottom > window.innerHeight) {
-          // Move up further if still not visible
-          const adjustment = rect.bottom - window.innerHeight + 20;
-          const currentBottom = parseInt(getComputedStyle(bottomHud).bottom);
-          bottomHud.style.bottom = `${currentBottom + adjustment}px`;
-        }
-      }, 100);
+      // Ensure buttons are touchable
+      bottomHud.style.pointerEvents = 'auto';
+      bottomHud.style.zIndex = '999';
     }
+    
+    if (topHud) {
+      // Minimize top HUD interference
+      topHud.style.pointerEvents = 'auto';
+      topHud.style.opacity = '0.9';
+    }
+    
+    // Force layout recalculation
+    setTimeout(() => {
+      if (bottomHud) {
+        const rect = bottomHud.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        
+        // If bottom HUD is still not visible, force it higher
+        if (rect.bottom > viewportHeight - 5) {
+          const adjustment = (rect.bottom - viewportHeight) + 25;
+          bottomHud.style.bottom = `${adjustment}px`;
+          console.log(`📱 Mobile: Adjusted bottom HUD by ${adjustment}px for visibility`);
+        }
+      }
+    }, 200);
   }
 }
 

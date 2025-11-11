@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, maximum-scale=1.0">
     <title>Target Nexus - 3D Target Game</title>
+    
+    <!-- Cache Control for Mobile Updates -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <!-- PWA Meta Tags -->
     <meta name="description" content="A futuristic 3D target shooting game with particle effects and multiple shapes">
@@ -77,8 +82,8 @@
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"></noscript>
     
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="style.css">
+    <!-- Stylesheets with cache busting -->
+    <link rel="stylesheet" href="style.css?v=mobile-opt-nov2024">
 </head>
 <body>
     <canvas id="webglCanvas"></canvas>
@@ -353,6 +358,6 @@
     <script src="scripts/particles.js"></script>
     <script src="scripts/multiplayer.js"></script>
     <script src="scripts/xr.js"></script>
-    <script type="module" src="script.js"></script>
+    <script type="module" src="script.js?v=mobile-opt-nov2024"></script>
 </body>
 </html>
