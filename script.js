@@ -762,16 +762,49 @@ scene.add(targetMesh);
 function spawnTarget() {
   if (isPaused || currentState !== GameState.PLAYING) return;
   
-  const newX = (Math.random() - 0.5) * 6;
-  const newY = (Math.random() - 0.5) * 4;
+  // Calculate safe zone based on screen size and UI elements
+  const isMobile = window.innerWidth <= 768;
+  const isLandscape = window.innerWidth > window.innerHeight;
+  
+  let safeZone = {
+    xMin: -3,
+    xMax: 3,
+    yMin: -2,
+    yMax: 2
+  };
+  
+  if (isMobile) {
+    if (isLandscape) {
+      // Landscape mobile: avoid side UI and top/bottom bars
+      safeZone = {
+        xMin: -2.5,    // Leave space for left HUD
+        xMax: 1.5,     // Leave space for right side HUD and notifications
+        yMin: -1.5,    // Leave space for bottom HUD
+        yMax: 1.5      // Leave space for top HUD
+      };
+    } else {
+      // Portrait mobile: more vertical space, less horizontal
+      safeZone = {
+        xMin: -2,      // Narrower horizontal space
+        xMax: 2,       // Narrower horizontal space
+        yMin: -1.5,    // Leave space for bottom HUD
+        yMax: 1.5      // Leave space for top HUD and notifications
+      };
+    }
+  }
+  
+  const newX = safeZone.xMin + (Math.random() * (safeZone.xMax - safeZone.xMin));
+  const newY = safeZone.yMin + (Math.random() * (safeZone.yMax - safeZone.yMin));
   targetMesh.position.set(newX, newY, 0);
   
-  // Adjust target size based on game mode
+  // Adjust target size based on game mode and mobile
   let targetScale = 1;
   if (currentGameMode === GameMode.PRECISION) {
-    targetScale = 0.6; // Smaller targets for precision mode
+    targetScale = isMobile ? 0.4 : 0.6; // Smaller targets for precision mode, even smaller on mobile
   } else if (currentGameMode === GameMode.TIME_ATTACK) {
-    targetScale = 1.2; // Slightly larger for fast-paced mode
+    targetScale = isMobile ? 0.8 : 1.2; // Slightly smaller on mobile for time attack
+  } else {
+    targetScale = isMobile ? 0.6 : 1.0; // Standard mobile scaling
   }
   
   targetMesh.scale.setScalar(targetScale);

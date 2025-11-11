@@ -386,16 +386,30 @@ canvas#webglCanvas {
   gap: 20px;
 }
 
-/* Side HUD - Positioned below notification feed */
+/* Side HUD - Connected below notification feed */
 #sideHud {
   right: 20px;
-  top: 60%;
+  top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   gap: 20px;
-  /* Ensure it's below notification feed */
-  margin-top: 20px;
+  /* Connected to notification feed above */
+  margin-top: 0;
+  /* Visual connection styling */
+  position: relative;
+}
+
+/* Add connecting visual between notification feed and side HUD */
+#sideHud::before {
+  content: '';
+  position: absolute;
+  top: -220px; /* Height of notification feed + gap */
+  right: 0;
+  width: 2px;
+  height: 20px;
+  background: linear-gradient(to bottom, #00ffff40, transparent);
+  opacity: 0.6;
 }
 
 /* Reaction Time Meter */
@@ -440,22 +454,22 @@ canvas#webglCanvas {
   margin-top: 5px;
 }
 
-/* Bonus Notifications - Positioned above Side HUD */
+/* Bonus Notifications - Attached to top of Side HUD */
 .notification-feed {
   position: fixed;
-  top: 80px;
+  top: calc(50% - 180px); /* Positioned relative to side HUD */
   right: 20px;
   width: 260px;
-  max-height: 250px;
+  max-height: 200px;
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.4));
   border: 1px solid #00ffff40;
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0; /* Connected to side HUD below */
   backdrop-filter: blur(10px);
   overflow: hidden;
   z-index: 160; /* Above side HUD */
   pointer-events: none;
-  /* Positioned to stack above side HUD */
-  margin-bottom: 20px;
+  /* Visually connected to side HUD */
+  border-bottom: none; /* Remove bottom border for connection */
 }
 
 .feed-title {
@@ -938,7 +952,9 @@ canvas#webglCanvas {
     top: calc(80px + env(safe-area-inset-top, 0px));
     right: 15px;
     width: 220px;
-    max-height: 200px;
+    max-height: 150px;
+    border-radius: 8px 8px 0 0; /* Connected styling for mobile */
+    border-bottom: 1px solid #00ffff20; /* Subtle connection */
   }
   
   .combo-display {
@@ -1124,15 +1140,16 @@ canvas#webglCanvas {
     margin-bottom: 1px;
   }
   
-  /* Mobile notification feed - OPTIMIZED sizing and positioned above side HUD */
+  /* Mobile notification feed - Attached to side HUD */
   .notification-feed {
     top: calc(70px + env(safe-area-inset-top, 0px));
     right: 5px;
     width: 160px; /* Compact for mobile */
-    max-height: 120px; /* Limited height for mobile */
-    border-radius: 8px;
+    max-height: 100px; /* Limited height for mobile */
+    border-radius: 6px 6px 0 0; /* Connected to side HUD */
     font-size: 0.75em; /* Readable text size */
     z-index: 170; /* Above side HUD on mobile */
+    border-bottom: 1px solid #00ffff30; /* Connection indicator */
   }
   
   .feed-title {
@@ -1180,14 +1197,20 @@ canvas#webglCanvas {
     font-size: 0.8em;
   }
   
-  /* Mobile side HUD - Positioned below notification feed and above bottom HUD */
+  /* Mobile side HUD - Connected directly below notification feed */
   #sideHud {
     right: 5px;
     bottom: calc(140px + env(safe-area-inset-bottom, 0px)); /* Space for bottom HUD */
     top: auto;
     transform: none;
-    /* Ensure adequate spacing from notification feed */
+    /* Visual connection to notification feed */
     margin-top: 0;
+    position: relative;
+  }
+
+  /* Remove desktop connection visual on mobile */
+  #sideHud::before {
+    display: none;
   }
   
   /* Mobile bottom HUD - OPTIMAL positioning for mobile browsers */
@@ -1208,6 +1231,8 @@ canvas#webglCanvas {
     box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
     z-index: 200;
     min-height: 44px; /* iOS minimum touch target */
+    /* Ensure HUD is clickable */
+    pointer-events: auto !important;
   }
   
   .hud-btn {
@@ -1220,6 +1245,13 @@ canvas#webglCanvas {
     /* Ensure buttons are always touchable */
     touch-action: manipulation;
     -webkit-touch-callout: none;
+    /* Explicit mobile interaction fixes */
+    pointer-events: auto !important;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(0, 255, 255, 0.3);
+    user-select: none;
+    position: relative;
+    z-index: 300; /* Ensure buttons are above all other elements */
   }
   
   /* Mobile-specific bottom HUD backup positioning - SIMPLIFIED */
@@ -1362,11 +1394,13 @@ canvas#webglCanvas {
   
   .notification-feed {
     width: 160px;
-    max-height: 90px; /* Limited for portrait */
+    max-height: 80px; /* Limited for portrait */
     top: calc(35px + env(safe-area-inset-top, 0px)); /* Above side HUD */
     right: 5px;
     font-size: 0.75em;
     z-index: 170; /* Above side HUD */
+    border-radius: 6px 6px 0 0; /* Connected styling */
+    border-bottom: 1px solid #00ffff25;
   }
   
   .bonus-notification {
@@ -1476,9 +1510,11 @@ canvas#webglCanvas {
   .notification-feed {
     top: 30px; /* Above side HUD in landscape */
     right: 8px;
-    max-height: 70px; /* Very limited for landscape */
+    max-height: 60px; /* Very limited for landscape */
     width: 150px; /* Compact for landscape */
     font-size: 0.7em;
+    border-radius: 6px 6px 0 0; /* Connected styling */
+    border-bottom: 1px solid #00ffff20;
   }
 
   .bonus-notifications {
@@ -1495,7 +1531,6 @@ canvas#webglCanvas {
     top: auto;
     transform: none;
     right: 8px;
-  }
   }
   
   #bottomHud {
@@ -1537,8 +1572,10 @@ canvas#webglCanvas {
     top: calc(90px + env(safe-area-inset-top, 0px));
     right: 15px;
     width: 220px;
-    max-height: 180px;
+    max-height: 120px;
     z-index: 165; /* Above side HUD */
+    border-radius: 8px 8px 0 0; /* Connected styling */
+    border-bottom: 1px solid #00ffff20;
   }
   
   #sideHud {
