@@ -402,6 +402,10 @@ canvas#webglCanvas {
 .hud-section {
   position: absolute;
   pointer-events: auto;
+  /* Ensure HUD doesn't block game targets */
+  max-width: 300px; /* Constrain HUD element width */
+  /* Keep HUD elements away from center play area */
+  z-index: 100;
 }
 
 /* Top HUD */
@@ -1307,10 +1311,14 @@ canvas#webglCanvas {
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    /* Minimal visual impact */
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    backdrop-filter: blur(5px);
+    /* Minimal visual impact - reduced opacity to not block targets */
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    backdrop-filter: blur(3px);
+    /* Ensure minimal height to not block targets */
+    height: auto;
+    min-height: 32px;
+    max-height: 40px;
   }
   
   .hud-stat {
@@ -2040,8 +2048,9 @@ canvas#webglCanvas {
     -webkit-overflow-scrolling: touch !important;
     touch-action: pan-y !important; /* Allow vertical scrolling only */
     z-index: 10000 !important;
-    align-items: center !important; /* Center content vertically */
-    padding: 40px 10px !important; /* Add padding for better button access */
+    align-items: flex-start !important; /* Start from top for iOS scrolling */
+    padding: 20px 10px 60px 10px !important; /* Extra bottom padding for START button */
+    justify-content: flex-start !important; /* Align to top */
   }
   
   /* Only disable touch on game canvas, not menus */
@@ -2057,6 +2066,44 @@ canvas#webglCanvas {
     overflow: visible !important; /* Allow natural content flow */
     min-height: auto !important; /* Let content determine height */
     height: auto !important; /* Natural height based on content */
+    margin: 20px auto !important; /* Better spacing for iOS */
+    position: relative !important; /* Ensure proper positioning */
+  }
+  
+  /* Ensure game modes section is scrollable on iOS */
+  .game-modes {
+    margin: 20px 0 30px 0 !important; /* More space around game modes */
+    gap: 15px !important; /* Better spacing between mode cards */
+  }
+  
+  /* iOS-specific button accessibility */
+  .menu-buttons {
+    margin-top: 30px !important; /* More space before START button */
+    padding: 25px 0 40px 0 !important; /* Extra bottom padding */
+    gap: 20px !important; /* Space between buttons */
+  }
+  
+  /* Ultra small screen iOS fixes */
+  @media (max-width: 320px) {
+    .overlay-menu {
+      padding: 10px 2px 50px 2px !important; /* Extra bottom padding for ultra small iOS */
+      min-height: 100vh !important;
+    }
+    
+    .menu-container {
+      margin: 10px auto 30px auto !important; /* Better spacing */
+    }
+    
+    .menu-buttons {
+      margin-top: 25px !important;
+      padding: 25px 0 50px 0 !important; /* Lots of bottom space */
+      gap: 15px !important;
+    }
+    
+    .menu-btn {
+      margin: 10px 0 !important;
+      padding: 14px 16px !important;
+    }
   }
   
   /* Better iOS button styling */
@@ -2373,7 +2420,173 @@ canvas#webglCanvas {
   }
 }
 
-/* Leaderboard mode icon styles */
+/* Ultra small screens - 320px and below (small iPhones, Android) */
+@media (max-width: 320px) {
+  .overlay-menu {
+    padding: 15px 1px; /* Minimal padding for ultra small screens */
+  }
+  
+  .menu-container {
+    padding: 8px 4px;
+    border-radius: 8px;
+    max-width: 100vw;
+  }
+  
+  .game-title {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+  
+  .menu-title {
+    font-size: 1.0em;
+    margin-bottom: 8px;
+  }
+  
+  /* Game mode cards - Ultra compact */
+  .game-modes {
+    gap: 8px;
+    margin: 10px 0;
+  }
+  
+  .mode-card {
+    padding: 10px;
+    min-height: 100px;
+    border-radius: 8px;
+  }
+  
+  .mode-icon {
+    font-size: 1.4em;
+    margin-bottom: 4px;
+  }
+  
+  .mode-card h3 {
+    font-size: 0.85em;
+    margin-bottom: 4px;
+    line-height: 1.1;
+  }
+  
+  .mode-card p {
+    font-size: 0.7em;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+  
+  .mode-stats {
+    font-size: 0.65em;
+    padding: 3px 6px;
+  }
+  
+  /* Ultra compact buttons for tiny screens */
+  .menu-buttons {
+    margin-top: 20px;
+    padding: 20px 0 30px 0;
+    gap: 12px;
+  }
+  
+  .menu-btn {
+    min-height: 44px;
+    margin: 8px 0;
+    font-size: 0.8em;
+    padding: 12px 14px;
+    border-radius: 8px;
+  }
+  
+  /* Ensure text is readable on ultra small screens */
+  .game-description p {
+    font-size: 0.7em;
+    line-height: 1.3;
+  }
+  
+  /* Ultra small screen - Settings and Leaderboard optimizations */
+  .settings-options {
+    gap: 12px;
+  }
+  
+  .settings-options label {
+    font-size: 0.8em;
+    margin-bottom: 8px;
+  }
+  
+  input[type="text"], input[type="range"] {
+    font-size: 0.8em;
+    padding: 8px;
+  }
+  
+  .leaderboard-list {
+    font-size: 0.75em;
+    gap: 6px;
+  }
+  
+  .leaderboard-entry {
+    padding: 8px;
+    border-radius: 6px;
+  }
+}
+
+/* Ultra small screens - 320px and below HUD optimizations */
+@media (max-width: 320px) {
+  /* Ultra compact HUD for tiny screens */
+  #hud {
+    font-size: 0.85em; /* Smaller font for everything */
+  }
+  
+  #topHud {
+    gap: 4px;
+    padding: 2px 4px;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    width: calc(100vw - 2px);
+    min-height: 28px;
+    max-height: 32px;
+    border-radius: 6px;
+  }
+  
+  .hud-stat {
+    min-width: 45px;
+    padding: 3px 6px;
+  }
+  
+  .hud-value {
+    font-size: 1.0em;
+    line-height: 1.0;
+  }
+  
+  .hud-label {
+    font-size: 0.55em;
+    margin-bottom: 0;
+  }
+  
+  /* Bottom HUD ultra compact */
+  #bottomHud {
+    bottom: 2px;
+    left: 1px;
+    right: 1px;
+    padding: 4px 6px;
+    min-height: 40px;
+    border-radius: 8px;
+    gap: 6px;
+  }
+  
+  .hud-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9em;
+    min-width: 36px;
+    border-radius: 8px;
+  }
+  
+  /* Side elements - minimize for ultra small */
+  #leftHud, #sideHud {
+    display: none; /* Hide side elements on ultra small screens */
+  }
+  
+  .hud-info {
+    font-size: 0.65em;
+    padding: 2px 4px;
+  }
+}
 .leaderboard-mode {
   font-size: 1.2em;
   margin-right: 8px;
