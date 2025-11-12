@@ -2458,7 +2458,7 @@ canvas#webglCanvas {
 /* Mobile debugging and accessibility */
 @media (hover: none) and (pointer: coarse) {
   body::before {
-    content: 'Mobile v17';
+    content: 'Mobile v18';
     position: fixed;
     top: 5px;
     right: 5px;

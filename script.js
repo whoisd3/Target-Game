@@ -46,12 +46,86 @@ function showUpdateNotification() {
     z-index: 10000;
     font-family: 'Orbitron', monospace;
     font-weight: 700;
+    box-sizing: border-box;
+    /* Enhanced mobile support */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    user-select: none;
   `;
-  updateBanner.innerHTML = `
-    <div>🔄 New version available!</div>
-    <button onclick="updateApp()" style="margin-left: 10px; padding: 5px 15px; background: #000; color: #00ffff; border: none; border-radius: 5px; cursor: pointer;">Update Now</button>
-    <button onclick="this.parentElement.remove()" style="margin-left: 5px; padding: 5px 15px; background: transparent; color: #000; border: 1px solid #000; border-radius: 5px; cursor: pointer;">Later</button>
+  
+  // Create update button with proper mobile touch handling
+  const updateButton = document.createElement('button');
+  updateButton.textContent = 'Update Now';
+  updateButton.style.cssText = `
+    margin-left: 10px; 
+    padding: 8px 18px; 
+    background: #000; 
+    color: #00ffff; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    min-height: 44px;
+    min-width: 100px;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    user-select: none;
+    font-size: 14px;
   `;
+  
+  // Create later button with proper mobile touch handling
+  const laterButton = document.createElement('button');
+  laterButton.textContent = 'Later';
+  laterButton.style.cssText = `
+    margin-left: 5px; 
+    padding: 8px 18px; 
+    background: transparent; 
+    color: #000; 
+    border: 1px solid #000; 
+    border-radius: 5px; 
+    cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    min-height: 44px;
+    min-width: 80px;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    user-select: none;
+    font-size: 14px;
+  `;
+  
+  // Add mobile-friendly event listeners
+  const handleUpdateClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Update button clicked');
+    updateApp();
+  };
+  
+  const handleLaterClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Later button clicked');
+    updateBanner.remove();
+  };
+  
+  // Add both click and touch events for maximum compatibility
+  updateButton.addEventListener('click', handleUpdateClick);
+  updateButton.addEventListener('touchstart', handleUpdateClick, { passive: false });
+  
+  laterButton.addEventListener('click', handleLaterClick);
+  laterButton.addEventListener('touchstart', handleLaterClick, { passive: false });
+  
+  // Create container with message
+  const messageDiv = document.createElement('div');
+  messageDiv.textContent = '🔄 New version available!';
+  messageDiv.style.marginBottom = '10px';
+  
+  updateBanner.appendChild(messageDiv);
+  updateBanner.appendChild(updateButton);
+  updateBanner.appendChild(laterButton);
+  
   document.body.appendChild(updateBanner);
 }
 
