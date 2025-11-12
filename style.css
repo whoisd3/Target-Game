@@ -2178,19 +2178,22 @@ canvas#webglCanvas {
 /* Responsive adjustments for game modes - Enhanced Mobile */
 @media (max-width: 768px) {
   .overlay-menu {
-    padding: 5px;
-    /* Better mobile scrolling */
+    padding: 10px 5px; /* More padding for better button access */
+    /* Better mobile scrolling with iOS support */
     -webkit-overflow-scrolling: touch;
+    align-items: flex-start; /* Allow content to start at top for scrolling */
+    padding-top: 40px; /* Space at top for better iOS experience */
+    min-height: 100vh; /* Ensure full viewport coverage */
   }
   
   .menu-container {
     padding: 15px 12px;
     max-width: 98vw;
     margin: 5px auto;
-    /* Dynamic height for better mobile experience */
-    max-height: calc(100vh - 10px);
-    max-height: calc(100dvh - 10px);
-    overflow-y: auto;
+    /* Remove height constraints for iOS scrolling */
+    height: auto;
+    min-height: auto;
+    overflow: visible; /* Allow natural content flow */
     -webkit-overflow-scrolling: touch;
   }
   
@@ -2247,13 +2250,19 @@ canvas#webglCanvas {
 
 @media (max-width: 480px) {
   .overlay-menu {
-    padding: 3px;
+    padding: 20px 3px; /* More top padding for iOS */
+    align-items: flex-start; /* Start from top for scrolling */
+    min-height: 100vh; /* Ensure full coverage */
   }
   
   .menu-container {
     padding: 12px 8px;
     max-width: 99vw;
     border-radius: 12px;
+    /* Remove height constraints for small iOS devices */
+    height: auto;
+    min-height: auto;
+    overflow: visible;
   }
   
   .game-title {
@@ -2301,11 +2310,30 @@ canvas#webglCanvas {
     padding: 14px 16px;
     font-size: 0.9em;
     border-radius: 10px;
+    margin: 10px 0; /* Extra spacing for iOS */
+    min-height: 44px; /* iOS touch target */
+  }
+  
+  /* Ensure game mode buttons have space */
+  .menu-buttons {
+    margin-top: 20px;
+    padding: 20px 0;
+    gap: 15px;
   }
 }
 
 /* Extra small screens - Ultra compact */
 @media (max-width: 360px) {
+  .overlay-menu {
+    padding: 25px 2px; /* Even more top padding for very small iOS devices */
+  }
+  
+  .menu-container {
+    padding: 10px 6px;
+    height: auto;
+    overflow: visible;
+  }
+  
   .game-title {
     font-size: 1.3em;
     margin-bottom: 10px;
@@ -2329,6 +2357,19 @@ canvas#webglCanvas {
   .mode-card p {
     font-size: 0.75em;
     margin-bottom: 5px;
+  }
+  
+  /* Critical: Ensure buttons are accessible on very small screens */
+  .menu-buttons {
+    margin-top: 25px;
+    padding: 25px 0;
+    gap: 18px;
+  }
+  
+  .menu-btn {
+    min-height: 44px;
+    margin: 12px 0;
+    font-size: 0.85em;
   }
 }
 
