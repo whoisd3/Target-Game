@@ -2012,28 +2012,41 @@ window.addEventListener('touchstart', (e) => {
   handleClick(e);
 }, { passive: false });
 
-// Add mobile touch optimization
+// Add mobile touch optimization with iOS scrolling fixes
 function setupMobileOptimization() {
-  // Prevent default touch behaviors that might interfere
+  // Detect iOS Safari specifically
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  
+  // Only prevent touch behaviors during gameplay, not in menus
   document.addEventListener('touchmove', (e) => {
-    if (currentState === GameState.PLAYING) {
+    // Allow scrolling in menus for iOS
+    if (currentState === GameState.PLAYING && e.target.id === 'webglCanvas') {
       e.preventDefault();
     }
+    // For iOS, allow all other touch moves for scrolling
   }, { passive: false });
   
-  // Prevent zoom on double-tap
+  // Only prevent multi-touch zoom during gameplay
   document.addEventListener('touchstart', (e) => {
-    if (e.touches.length > 1) {
+    if (e.touches.length > 1 && currentState === GameState.PLAYING) {
       e.preventDefault();
     }
   }, { passive: false });
   
-  // Enhanced viewport handling for mobile
+  // Enhanced viewport handling for mobile (but don't block iOS scrolling)
   if (window.innerWidth <= 768) {
-    document.body.style.touchAction = 'manipulation';
+    // For iOS, be more permissive with touch actions
+    if (isIOS) {
+      document.body.style.touchAction = 'pan-y pinch-zoom'; // Allow scrolling
+    } else {
+      document.body.style.touchAction = 'manipulation';
+    }
     document.body.style.userSelect = 'none';
     document.body.style.webkitUserSelect = 'none';
   }
+  
+  console.log(`Mobile optimization setup complete. iOS detected: ${isIOS}`);
 }
 
 setupMobileOptimization();
