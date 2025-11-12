@@ -43,89 +43,95 @@ function showUpdateNotification() {
     color: #000;
     padding: 15px;
     text-align: center;
-    z-index: 10000;
+    z-index: 15000;
     font-family: 'Orbitron', monospace;
     font-weight: 700;
-    box-sizing: border-box;
-    /* Enhanced mobile support */
+    /* Enhanced mobile touch support */
     touch-action: manipulation;
     -webkit-touch-callout: none;
+    -webkit-user-select: none;
     user-select: none;
   `;
   
-  // Create update button with proper mobile touch handling
+  const updateText = document.createElement('div');
+  updateText.textContent = '🔄 New version available!';
+  updateText.style.marginBottom = '10px';
+  
   const updateButton = document.createElement('button');
   updateButton.textContent = 'Update Now';
   updateButton.style.cssText = `
-    margin-left: 10px; 
-    padding: 8px 18px; 
-    background: #000; 
-    color: #00ffff; 
-    border: none; 
-    border-radius: 5px; 
+    margin: 5px 10px;
+    padding: 10px 20px;
+    background: #000;
+    color: #00ffff;
+    border: 2px solid #00ffff;
+    border-radius: 8px;
     cursor: pointer;
     font-family: 'Orbitron', monospace;
     font-weight: 700;
-    min-height: 44px;
-    min-width: 100px;
+    font-size: 14px;
+    /* Mobile touch optimization */
     touch-action: manipulation;
     -webkit-touch-callout: none;
+    -webkit-user-select: none;
     user-select: none;
-    font-size: 14px;
+    min-height: 44px;
+    min-width: 120px;
   `;
   
-  // Create later button with proper mobile touch handling
   const laterButton = document.createElement('button');
   laterButton.textContent = 'Later';
   laterButton.style.cssText = `
-    margin-left: 5px; 
-    padding: 8px 18px; 
-    background: transparent; 
-    color: #000; 
-    border: 1px solid #000; 
-    border-radius: 5px; 
+    margin: 5px 10px;
+    padding: 10px 20px;
+    background: transparent;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 8px;
     cursor: pointer;
     font-family: 'Orbitron', monospace;
     font-weight: 700;
-    min-height: 44px;
-    min-width: 80px;
+    font-size: 14px;
+    /* Mobile touch optimization */
     touch-action: manipulation;
     -webkit-touch-callout: none;
+    -webkit-user-select: none;
     user-select: none;
-    font-size: 14px;
+    min-height: 44px;
+    min-width: 100px;
   `;
   
-  // Add mobile-friendly event listeners
-  const handleUpdateClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('Update button clicked');
+  // Add enhanced mobile touch events
+  const addMobileTouchSupport = (button, clickHandler) => {
+    const handleTouch = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      button.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        button.style.transform = '';
+        clickHandler();
+      }, 100);
+    };
+    
+    button.addEventListener('click', clickHandler);
+    button.addEventListener('touchstart', handleTouch, { passive: false });
+    button.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, { passive: false });
+  };
+  
+  addMobileTouchSupport(updateButton, () => {
     updateApp();
-  };
+  });
   
-  const handleLaterClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('Later button clicked');
+  addMobileTouchSupport(laterButton, () => {
     updateBanner.remove();
-  };
+  });
   
-  // Add both click and touch events for maximum compatibility
-  updateButton.addEventListener('click', handleUpdateClick);
-  updateButton.addEventListener('touchstart', handleUpdateClick, { passive: false });
-  
-  laterButton.addEventListener('click', handleLaterClick);
-  laterButton.addEventListener('touchstart', handleLaterClick, { passive: false });
-  
-  // Create container with message
-  const messageDiv = document.createElement('div');
-  messageDiv.textContent = '🔄 New version available!';
-  messageDiv.style.marginBottom = '10px';
-  
-  updateBanner.appendChild(messageDiv);
+  updateBanner.appendChild(updateText);
   updateBanner.appendChild(updateButton);
   updateBanner.appendChild(laterButton);
-  
   document.body.appendChild(updateBanner);
 }
 
@@ -1362,9 +1368,13 @@ function showCriticalNotification(text, type = 'normal') {
   notification.className = `critical-notification ${type}`;
   notification.textContent = text;
   
+  // Auto-hide faster on mobile devices
+  const isMobile = window.innerWidth <= 768;
+  const hideDelay = isMobile ? 2000 : 4000; // Faster hide on mobile
+  
   criticalContainer.appendChild(notification);
   
-  // Auto-remove after 4 seconds with fade out
+  // Auto-remove with fade out
   setTimeout(() => {
     notification.style.animation = 'fadeOut 0.5s ease-out forwards';
     setTimeout(() => {
@@ -1372,11 +1382,12 @@ function showCriticalNotification(text, type = 'normal') {
         notification.remove();
       }
     }, 500);
-  }, 4000);
+  }, hideDelay);
   
-  // Keep only 3 critical notifications max
+  // Keep only 2 critical notifications max on mobile, 3 on desktop
+  const maxNotifications = isMobile ? 2 : 3;
   const notifications = criticalContainer.children;
-  if (notifications.length > 3) {
+  if (notifications.length > maxNotifications) {
     notifications[0].remove();
   }
 }
