@@ -1620,7 +1620,68 @@ function handleClick(event) {
 }
 
 // Event Listeners
+// Enhanced mobile button event handling
+function setupMobileButtonEvents() {
+  console.log('Setting up mobile button events...');
+  
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupMobileButtonEvents);
+    return;
+  }
+  
+  // Get all menu buttons
+  const menuButtons = document.querySelectorAll('.menu-btn, #pauseButton, #resumeButton, #shape-btn');
+  console.log(`Found ${menuButtons.length} buttons to enhance for mobile`);
+  
+  menuButtons.forEach((button, index) => {
+    console.log(`Setting up button ${index + 1}: ${button.id || button.textContent || 'unnamed'}`);
+    
+    // Add mobile-specific styling
+    button.style.touchAction = 'manipulation';
+    button.style.webkitTouchCallout = 'none';
+    button.style.webkitUserSelect = 'none';
+    button.style.userSelect = 'none';
+    button.style.pointerEvents = 'auto';
+    button.style.position = 'relative';
+    button.style.zIndex = '200';
+    
+    // Add touch event listeners for mobile compatibility
+    const handleTouch = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log(`Touch event on button: ${button.id || button.textContent}`);
+      // Add visual feedback
+      button.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        button.style.transform = '';
+      }, 150);
+      // Trigger click event programmatically
+      setTimeout(() => {
+        button.click();
+      }, 50);
+    };
+    
+    // Remove existing touch listeners to avoid duplicates
+    button.removeEventListener('touchstart', handleTouch);
+    button.removeEventListener('touchend', handleTouch);
+    
+    button.addEventListener('touchstart', handleTouch, { passive: false });
+    button.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, { passive: false });
+  });
+  
+  console.log(`Enhanced ${menuButtons.length} buttons for mobile`);
+}
+
+// Call mobile button setup immediately and on DOM ready
+setupMobileButtonEvents();
+document.addEventListener('DOMContentLoaded', setupMobileButtonEvents);
+
 document.getElementById('playButton').addEventListener('click', () => {
+  console.log('Play button clicked - transitioning to MODE_SELECT');
   soundManager.playButtonClick(); // 🎵 BUTTON CLICK SOUND
   setState(GameState.MODE_SELECT);
 });

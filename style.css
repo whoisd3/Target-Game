@@ -112,6 +112,14 @@ canvas#webglCanvas {
   text-transform: uppercase;
   position: relative;
   overflow: hidden;
+  /* Enhanced mobile touch interaction */
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 255, 255, 0.3);
+  /* Ensure proper z-index for mobile */
+  z-index: 100;
 }
 
 .menu-btn:disabled, .menu-btn.disabled {
@@ -1092,12 +1100,23 @@ canvas#webglCanvas {
   }
   
   .menu-btn {
-    padding: 16px 20px;
-    font-size: 0.95em;
-    min-height: 56px; /* Better touch targets */
+    padding: 18px 24px; /* Larger padding for better mobile touch */
+    font-size: 1.0em;
+    min-height: 60px; /* Larger touch targets for mobile */
     border-radius: 12px;
-    /* Better touch response */
-    -webkit-tap-highlight-color: rgba(0, 255, 255, 0.3);
+    /* Enhanced mobile touch response */
+    -webkit-tap-highlight-color: rgba(0, 255, 255, 0.4);
+    touch-action: manipulation !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    /* Stronger visual feedback for mobile */
+    background: linear-gradient(45deg, #002244, #004466);
+    border: 3px solid #00ffff;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    /* High z-index for mobile interaction */
+    z-index: 200 !important;
+    position: relative;
   }
   
   /* MOBILE HUD SYSTEM - FIXED positioning for mobile UI fitting */
@@ -1130,7 +1149,33 @@ canvas#webglCanvas {
     font-weight: 700;
   }
   
-  /* HUD Container - ensure it fits in viewport */
+  /* Enhanced mobile button hover and active states */
+  .menu-btn:hover, .menu-btn:focus {
+    background: linear-gradient(45deg, #003366, #006699);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+    transform: scale(1.02);
+  }
+  
+  .menu-btn:active, .menu-btn:focus:active {
+    background: linear-gradient(45deg, #004488, #0088cc);
+    transform: scale(0.98);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+    border-color: #66ffff;
+  }
+  
+  /* Primary button enhanced mobile styles */
+  .menu-btn.primary {
+    background: linear-gradient(45deg, #004422, #006644);
+    border-color: #00ff88;
+    color: #00ff88;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+  }
+  
+  .menu-btn.primary:active {
+    background: linear-gradient(45deg, #006644, #008866);
+    transform: scale(0.98);
+    box-shadow: 0 0 35px rgba(0, 255, 136, 0.8);
+  }
   #hud {
     position: fixed;
     top: 0;
@@ -2367,5 +2412,23 @@ canvas#webglCanvas {
   to {
     transform: translateX(0);
     opacity: 1;
+  }
+}
+
+/* Mobile debugging and accessibility */
+@media (hover: none) and (pointer: coarse) {
+  body::before {
+    content: 'Mobile v16';
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 255, 0, 0.8);
+    color: white;
+    padding: 3px 8px;
+    font-size: 11px;
+    border-radius: 4px;
+    z-index: 10000;
+    pointer-events: none;
+    font-family: 'Orbitron', monospace;
   }
 }
