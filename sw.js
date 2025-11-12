@@ -1,4 +1,4 @@
-const CACHE_NAME = 'target-game-v18';
+const CACHE_NAME = 'target-game-v19';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',

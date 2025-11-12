@@ -1595,7 +1595,6 @@ canvas#webglCanvas {
   .install-section h3 {
     font-size: 1.1em;
   }
-}
 
 /* Portrait orientation specific - Very important for mobile */
 @media (max-width: 480px) and (orientation: portrait) {
@@ -2489,7 +2488,7 @@ canvas#webglCanvas {
 /* Mobile debugging and accessibility */
 @media (hover: none) and (pointer: coarse) {
   body::before {
-    content: 'Mobile v18';
+    content: 'Mobile v19';
     position: fixed;
     top: 5px;
     right: 5px;
