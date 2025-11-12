@@ -387,14 +387,14 @@ canvas#webglCanvas {
   color: #ffaa00;
 }
 
-/* HUD System */
+/* HUD System - Fixed to not block target clicking */
 #hud {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none;
+  pointer-events: none; /* Essential: HUD container blocks nothing */
   z-index: 100;
   font-family: 'Orbitron', monospace;
 }
@@ -402,26 +402,25 @@ canvas#webglCanvas {
 .hud-section {
   position: absolute;
   pointer-events: auto;
-  /* Ensure HUD doesn't block game targets */
-  max-width: 300px; /* Constrain HUD element width */
-  /* Keep HUD elements away from center play area */
-  z-index: 100;
+  /* CRITICAL: Ensure HUD sections are positioned at screen edges only */
+  max-width: 250px; /* Smaller max width */
 }
 
-/* Top HUD */
+/* Top HUD - Moved to top-right to not block targets */
 #topHud {
   top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 20px; /* Move to top-right corner */
+  left: auto; /* Remove center positioning */
+  transform: none; /* Remove center transform */
   display: flex;
-  gap: 30px;
+  gap: 15px; /* Smaller gap */
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.3));
   border: 1px solid #00ffff40;
   border-radius: 25px;
-  padding: 15px 30px;
+  padding: 12px 20px; /* Smaller padding */
   backdrop-filter: blur(10px);
-  /* Prevent spanning on large screens */
-  max-width: 600px;
+  /* Constrain size to stay in corner */
+  max-width: 300px;
   width: auto;
 }
 
@@ -459,16 +458,16 @@ canvas#webglCanvas {
   font-size: 1.3em;
 }
 
-/* Side HUD - Contains notification feed */
+/* Side HUD - Contains notification feed - Positioned below top HUD */
 #sideHud {
   right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 120px; /* Move below top HUD to avoid overlap */
+  transform: none; /* Remove center transform */
   display: flex;
   flex-direction: column;
   gap: 20px;
   margin-top: 0;
-  position: relative;
+  position: absolute; /* Explicit positioning */
   /* Prevent spanning on large screens */
   max-width: 280px;
   width: auto;
@@ -848,21 +847,22 @@ canvas#webglCanvas {
   100% { transform: scale(1); }
 }
 
-/* Bottom HUD */
+/* Bottom HUD - Moved to bottom-left to not block targets */
 #bottomHud {
   bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 20px; /* Move to bottom-left corner */
+  right: auto; /* Remove center positioning */
+  transform: none; /* Remove center transform */
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 15px; /* Smaller gap */
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.3));
   border: 1px solid #00ffff40;
   border-radius: 25px;
-  padding: 15px 30px;
+  padding: 12px 20px; /* Smaller padding */
   backdrop-filter: blur(10px);
-  /* Prevent spanning on large screens */
-  max-width: 500px;
+  /* Constrain size to stay in corner */
+  max-width: 400px;
   width: auto;
 }
 
