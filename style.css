@@ -29,7 +29,7 @@ canvas#webglCanvas {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 10; /* Higher z-index to ensure clicks reach canvas */
+  z-index: 50000 !important; /* Much higher z-index to ensure clicks reach canvas */
   border: 2px solid #00ffff;
   box-shadow: 0 0 20px #00ffff40, inset 0 0 20px #00ffff20;
   pointer-events: auto !important;

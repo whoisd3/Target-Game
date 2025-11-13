@@ -1482,15 +1482,44 @@ function handleClick(event) {
   const targetPos = targetMesh.position;
   const clickDistance = clickWorldPos.distanceTo(targetPos);
   
-  // Enhanced hit zone calculation for mobile
+  // ALSO try screen space distance as backup method
+  const targetScreenPos = new THREE.Vector3();
+  targetScreenPos.copy(targetPos);
+  targetScreenPos.project(camera);
+  
+  // Convert to screen coordinates (reuse existing canvas and rect)
+  const targetScreenX = (targetScreenPos.x * 0.5 + 0.5) * rect.width + rect.left;
+  const targetScreenY = (-targetScreenPos.y * 0.5 + 0.5) * rect.height + rect.top;
+  
+  // Calculate screen space distance
+  const screenDistance = Math.sqrt(
+    Math.pow(clientX - targetScreenX, 2) + Math.pow(clientY - targetScreenY, 2)
+  );
+  
+  // Screen space hit radius (pixels)  
   const targetScale = targetMesh.scale.x; // Current target scale
+  const screenHitRadius = Math.max(40, targetScale * 60); // At least 40px hit area
+  
+  // Enhanced hit zone calculation - MORE GENEROUS for better user experience
   const isMobile = window.innerWidth <= 768;
-  const hitRadius = isMobile ? 0.8 * targetScale : 0.6 * targetScale; // Larger hit zone on mobile for better usability
   
-  console.log(`Target at: ${targetPos.x.toFixed(3)}, ${targetPos.y.toFixed(3)}, Click at: ${clickWorldPos.x.toFixed(3)}, ${clickWorldPos.y.toFixed(3)}, Distance: ${clickDistance.toFixed(3)}, Hit radius: ${hitRadius.toFixed(3)}`);
+  // Much more generous hit radius to ensure targets are clickable
+  let hitRadius;
+  if (isMobile) {
+    hitRadius = Math.max(1.2 * targetScale, 0.8); // At least 0.8 units on mobile
+  } else {
+    hitRadius = Math.max(1.0 * targetScale, 0.6); // At least 0.6 units on desktop
+  }
   
-  if (clickDistance <= hitRadius) {
-    console.log('TARGET HIT!');
+  console.log(`Target at: ${targetPos.x.toFixed(3)}, ${targetPos.y.toFixed(3)}, Click at: ${clickWorldPos.x.toFixed(3)}, ${clickWorldPos.y.toFixed(3)}, Distance: ${clickDistance.toFixed(3)}, Hit radius: ${hitRadius.toFixed(3)}, Target scale: ${targetScale.toFixed(3)}`);
+  console.log(`Screen space - Target: ${targetScreenX.toFixed(1)}, ${targetScreenY.toFixed(1)}, Click: ${clientX}, ${clientY}, Screen distance: ${screenDistance.toFixed(1)}, Screen hit radius: ${screenHitRadius}`);
+  
+  // Hit detection - use EITHER world space OR screen space (whichever is more generous)
+  const worldSpaceHit = clickDistance <= hitRadius;
+  const screenSpaceHit = screenDistance <= screenHitRadius;
+  
+  if (worldSpaceHit || screenSpaceHit) {
+    console.log(`TARGET HIT! (World: ${worldSpaceHit}, Screen: ${screenSpaceHit})`);
     const reactionTime = (performance.now() - reactionStart) / 1000;
     currentReactionTime = reactionTime;
     console.log(`Reaction time: ${reactionTime.toFixed(2)}s`);
@@ -1583,9 +1612,15 @@ function handleClick(event) {
     updateUI();
     spawnTarget();
   } else {
-    // PRECISION TARGETING: Miss penalty for ANY click outside target radius
-    console.log('MISS - Click outside target radius');
-    handleMiss();
+    // Only register miss if click was clearly outside target area (not near-misses)
+    const isClearMiss = clickDistance > (hitRadius * 1.5) && screenDistance > (screenHitRadius * 1.5);
+    
+    if (isClearMiss) {
+      console.log(`MISS - Click clearly outside target (World: ${clickDistance.toFixed(3)} > ${(hitRadius * 1.5).toFixed(3)}, Screen: ${screenDistance.toFixed(1)} > ${(screenHitRadius * 1.5).toFixed(1)})`);
+      handleMiss();
+    } else {
+      console.log(`Near miss ignored - too close to target (World: ${clickDistance.toFixed(3)}, Screen: ${screenDistance.toFixed(1)})`);
+    }
   }
 }
 
