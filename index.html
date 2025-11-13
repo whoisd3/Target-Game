@@ -3,13 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, maximum-scale=1.0">
-    <title>🎯 Target Nexus - Precision Aim Game</title>
-    
-    <!-- Mobile cache prevention -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta name="mobile-version" content="v33">
+    <title>Target Nexus - 3D Target Game</title>
     
     <!-- Cache Control for Mobile Updates -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -89,21 +83,10 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"></noscript>
     
     <!-- Stylesheets with cache busting -->
-        
-    <!-- Styles with mobile cache busting -->
-    <link rel="stylesheet" href="style.css?v=mobile-v33">
+    <link rel="stylesheet" href="style.css?v=mobile-opt-nov2024">
 </head>
 <body>
     <canvas id="webglCanvas"></canvas>
-    
-    <!-- Rotate Screen Notification for Mobile -->
-    <div id="rotateNotification" class="rotate-notification hidden">
-        <div class="rotate-content">
-            <div class="rotate-icon">📱 → 📲</div>
-            <h2>Please Rotate Your Device</h2>
-            <p>For the best gaming experience, please rotate your device to landscape mode.</p>
-        </div>
-    </div>
     
     <!-- Main Menu -->
     <div id="mainMenu" class="overlay-menu">
@@ -127,32 +110,32 @@
         <div class="menu-container">
             <h2 class="menu-title">🎮 SELECT GAME MODE</h2>
             <div class="game-modes">
-                <div class="mode-card" data-mode="classic">
+                                <div class="mode-card" data-mode="classic">
                     <div class="mode-icon">🎯</div>
                     <h3>Classic Mode</h3>
-                    <p>Precision targeting with 3 lives! Click ONLY on targets - any off-target click costs a life. Game ends immediately when all lives are lost!</p>
-                    <div class="mode-stats">30 seconds • 3 lives • Precision targeting</div>
+                    <p>⚡ IMMEDIATE END: Precision targeting with only 3 lives! Off-target clicks cost a life. Game ends IMMEDIATELY when all 3 lives are lost!</p>
+                    <div class="mode-stats">30 seconds • Only 3 lives • Immediate end on life loss</div>
                 </div>
                 
-                <div class="mode-card" data-mode="time_attack">
+                                <div class="mode-card" data-mode="time_attack">
                     <div class="mode-icon">⚡</div>
                     <h3>Time Attack</h3>
-                    <p>Precision speed challenge! Off-target clicks cost 2 seconds. Perfect accuracy is key to high scores!</p>
-                    <div class="mode-stats">60 seconds • Time penalties for misses</div>
+                    <p>⚡ IMMEDIATE END: Speed challenge! Off-target clicks cost 2 seconds. Game ends IMMEDIATELY when time reaches 0!</p>
+                    <div class="mode-stats">60 seconds • 2s penalties • Immediate end at 0s</div>
                 </div>
                 
-                <div class="mode-card" data-mode="survival">
+                                <div class="mode-card" data-mode="survival">
                     <div class="mode-icon">🛡️</div>
                     <h3>Survival Mode</h3>
-                    <p>Ultimate precision challenge! Survive as long as possible with only 5 misses allowed. Game ends immediately on 5th miss!</p>
-                    <div class="mode-stats">Unlimited time • 5 misses maximum</div>
+                    <p>⚡ IMMEDIATE END: Ultimate challenge! Game ends IMMEDIATELY on 5th miss. No mercy, no second chances!</p>
+                    <div class="mode-stats">Unlimited time • 5 misses max • Immediate end</div>
                 </div>
                 
-                <div class="mode-card" data-mode="precision">
+                                <div class="mode-card" data-mode="precision">
                     <div class="mode-icon">🔍</div>
                     <h3>Precision Mode</h3>
-                    <p>Perfect accuracy required! ANY missed click ends the game immediately. Only true marksmen survive!</p>
-                    <div class="mode-stats">45 seconds • Zero misses allowed</div>
+                    <p>⚡ IMMEDIATE END: Perfect accuracy required! Game ends IMMEDIATELY on first miss. Only true marksmen survive!</p>
+                    <div class="mode-stats">45 seconds • Zero misses • Immediate end on miss</div>
                 </div>
                 
                 <div class="mode-card" data-mode="multiplayer">
@@ -326,13 +309,6 @@
                 <div class="reaction-best">
                     Best: <span id="bestReactionTime">0.00s</span>
                 </div>
-                <!-- Notification Feed Attached Here -->
-                <div id="notificationFeed" class="notification-feed attached-to-reaction">
-                    <div class="feed-title">ACTIVITY FEED</div>
-                    <div id="bonusNotifications" class="bonus-notifications">
-                        <!-- Populated by JavaScript -->
-                    </div>
-                </div>
             </div>
         </div>
         
@@ -348,6 +324,13 @@
             <div class="hud-stat vertical high-score-section">
                 <span class="hud-label">HIGH SCORE</span>
                 <span id="highScore" class="hud-value">0</span>
+                <!-- Notification Feed Attached Here -->
+                <div id="notificationFeed" class="notification-feed attached-to-highscore">
+                    <div class="feed-title">ACTIVITY FEED</div>
+                    <div id="bonusNotifications" class="bonus-notifications">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
             </div>
             <div class="hud-stat vertical">
                 <span class="hud-label">COMBO</span>
@@ -371,9 +354,23 @@
     
     <!-- Game Enhancement Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
-    <script src="scripts/particles.js?v=v33"></script>
-    <script src="scripts/multiplayer.js?v=v33"></script>
-    <script src="scripts/xr.js?v=v33"></script>
-    <script type="module" src="script.js?v=improved-clickability-v33"></script>
+    <script src="scripts/particles.js"></script>
+    <script src="scripts/multiplayer.js"></script>
+    <script src="scripts/xr.js"></script>
+    <script type="module" src="script.js?v=ios-scroll-fix-v20"></script>
+    
+    <!-- Mobile Orientation Notification -->
+    <div id="rotateNotification" class="rotate-notification hidden">
+        <div class="rotate-content">
+            <div class="rotate-icon">📱</div>
+            <h3>For the best gaming experience</h3>
+            <p>Please rotate your device to landscape mode</p>
+            <div class="rotate-animation">
+                <div class="phone-portrait">📱</div>
+                <div class="arrow">→</div>
+                <div class="phone-landscape">📲</div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

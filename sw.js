@@ -1,9 +1,9 @@
-const CACHE_NAME = 'target-game-v33';
+const CACHE_NAME = 'target-nexus-game-v20-enhanced';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
-  '/style.css?v=mobile-ui-fix-nov2024-v33',
-  '/script.js?v=mobile-ui-fix-nov2024-v33',
+  '/style.css?v=mobile-opt-nov2024',
+  '/script.js?v=ios-scroll-fix-v20',
   '/manifest.json',
   'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js',
   'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js',
@@ -12,52 +12,63 @@ const STATIC_CACHE_URLS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('Service Worker v33: Installing with mobile cache clear...');
+  console.log('🔧 Service Worker: Installing new version...', CACHE_NAME);
   
   event.waitUntil(
-    // Clear old caches first for mobile
-    caches.keys().then((cacheNames) => {
-      const deletePromises = cacheNames
-        .filter(cacheName => cacheName !== CACHE_NAME)
-        .map(cacheName => {
-          console.log('SW v33: Deleting old cache:', cacheName);
-          return caches.delete(cacheName);
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('📦 Service Worker: Caching static assets');
+        return cache.addAll(STATIC_CACHE_URLS);
+      })
+      .then(() => {
+        console.log('✅ Service Worker: Installation complete');
+        // Notify clients about the new version
+        self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({
+              type: 'CACHE_UPDATED',
+              version: CACHE_NAME,
+              message: 'New version cached and ready!'
+            });
+          });
         });
-      return Promise.all(deletePromises);
-    })
-    .then(() => caches.open(CACHE_NAME))
-    .then((cache) => {
-      console.log('Service Worker v33: Caching static assets for mobile');
-      return cache.addAll(STATIC_CACHE_URLS);
-    })
-    .then(() => {
-      console.log('Service Worker v33: Installation complete - Mobile ready!');
-      return self.skipWaiting();
-    })
-    .catch((error) => {
-      console.error('Service Worker v33: Installation failed', error);
-    })
+        return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('❌ Service Worker: Installation failed', error);
+      })
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and notify about activation
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...');
+  console.log('🚀 Service Worker: Activating new version...', CACHE_NAME);
   
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME) {
-              console.log('Service Worker: Deleting old cache', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
-        );
+        const deletePromises = cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('🗑️ Service Worker: Deleting old cache', cacheName);
+            return caches.delete(cacheName);
+          }
+        });
+        return Promise.all(deletePromises);
       })
       .then(() => {
-        console.log('Service Worker: Activation complete');
+        console.log('✅ Service Worker: Activation complete');
+        // Notify all clients about the successful activation
+        return self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({
+              type: 'SW_ACTIVATED',
+              version: CACHE_NAME,
+              message: 'Service Worker activated successfully!'
+            });
+          });
+        });
+      })
+      .then(() => {
         return self.clients.claim();
       })
   );
@@ -196,13 +207,31 @@ async function syncScores() {
 
 // Message handling for communication with main thread
 self.addEventListener('message', (event) => {
+  console.log('📨 Service Worker: Received message', event.data);
+  
   if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('⏩ Service Worker: Skipping waiting...');
     self.skipWaiting();
   }
   
   if (event.data && event.data.type === 'GET_VERSION') {
-    event.ports[0].postMessage({ version: CACHE_NAME });
+    event.ports[0].postMessage({ 
+      version: CACHE_NAME,
+      timestamp: Date.now(),
+      urls: STATIC_CACHE_URLS 
+    });
+  }
+  
+  if (event.data && event.data.type === 'CHECK_CACHE') {
+    // Respond with cache status
+    caches.has(CACHE_NAME).then(hasCache => {
+      event.ports[0].postMessage({
+        type: 'CACHE_STATUS',
+        hasCache: hasCache,
+        version: CACHE_NAME
+      });
+    });
   }
 });
 
-console.log('Service Worker: Script loaded');
+console.log('✅ Service Worker: Script loaded - Target Nexus Cache System Ready!', CACHE_NAME);
