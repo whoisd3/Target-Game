@@ -991,10 +991,8 @@ function startGame() {
   timer = setInterval(() => {
     if (!isPaused && currentState === GameState.PLAYING) {
       if (currentGameMode === GameMode.SURVIVAL) {
-        // Survival mode doesn't have a time limit, but check for game over conditions
-        if (misses >= 5) {
-          endGame();
-        }
+        // Survival mode: No time limit, game over handled immediately in handleMiss()
+        // No additional checks needed here since handleMiss() ends game immediately
       } else {
         // All other modes have time limits
         gameTime--;
@@ -1002,10 +1000,7 @@ function startGame() {
         if (gameTime <= 0) {
           endGame();
         }
-        // Classic mode also checks for lives
-        if (currentGameMode === GameMode.CLASSIC && lives <= 0) {
-          endGame();
-        }
+        // Lives and miss limits are checked immediately in handleMiss() for precision
       }
     }
   }, 1000);
@@ -1326,36 +1321,7 @@ function handleXRTargetHit(position) {
 function handleXRTargetMiss() {
   // Handle miss in XR mode
   if (currentState === GameState.PLAYING && !isPaused) {
-    misses++;
-    
-    // Handle misses based on game mode
-    if (currentGameMode === GameMode.PRECISION) {
-      endGame();
-      return;
-    } else if (currentGameMode === GameMode.SURVIVAL) {
-      if (misses >= 5) {
-        endGame();
-        return;
-      }
-    } else {
-      gameTime = Math.max(0, gameTime - 2);
-    }
-    
-    soundManager.playMiss();
-    if (advancedParticles) {
-      const missPos = new THREE.Vector3(
-        (Math.random() - 0.5) * 6,
-        (Math.random() - 0.5) * 4,
-        0
-      );
-      advancedParticles.triggerMissEffect(missPos);
-    }
-    
-    if (combo > 0) {
-      resetCombo();
-    }
-    
-    updateUI();
+    handleMiss(); // Use unified miss handling
   }
 }
 
@@ -1493,6 +1459,11 @@ function handleClick(event) {
     return;
   }
   
+  // Check if click is on a HUD element - if so, ignore
+  if (event.target && event.target.closest && event.target.closest('.hud-section, .hud-btn, #hud')) {
+    return; // Don't process clicks on HUD elements
+  }
+  
   // Get coordinates from either mouse or touch event
   let clientX, clientY;
   if (event.type === 'touchstart' || event.type === 'touchend') {
@@ -1510,13 +1481,21 @@ function handleClick(event) {
     clientY = event.clientY;
   }
   
-  const rect = renderer.domElement.getBoundingClientRect();
+  // Ensure we're getting the canvas rect accurately
+  const canvas = renderer.domElement;
+  const rect = canvas.getBoundingClientRect();
+  
+  // Verify click is actually within canvas bounds
+  if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) {
+    return; // Click is outside canvas
+  }
+  
   const mouse = new THREE.Vector2(
     ((clientX - rect.left) / rect.width) * 2 - 1,
     -((clientY - rect.top) / rect.height) * 2 + 1
   );
   
-  console.log(`Click/Touch at: ${clientX}, ${clientY}, Mouse normalized: ${mouse.x.toFixed(3)}, ${mouse.y.toFixed(3)}`);
+  console.log(`Click/Touch at: ${clientX}, ${clientY} (canvas: ${rect.left}, ${rect.top}, ${rect.width}x${rect.height}), Mouse normalized: ${mouse.x.toFixed(3)}, ${mouse.y.toFixed(3)}`);
   
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
@@ -1631,77 +1610,92 @@ function handleClick(event) {
     updateUI();
     spawnTarget();
   } else {
-    // Miss penalty - increment miss counter, lose time, and reset combo
-    misses++;
-    
-    // Handle misses based on game mode
-    if (currentGameMode === GameMode.PRECISION) {
-      // Precision mode: Game over on any miss
+    // PRECISION TARGETING: Miss penalty for ANY click outside target radius
+    console.log('MISS - Click outside target radius');
+    handleMiss();
+  }
+}
+
+// Unified miss handling function for precision targeting
+function handleMiss() {
+  misses++;
+  
+  // Handle misses based on game mode - IMMEDIATE END when limit reached
+  if (currentGameMode === GameMode.PRECISION) {
+    // Precision mode: Game over on any miss
+    endGame();
+    return;
+  } else if (currentGameMode === GameMode.SURVIVAL) {
+    // Survival mode: Game over immediately when 5 misses reached
+    if (misses >= 5) {
       endGame();
       return;
-    } else if (currentGameMode === GameMode.SURVIVAL) {
-      // Survival mode: Check if max misses reached (handled in timer)
-      if (misses >= 5) {
-        endGame();
-        return;
-      }
-    } else if (currentGameMode === GameMode.CLASSIC) {
-      // Classic mode: Lose a life instead of time penalty
-      lives--;
-    } else {
-      // Time Attack: Time penalty for missing
-      gameTime = Math.max(0, gameTime - 2);
     }
-    
-    // Play miss sound and show visual feedback
-    soundManager.playMiss(); // 🎵 MISS SOUND
-    
-    // Particle effects for miss
-    if (advancedParticles) {
-      // Create a miss effect at a random position around the screen
-      const missPos = new THREE.Vector3(
-        (Math.random() - 0.5) * 6,
-        (Math.random() - 0.5) * 4,
-        0
-      );
-      advancedParticles.triggerMissEffect(missPos);
+  } else if (currentGameMode === GameMode.CLASSIC) {
+    // Classic mode: Lose a life, end immediately when no lives left
+    lives--;
+    if (lives <= 0) {
+      endGame();
+      return;
     }
-    
-    // Reset combo if any
-    if (combo > 0) {
-      resetCombo();
-      showBonusNotification('COMBO LOST!', 'combo');
+  } else {
+    // Time Attack: Time penalty for missing
+    gameTime = Math.max(0, gameTime - 2);
+    if (gameTime <= 0) {
+      endGame();
+      return;
     }
-    
-    // Show appropriate miss notifications based on mode
-    if (currentGameMode === GameMode.SURVIVAL) {
-      const livesLeft = 5 - misses;
+  }
+  
+  // Play miss sound and show visual feedback
+  soundManager.playMiss(); // 🎵 MISS SOUND
+  
+  // Particle effects for miss
+  if (advancedParticles) {
+    // Create a miss effect at click position or random if no target
+    const missPos = new THREE.Vector3(
+      (Math.random() - 0.5) * 6,
+      (Math.random() - 0.5) * 4,
+      0
+    );
+    advancedParticles.triggerMissEffect(missPos);
+  }
+  
+  // Reset combo on miss
+  if (combo > 0) {
+    resetCombo();
+    showBonusNotification('COMBO LOST!', 'combo');
+  }
+  
+  // Show appropriate miss notifications based on mode
+  if (currentGameMode === GameMode.SURVIVAL) {
+    const livesLeft = 5 - misses;
+    if (livesLeft > 0) {
       showFloatingNotification(`${livesLeft} LIVES LEFT!`, 'penalty');
       showBonusNotification(`MISSED! ${livesLeft} LIVES REMAINING`, 'miss');
-    } else if (currentGameMode === GameMode.CLASSIC) {
-      const livesLeft = lives;
-      if (livesLeft > 0) {
-        showFloatingNotification(`${livesLeft} LIVES LEFT!`, 'penalty');
-        showBonusNotification(`MISSED! ${livesLeft} LIVES REMAINING`, 'miss');
-      } else {
-        showFloatingNotification('GAME OVER!', 'penalty');
-        showBonusNotification('NO LIVES LEFT!', 'miss');
-      }
-    } else if (currentGameMode !== GameMode.PRECISION) {
-      showFloatingNotification('-2s TIME!', 'penalty');
-      showBonusNotification('MISSED! -2 SECONDS', 'miss');
     }
-    
-    showCriticalNotification('❌ MISS!', 'miss');
-    
-    // Flash the misses counter to draw attention
-    if (missesEl) {
-      missesEl.classList.add('penalty-flash');
-      setTimeout(() => missesEl.classList.remove('penalty-flash'), 600);
+  } else if (currentGameMode === GameMode.CLASSIC) {
+    if (lives > 0) {
+      showFloatingNotification(`${lives} LIVES LEFT!`, 'penalty');
+      showBonusNotification(`MISSED! ${lives} LIVES REMAINING`, 'miss');
     }
-    
-    updateUI();
+  } else if (currentGameMode === GameMode.TIME_ATTACK) {
+    showFloatingNotification('-2s TIME!', 'penalty');
+    showBonusNotification('MISSED! -2 SECONDS', 'miss');
+  } else if (currentGameMode === GameMode.PRECISION) {
+    showFloatingNotification('GAME OVER!', 'penalty');
+    showBonusNotification('PRECISION FAILED!', 'miss');
   }
+  
+  showCriticalNotification('❌ MISS!', 'miss');
+  
+  // Flash the misses counter to draw attention
+  if (missesEl) {
+    missesEl.classList.add('penalty-flash');
+    setTimeout(() => missesEl.classList.remove('penalty-flash'), 600);
+  }
+  
+  updateUI();
 }
 
 // Event Listeners
@@ -2011,8 +2005,37 @@ document.getElementById('testMiss').addEventListener('click', () => {
 // Enhanced mobile touch and click handling
 window.addEventListener('click', handleClick);
 window.addEventListener('touchstart', (e) => {
-  e.preventDefault(); // Prevent default touch behavior
-  handleClick(e);
+  // Only handle touch if it's on the canvas for game clicks
+  const canvas = renderer.domElement;
+  const touch = e.touches[0] || e.changedTouches[0];
+  
+  if (touch && canvas) {
+    const rect = canvas.getBoundingClientRect();
+    const isOnCanvas = touch.clientX >= rect.left && touch.clientX <= rect.right && 
+                      touch.clientY >= rect.top && touch.clientY <= rect.bottom;
+    
+    if (isOnCanvas && currentState === GameState.PLAYING) {
+      e.preventDefault(); // Prevent default touch behavior only on canvas during game
+      handleClick(e);
+    }
+  }
+}, { passive: false });
+
+// Also handle touchend for more reliable detection
+window.addEventListener('touchend', (e) => {
+  const canvas = renderer.domElement;
+  const touch = e.changedTouches[0];
+  
+  if (touch && canvas) {
+    const rect = canvas.getBoundingClientRect();
+    const isOnCanvas = touch.clientX >= rect.left && touch.clientX <= rect.right && 
+                      touch.clientY >= rect.top && touch.clientY <= rect.bottom;
+    
+    if (isOnCanvas && currentState === GameState.PLAYING) {
+      e.preventDefault();
+      handleClick(e);
+    }
+  }
 }, { passive: false });
 
 // Add mobile touch optimization with iOS scrolling fixes
