@@ -1,57 +1,13 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js';
 
-// NUCLEAR CACHE REFRESH v34 - Most aggressive client-side cache invalidation
-console.log('🚨 NUCLEAR CACHE CLEAR v34 - Starting aggressive cache invalidation...');
-
-// Force clear all browser caches
-if ('caches' in window) {
-  caches.keys().then(cacheNames => {
-    console.log('🗑️ Found browser caches:', cacheNames);
-    cacheNames.forEach(cacheName => {
-      caches.delete(cacheName);
-      console.log('🗑️ Deleted browser cache:', cacheName);
-    });
-  });
-}
-
+// Simple service worker registration
 if ('serviceWorker' in navigator) {
-  // Unregister ALL service workers first
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    registrations.forEach(registration => {
-      console.log('🗑️ Unregistering old service worker:', registration.scope);
-      registration.unregister();
-    });
-    
-    // Wait a moment then register fresh SW
-    setTimeout(() => {
-      console.log('🔄 Registering fresh service worker...');
-      
-      // Register service worker with nuclear cache settings
-      navigator.serviceWorker.register('/sw.js', {
-        updateViaCache: 'none',
-        scope: '/'
-      }).then((registration) => {
-        console.log('✅ Nuclear SW registered:', registration.scope);
-        
-        // Force immediate update
-        registration.update();
-        
-        // Listen for SW messages
-        navigator.serviceWorker.addEventListener('message', (event) => {
-          if (event.data && event.data.type === 'FORCE_REFRESH') {
-            console.log('🔄 SW Nuclear Refresh:', event.data.message);
-            window.location.reload(true);
-          }
-        });
-        
-      }).catch(error => {
-        console.error('❌ Nuclear SW registration failed:', error);
-      });
-    }, 1000);
-  });
+  navigator.serviceWorker.register('/sw.js')
+    .then(registration => console.log('SW registered'))
+    .catch(error => console.log('SW registration failed'));
 }
 
-console.log('🚀 Target Game v33 - Ultimate Click Fix Loading...');
+console.log('🚀 Target Game - Loading simple version...');
 
 // PWA Installation and Service Worker
 let deferredPrompt;
