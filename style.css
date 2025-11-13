@@ -1029,9 +1029,7 @@ canvas#webglCanvas {
     top: calc(60px + env(safe-area-inset-top, 0px));
   }
   
-  .critical-notifications-zone {
-    top: calc(60px + env(safe-area-inset-top, 0px));
-  }
+  /* Critical notifications removed to prevent UI interference */
   
   #bottomHud {
     bottom: calc(5px + env(safe-area-inset-bottom, 0px));
@@ -1569,16 +1567,7 @@ canvas#webglCanvas {
     font-size: 0.75em;
   }
   
-  /* Mobile critical notifications - Optimized to not interfere with gameplay */
-  .critical-notifications-zone {
-    top: 70px; /* Move lower to avoid blocking top HUD */
-    left: 10px;
-    right: 10px; /* Make responsive to screen width */
-    width: auto;
-    max-width: 250px;
-    max-height: 80px; /* Smaller height to reduce interference */
-    z-index: 150; /* Lower z-index during gameplay */
-  }
+  /* Critical notifications removed for mobile compatibility */
   
   .critical-notification {
     font-size: 0.95em; /* Smaller text for mobile */
@@ -1868,10 +1857,7 @@ canvas#webglCanvas {
     max-height: 60px; /* Reduced for landscape */
   }
   
-  .critical-notification {
-    font-size: 1em;
-    padding: 6px 10px;
-  }
+  /* Critical notifications removed */
 
   #bottomHud {
     bottom: calc(25px + env(safe-area-inset-bottom, 0px)); /* Higher for landscape visibility */
@@ -2890,12 +2876,7 @@ canvas#webglCanvas {
     gap: 30px;
   }
   
-  /* Notification positioning for large screens */
-  .critical-notifications-zone {
-    left: 30px;
-    top: 100px;
-    max-width: 350px;
-  }
+  /* Removed critical notifications to prevent UI interference */
   
   .combo-display {
     top: 30px;

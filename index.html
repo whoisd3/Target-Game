@@ -88,6 +88,15 @@
 <body>
     <canvas id="webglCanvas"></canvas>
     
+    <!-- Rotate Screen Notification for Mobile -->
+    <div id="rotateNotification" class="rotate-notification hidden">
+        <div class="rotate-content">
+            <div class="rotate-icon">📱 → 📲</div>
+            <h2>Please Rotate Your Device</h2>
+            <p>For the best gaming experience, please rotate your device to landscape mode.</p>
+        </div>
+    </div>
+    
     <!-- Main Menu -->
     <div id="mainMenu" class="overlay-menu">
         <div class="menu-container">
@@ -357,6 +366,6 @@
     <script src="scripts/particles.js"></script>
     <script src="scripts/multiplayer.js"></script>
     <script src="scripts/xr.js"></script>
-    <script type="module" src="script.js?v=target-click-fix-v24"></script>
+    <script type="module" src="script.js?v=mobile-rotate-fix-v25"></script>
 </body>
 </html>

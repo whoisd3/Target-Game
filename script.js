@@ -1782,6 +1782,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize XR system
   initializeXR();
   
+  // Check rotate notification on initial load
+  setTimeout(checkRotateNotification, 500);
+  
   // Create XR buttons if supported
   if (xrUIManager && (xrManager?.vrSupported || xrManager?.arSupported)) {
     xrUIManager.createXRButtons();
@@ -2085,8 +2088,27 @@ window.addEventListener('orientationchange', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    
+    // Check if rotate notification should be shown
+    checkRotateNotification();
   }, 100);
 });
+
+// Rotate notification for mobile portrait mode
+function checkRotateNotification() {
+  const rotateNotification = document.getElementById('rotateNotification');
+  const isMobile = window.innerWidth <= 768;
+  const isPortrait = window.innerHeight > window.innerWidth;
+  
+  if (isMobile && isPortrait) {
+    rotateNotification.classList.remove('hidden');
+  } else {
+    rotateNotification.classList.add('hidden');
+  }
+}
+
+// Check rotate notification on resize
+window.addEventListener('resize', checkRotateNotification);
 
 document.getElementById('shape-btn').addEventListener('click', () => {
   if (currentState !== GameState.PLAYING || isPaused) return;
