@@ -29,7 +29,7 @@ canvas#webglCanvas {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 10; /* Higher z-index to ensure clicks reach canvas */
   border: 2px solid #00ffff;
   box-shadow: 0 0 20px #00ffff40, inset 0 0 20px #00ffff20;
   pointer-events: auto !important;
@@ -515,6 +515,23 @@ canvas#webglCanvas {
   font-size: 0.9em;
   color: #ffaa00;
   margin-top: 5px;
+}
+
+/* Bonus Notifications - Attached to Reaction Time in Left HUD */
+.notification-feed.attached-to-reaction {
+  position: relative;
+  top: 10px;
+  right: 0;
+  width: 100%;
+  max-height: 120px;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.6));
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  z-index: 160;
+  pointer-events: none;
+  margin-top: 8px;
 }
 
 /* Bonus Notifications - Attached to High Score in Side HUD */
@@ -1412,11 +1429,12 @@ canvas#webglCanvas {
     font-size: 0.8em;
   }
   
-  /* Mobile side HUD - Enhanced for mobile phones */
+  /* Mobile side HUD - Move to top for better mobile experience */
   #sideHud {
+    top: 80px; /* Position at top below main timer */
     right: 6px;
-    bottom: calc(70px + env(safe-area-inset-bottom, 0px)); /* Above bottom HUD */
-    top: auto;
+    left: 6px; /* Span across width for better mobile layout */
+    bottom: auto;
     transform: none;
     margin-top: 0;
     position: fixed;
@@ -1430,16 +1448,47 @@ canvas#webglCanvas {
     /* Ensure proper touch interaction */
     touch-action: manipulation;
     pointer-events: auto;
+    /* Mobile layout: horizontal flex for stats */
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: none;
+    z-index: 5; /* Lower than canvas */
   }
 
   /* Enhanced mobile HUD stats */
   .hud-stat.vertical {
     padding: 6px 8px;
-    margin-bottom: 4px;
+    margin-bottom: 0;
     border-radius: 6px;
     background: rgba(0, 255, 255, 0.05);
-    min-width: 80px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    min-width: 70px;
     text-align: center;
+  }
+  
+  /* Move progress bar to bottom on mobile */
+  #progressBarContainer {
+    position: fixed !important;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    left: 6px;
+    right: 6px;
+    top: auto !important;
+    z-index: 5;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 8px;
+    backdrop-filter: blur(8px);
+  }
+  
+  /* Hide notification feed on mobile to save space */
+  #notificationFeed {
+    display: none !important;
+  }
+  
+  /* Ensure reaction meter doesn't grow too large with hidden feed */
+  .reaction-meter {
+    max-width: 160px;
   }
 
   .hud-stat.vertical .hud-label {
@@ -1726,10 +1775,28 @@ canvas#webglCanvas {
   }
 
   #sideHud {
+    top: 75px; /* Position at top for portrait mobile */
     right: 5px;
-    bottom: calc(160px + env(safe-area-inset-bottom, 0px)); /* Below notification feed, above bottom HUD */
-    top: auto;
+    left: 5px;
+    bottom: auto;
     transform: none;
+    flex-direction: row;
+    justify-content: space-between;
+    z-index: 5;
+  }
+  
+  #progressBarContainer {
+    position: fixed !important;
+    bottom: calc(50px + env(safe-area-inset-bottom, 0px));
+    left: 5px;
+    right: 5px;
+    top: auto !important;
+    z-index: 5;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 6px;
+    backdrop-filter: blur(8px);
   }
   
   #bottomHud {
@@ -1830,10 +1897,28 @@ canvas#webglCanvas {
   }
 
   #sideHud {
-    bottom: calc(85px + env(safe-area-inset-bottom, 0px)); /* Below notification feed in landscape */
-    top: auto;
-    transform: none;
+    top: 75px; /* Move to top for landscape mobile */
     right: 8px;
+    left: 8px;
+    bottom: auto;
+    transform: none;
+    flex-direction: row;
+    justify-content: space-between;
+    z-index: 5;
+  }
+  
+  #progressBarContainer {
+    position: fixed !important;
+    bottom: calc(25px + env(safe-area-inset-bottom, 0px));
+    left: 8px;
+    right: 8px;
+    top: auto !important;
+    z-index: 5;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 6px;
+    backdrop-filter: blur(8px);
   }
   
   #bottomHud {
@@ -2598,9 +2683,35 @@ canvas#webglCanvas {
     border-radius: 8px;
   }
   
-  /* Side elements - minimize for ultra small */
+  /* Side elements - Position at top for ultra small */
   #leftHud, #sideHud {
     display: none; /* Hide side elements on ultra small screens */
+  }
+  
+  #sideHud {
+    top: 70px !important;
+    right: 3px;
+    left: 3px;
+    bottom: auto !important;
+    flex-direction: row;
+    justify-content: space-between;
+    z-index: 5;
+    gap: 4px;
+    padding: 4px;
+  }
+  
+  #progressBarContainer {
+    position: fixed !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: 3px;
+    right: 3px;
+    top: auto !important;
+    z-index: 5;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 4px;
+    backdrop-filter: blur(8px);
   }
   
   .hud-info {

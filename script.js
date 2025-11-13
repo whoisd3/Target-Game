@@ -855,20 +855,20 @@ function spawnTarget() {
   
   if (isMobile) {
     if (isLandscape) {
-      // Landscape mobile: avoid side UI and top/bottom bars
+      // Landscape mobile: avoid HUDs now at top and bottom
       safeZone = {
-        xMin: -2.5,    // Leave space for left HUD
-        xMax: 1.5,     // Leave space for right side HUD and notifications
-        yMin: -1.5,    // Leave space for bottom HUD
-        yMax: 1.5      // Leave space for top HUD
+        xMin: -2.5,    // Standard horizontal space
+        xMax: 2.5,     // Standard horizontal space
+        yMin: -1.0,    // Leave space for bottom progress bar
+        yMax: 1.0      // Leave space for top HUD
       };
     } else {
-      // Portrait mobile: more vertical space, less horizontal
+      // Portrait mobile: sideHud now at top, progress bar at bottom
       safeZone = {
-        xMin: -2,      // Narrower horizontal space
-        xMax: 2,       // Narrower horizontal space
-        yMin: -1.5,    // Leave space for bottom HUD
-        yMax: 1.5      // Leave space for top HUD and notifications
+        xMin: -2,      // Standard horizontal space
+        xMax: 2,       // Standard horizontal space
+        yMin: -1.0,    // Leave space for bottom progress bar
+        yMax: 0.8      // Leave space for top sideHud
       };
     }
   }
@@ -1325,37 +1325,10 @@ function handleXRTargetMiss() {
   }
 }
 
-// Critical notifications (level up, major combos) - slides in from left
+// Critical notifications (level up, major combos) - DISABLED to prevent interference
 function showCriticalNotification(text, type = 'normal') {
-  const criticalContainer = document.getElementById('criticalNotifications');
-  if (!criticalContainer) return;
-  
-  const notification = document.createElement('div');
-  notification.className = `critical-notification ${type}`;
-  notification.textContent = text;
-  
-  // Auto-hide faster on mobile devices
-  const isMobile = window.innerWidth <= 768;
-  const hideDelay = isMobile ? 2000 : 4000; // Faster hide on mobile
-  
-  criticalContainer.appendChild(notification);
-  
-  // Auto-remove with fade out
-  setTimeout(() => {
-    notification.style.animation = 'fadeOut 0.5s ease-out forwards';
-    setTimeout(() => {
-      if (notification.parentElement) {
-        notification.remove();
-      }
-    }, 500);
-  }, hideDelay);
-  
-  // Keep only 2 critical notifications max on mobile, 3 on desktop
-  const maxNotifications = isMobile ? 2 : 3;
-  const notifications = criticalContainer.children;
-  if (notifications.length > maxNotifications) {
-    notifications[0].remove();
-  }
+  // Critical notifications disabled to prevent gameplay interference
+  return;
 }
 
 // Floating notification near score
@@ -2026,12 +1999,12 @@ window.addEventListener('touchend', (e) => {
   const canvas = renderer.domElement;
   const touch = e.changedTouches[0];
   
-  if (touch && canvas) {
+  if (touch && canvas && currentState === GameState.PLAYING) {
     const rect = canvas.getBoundingClientRect();
     const isOnCanvas = touch.clientX >= rect.left && touch.clientX <= rect.right && 
                       touch.clientY >= rect.top && touch.clientY <= rect.bottom;
     
-    if (isOnCanvas && currentState === GameState.PLAYING) {
+    if (isOnCanvas) {
       e.preventDefault();
       handleClick(e);
     }
@@ -2102,13 +2075,6 @@ window.addEventListener('touchstart', (e) => {
       clientY: touch.clientY,
       target: e.target 
     });
-  }
-}, { passive: false });
-
-// Prevent double-handling on devices that support both touch and mouse
-window.addEventListener('touchend', (e) => {
-  if (currentState === GameState.PLAYING && !isPaused) {
-    e.preventDefault(); // Prevent mouse events from firing after touch
   }
 }, { passive: false });
 

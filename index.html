@@ -318,6 +318,13 @@
                 <div class="reaction-best">
                     Best: <span id="bestReactionTime">0.00s</span>
                 </div>
+                <!-- Notification Feed Attached Here -->
+                <div id="notificationFeed" class="notification-feed attached-to-reaction">
+                    <div class="feed-title">ACTIVITY FEED</div>
+                    <div id="bonusNotifications" class="bonus-notifications">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -333,13 +340,6 @@
             <div class="hud-stat vertical high-score-section">
                 <span class="hud-label">HIGH SCORE</span>
                 <span id="highScore" class="hud-value">0</span>
-                <!-- Notification Feed Attached Here -->
-                <div id="notificationFeed" class="notification-feed attached-to-highscore">
-                    <div class="feed-title">ACTIVITY FEED</div>
-                    <div id="bonusNotifications" class="bonus-notifications">
-                        <!-- Populated by JavaScript -->
-                    </div>
-                </div>
             </div>
             <div class="hud-stat vertical">
                 <span class="hud-label">COMBO</span>
@@ -366,6 +366,6 @@
     <script src="scripts/particles.js"></script>
     <script src="scripts/multiplayer.js"></script>
     <script src="scripts/xr.js"></script>
-    <script type="module" src="script.js?v=precision-targeting-v28"></script>
+    <script type="module" src="script.js?v=activity-feed-reposition-v30"></script>
 </body>
 </html>
