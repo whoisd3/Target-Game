@@ -9,31 +9,74 @@ if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.
   isStandalone = true;
 }
 
-// Register Service Worker
+// Register Service Worker with enhanced update detection
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('ServiceWorker registered successfully:', registration.scope);
-      
-      // Check for updates
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            showUpdateNotification();
-          }
-        });
+      console.log('Registering service worker...');
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none' // Always check for updates
       });
+      
+      console.log('Service Worker registered successfully:', registration.scope);
+      
+      // Enhanced update detection
+      registration.addEventListener('updatefound', () => {
+        console.log('🔄 New service worker version found!');
+        const newWorker = registration.installing;
+        
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('✅ New version ready! Showing update notification.');
+              // Show update notification after a brief delay
+              setTimeout(showUpdateNotification, 1000);
+            }
+          });
+        }
+      });
+      
+      // Check for updates every 5 minutes during gameplay
+      setInterval(() => {
+        if (currentState === GameState.PLAYING || currentState === GameState.MENU) {
+          console.log('⏰ Checking for app updates...');
+          registration.update();
+        }
+      }, 5 * 60 * 1000);
+      
+      // Initial update check
+      setTimeout(() => {
+        console.log('🔍 Initial update check...');
+        registration.update();
+      }, 2000);
+      
     } catch (error) {
-      console.log('ServiceWorker registration failed:', error);
+      console.error('Service Worker registration failed:', error);
+    }
+  });
+  
+  // Listen for messages from service worker
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    console.log('📨 Message from service worker:', event.data);
+    
+    if (event.data && event.data.type === 'CACHE_UPDATED') {
+      console.log('💾 Cache updated - showing notification');
+      showUpdateNotification();
     }
   });
 }
 
 // Show update notification
 function showUpdateNotification() {
+  // Remove any existing update notification
+  const existingBanner = document.getElementById('updateBanner');
+  if (existingBanner) {
+    existingBanner.remove();
+  }
+  
   const updateBanner = document.createElement('div');
+  updateBanner.id = 'updateBanner';
   updateBanner.style.cssText = `
     position: fixed;
     top: 0;
@@ -46,6 +89,9 @@ function showUpdateNotification() {
     z-index: 15000;
     font-family: 'Orbitron', monospace;
     font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.5);
+    border-bottom: 3px solid #fff;
+    animation: slideDownUpdate 0.5s ease-out;
     /* Enhanced mobile touch support */
     touch-action: manipulation;
     -webkit-touch-callout: none;
@@ -54,14 +100,26 @@ function showUpdateNotification() {
   `;
   
   const updateText = document.createElement('div');
-  updateText.textContent = '🔄 New version available!';
-  updateText.style.marginBottom = '10px';
+  updateText.innerHTML = '🔄 <strong>New version available!</strong> Update now for the latest features and improvements.';
+  updateText.style.cssText = `
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  `;
+  
+  const buttonContainer = document.createElement('div');
+  buttonContainer.style.cssText = `
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  `;
   
   const updateButton = document.createElement('button');
-  updateButton.textContent = 'Update Now';
+  updateButton.textContent = '🚀 Update Now';
   updateButton.style.cssText = `
-    margin: 5px 10px;
-    padding: 10px 20px;
+    margin: 5px;
+    padding: 12px 24px;
     background: #000;
     color: #00ffff;
     border: 2px solid #00ffff;
@@ -70,21 +128,22 @@ function showUpdateNotification() {
     font-family: 'Orbitron', monospace;
     font-weight: 700;
     font-size: 14px;
+    transition: all 0.3s ease;
     /* Mobile touch optimization */
     touch-action: manipulation;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
     min-height: 44px;
-    min-width: 120px;
+    min-width: 140px;
   `;
   
   const laterButton = document.createElement('button');
-  laterButton.textContent = 'Later';
+  laterButton.textContent = '⏰ Later';
   laterButton.style.cssText = `
-    margin: 5px 10px;
-    padding: 10px 20px;
-    background: transparent;
+    margin: 5px;
+    padding: 12px 24px;
+    background: rgba(0,0,0,0.2);
     color: #000;
     border: 2px solid #000;
     border-radius: 8px;
@@ -92,6 +151,7 @@ function showUpdateNotification() {
     font-family: 'Orbitron', monospace;
     font-weight: 700;
     font-size: 14px;
+    transition: all 0.3s ease;
     /* Mobile touch optimization */
     touch-action: manipulation;
     -webkit-touch-callout: none;
@@ -103,36 +163,83 @@ function showUpdateNotification() {
   
   // Add enhanced mobile touch events
   const addMobileTouchSupport = (button, clickHandler) => {
-    const handleTouch = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      button.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        button.style.transform = '';
-        clickHandler();
-      }, 100);
-    };
+    // Hover effects for desktop
+    button.addEventListener('mouseenter', () => {
+      if (button === updateButton) {
+        button.style.background = '#00ffff';
+        button.style.color = '#000';
+        button.style.transform = 'translateY(-2px)';
+        button.style.boxShadow = '0 4px 12px rgba(0,255,255,0.4)';
+      } else {
+        button.style.background = 'rgba(0,0,0,0.4)';
+        button.style.transform = 'translateY(-2px)';
+      }
+    });
     
-    button.addEventListener('click', clickHandler);
-    button.addEventListener('touchstart', handleTouch, { passive: false });
+    button.addEventListener('mouseleave', () => {
+      if (button === updateButton) {
+        button.style.background = '#000';
+        button.style.color = '#00ffff';
+      } else {
+        button.style.background = 'rgba(0,0,0,0.2)';
+      }
+      button.style.transform = 'translateY(0)';
+      button.style.boxShadow = 'none';
+    });
+    
+    // Touch events for mobile
+    button.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      button.style.transform = 'scale(0.95)';
+    }, { passive: false });
+    
     button.addEventListener('touchend', (e) => {
       e.preventDefault();
-      e.stopPropagation();
+      button.style.transform = 'scale(1)';
+      setTimeout(clickHandler, 50);
     }, { passive: false });
+    
+    // Click event as fallback
+    button.addEventListener('click', clickHandler);
   };
   
   addMobileTouchSupport(updateButton, () => {
-    updateApp();
+    console.log('User clicked Update Now - triggering app update');
+    updateBanner.style.animation = 'slideUpUpdate 0.3s ease-in forwards';
+    setTimeout(() => {
+      updateApp();
+    }, 300);
   });
   
   addMobileTouchSupport(laterButton, () => {
-    updateBanner.remove();
+    console.log('User clicked Later - dismissing update notification');
+    updateBanner.style.animation = 'slideUpUpdate 0.3s ease-in forwards';
+    setTimeout(() => {
+      if (updateBanner.parentNode) {
+        updateBanner.remove();
+      }
+      // Show again in 1 hour
+      setTimeout(showUpdateNotification, 60 * 60 * 1000);
+    }, 300);
   });
   
+  buttonContainer.appendChild(updateButton);
+  buttonContainer.appendChild(laterButton);
   updateBanner.appendChild(updateText);
-  updateBanner.appendChild(updateButton);
-  updateBanner.appendChild(laterButton);
+  updateBanner.appendChild(buttonContainer);
   document.body.appendChild(updateBanner);
+  
+  // Auto-hide after 30 seconds if no action
+  setTimeout(() => {
+    if (document.body.contains(updateBanner)) {
+      updateBanner.style.animation = 'slideUpUpdate 0.5s ease-in forwards';
+      setTimeout(() => {
+        if (updateBanner.parentNode) {
+          updateBanner.remove();
+        }
+      }, 500);
+    }
+  }, 30000);
 }
 
 // Update app function
@@ -985,6 +1092,11 @@ function startGame() {
   updateUI(); 
   spawnTarget();
   
+  // Check mobile orientation after setting playing state
+  setTimeout(() => {
+    checkMobileOrientation();
+  }, 100);
+  
   if (timer) clearInterval(timer);
   if (comboTimer) clearTimeout(comboTimer);
   
@@ -993,6 +1105,7 @@ function startGame() {
       if (currentGameMode === GameMode.SURVIVAL) {
         // Survival mode doesn't have a time limit, but check for game over conditions
         if (misses >= 5) {
+          console.log('⚡ IMMEDIATE END: Survival Mode - 5 misses reached in timer!');
           endGame();
         }
       } else {
@@ -1000,10 +1113,12 @@ function startGame() {
         gameTime--;
         updateUI();
         if (gameTime <= 0) {
+          console.log('⚡ IMMEDIATE END: Time expired!');
           endGame();
         }
         // Classic mode also checks for lives
         if (currentGameMode === GameMode.CLASSIC && lives <= 0) {
+          console.log('⚡ IMMEDIATE END: Classic Mode - No lives left in timer!');
           endGame();
         }
       }
@@ -1068,19 +1183,23 @@ function endGame() {
   switch (currentGameMode) {
     case GameMode.CLASSIC:
       modeTitle = '🎯 Classic Mode';
-      const endReason = lives <= 0 ? 'No Lives Left!' : 'Time Up!';
-      modeInfo = `<div>Game Over: ${endReason}</div><div>Lives Used: ${3 - lives}/3</div>`;
+      const endReason = lives <= 0 ? '⚡ IMMEDIATE END: All Lives Lost!' : 'Time Up!';
+      modeInfo = `<div>${endReason}</div><div>Lives Used: ${3 - lives}/3</div>`;
       break;
     case GameMode.TIME_ATTACK:
       modeTitle = '⚡ Time Attack Mode';
+      const timeEndReason = gameTime <= 0 ? '⚡ IMMEDIATE END: Time Reached 0!' : 'Time Up!';
+      modeInfo = `<div>${timeEndReason}</div>`;
       break;
     case GameMode.SURVIVAL:
       modeTitle = '🛡️ Survival Mode';
-      modeInfo = `<div>Survival Time: ${Math.max(0, 999 - gameTime)}s</div>`;
+      const survivalEndReason = misses >= 5 ? '⚡ IMMEDIATE END: 5 Misses Reached!' : 'Game Over';
+      modeInfo = `<div>${survivalEndReason}</div><div>Survival Time: ${Math.max(0, 999 - gameTime)}s</div>`;
       break;
     case GameMode.PRECISION:
       modeTitle = '🔍 Precision Mode';
-      modeInfo = misses === 0 ? '<div style="color: #00ff00;">🎉 PERFECT! No misses!</div>' : '<div style="color: #ff6666;">💥 Game over on miss</div>';
+      const precisionEndReason = misses > 0 ? '⚡ IMMEDIATE END: Precision Failed!' : 'Perfect Run!';
+      modeInfo = misses === 0 ? '<div style="color: #00ff00;">🎉 PERFECT! No misses!</div>' : `<div style="color: #ff6666;">${precisionEndReason}</div>`;
       break;
   }
   
@@ -1637,20 +1756,36 @@ function handleClick(event) {
     // Handle misses based on game mode
     if (currentGameMode === GameMode.PRECISION) {
       // Precision mode: Game over on any miss
+      console.log('⚡ IMMEDIATE END: Precision Mode - First miss!');
       endGame();
       return;
     } else if (currentGameMode === GameMode.SURVIVAL) {
-      // Survival mode: Check if max misses reached (handled in timer)
+      // Survival mode: Check if max misses reached
       if (misses >= 5) {
+        console.log('⚡ IMMEDIATE END: Survival Mode - 5 misses reached!');
         endGame();
         return;
       }
     } else if (currentGameMode === GameMode.CLASSIC) {
       // Classic mode: Lose a life instead of time penalty
       lives--;
+      
+      // IMMEDIATE END: Check if no lives left
+      if (lives <= 0) {
+        console.log('⚡ IMMEDIATE END: Classic Mode - All lives lost!');
+        endGame();
+        return;
+      }
     } else {
       // Time Attack: Time penalty for missing
       gameTime = Math.max(0, gameTime - 2);
+      
+      // IMMEDIATE END: Check if time reached 0
+      if (gameTime <= 0) {
+        console.log('⚡ IMMEDIATE END: Time Attack - Time reached 0!');
+        endGame();
+        return;
+      }
     }
     
     // Play miss sound and show visual feedback
@@ -2079,14 +2214,47 @@ window.addEventListener('contextmenu', (e) => {
   }
 });
 
-// Handle orientation changes
+// Handle orientation changes with mobile notification
 window.addEventListener('orientationchange', () => {
   setTimeout(() => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    updateMobileViewport();
+    handleOrientationNotification();
   }, 100);
 });
+
+// Mobile Orientation Notification System
+function handleOrientationNotification() {
+  const isMobile = window.innerWidth <= 768;
+  const isPortrait = window.innerHeight > window.innerWidth;
+  const rotateNotification = document.getElementById('rotateNotification');
+  
+  if (!rotateNotification) return;
+  
+  // Show rotation notification for mobile portrait during gameplay
+  if (isMobile && isPortrait && currentState === GameState.PLAYING) {
+    rotateNotification.classList.remove('hidden');
+    // Pause game while showing notification
+    if (!isPaused) {
+      pauseGame();
+    }
+  } else {
+    rotateNotification.classList.add('hidden');
+    // Resume if was paused by rotation notification and now in landscape
+    if (currentState === GameState.PAUSED && isMobile && !isPortrait) {
+      setTimeout(() => {
+        resumeGame();
+      }, 500); // Small delay to let orientation settle
+    }
+  }
+}
+
+// Check orientation on game start
+function checkMobileOrientation() {
+  handleOrientationNotification();
+}
 
 document.getElementById('shape-btn').addEventListener('click', () => {
   if (currentState !== GameState.PLAYING || isPaused) return;
@@ -2136,6 +2304,9 @@ window.addEventListener('resize', () => {
   
   // Update dynamic viewport height for mobile browsers
   updateMobileViewport();
+  
+  // Check orientation after resize
+  handleOrientationNotification();
 });
 
 // Handle orientation changes with dynamic viewport updates

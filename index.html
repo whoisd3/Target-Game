@@ -110,32 +110,32 @@
         <div class="menu-container">
             <h2 class="menu-title">🎮 SELECT GAME MODE</h2>
             <div class="game-modes">
-                <div class="mode-card" data-mode="classic">
+                                <div class="mode-card" data-mode="classic">
                     <div class="mode-icon">🎯</div>
                     <h3>Classic Mode</h3>
-                    <p>Standard target shooting with increasing difficulty. Perfect your aim and reaction time! Features 3 lives system - lose a life for each miss!</p>
-                    <div class="mode-stats">30 seconds • 3 lives • Progressive difficulty</div>
+                    <p>⚡ IMMEDIATE END: Precision targeting with only 3 lives! Off-target clicks cost a life. Game ends IMMEDIATELY when all 3 lives are lost!</p>
+                    <div class="mode-stats">30 seconds • Only 3 lives • Immediate end on life loss</div>
                 </div>
                 
-                <div class="mode-card" data-mode="time_attack">
+                                <div class="mode-card" data-mode="time_attack">
                     <div class="mode-icon">⚡</div>
                     <h3>Time Attack</h3>
-                    <p>Fast-paced action! Hit as many targets as possible in 60 seconds.</p>
-                    <div class="mode-stats">60 seconds • Rapid fire</div>
+                    <p>⚡ IMMEDIATE END: Speed challenge! Off-target clicks cost 2 seconds. Game ends IMMEDIATELY when time reaches 0!</p>
+                    <div class="mode-stats">60 seconds • 2s penalties • Immediate end at 0s</div>
                 </div>
                 
-                <div class="mode-card" data-mode="survival">
+                                <div class="mode-card" data-mode="survival">
                     <div class="mode-icon">🛡️</div>
                     <h3>Survival Mode</h3>
-                    <p>Endless gameplay! Survive as long as you can with limited misses.</p>
-                    <div class="mode-stats">Unlimited time • 5 lives</div>
+                    <p>⚡ IMMEDIATE END: Ultimate challenge! Game ends IMMEDIATELY on 5th miss. No mercy, no second chances!</p>
+                    <div class="mode-stats">Unlimited time • 5 misses max • Immediate end</div>
                 </div>
                 
-                <div class="mode-card" data-mode="precision">
+                                <div class="mode-card" data-mode="precision">
                     <div class="mode-icon">🔍</div>
                     <h3>Precision Mode</h3>
-                    <p>Ultimate accuracy challenge! Smaller targets, perfect precision required.</p>
-                    <div class="mode-stats">45 seconds • No misses allowed</div>
+                    <p>⚡ IMMEDIATE END: Perfect accuracy required! Game ends IMMEDIATELY on first miss. Only true marksmen survive!</p>
+                    <div class="mode-stats">45 seconds • Zero misses • Immediate end on miss</div>
                 </div>
                 
                 <div class="mode-card" data-mode="multiplayer">
@@ -358,5 +358,19 @@
     <script src="scripts/multiplayer.js"></script>
     <script src="scripts/xr.js"></script>
     <script type="module" src="script.js?v=ios-scroll-fix-v20"></script>
+    
+    <!-- Mobile Orientation Notification -->
+    <div id="rotateNotification" class="rotate-notification hidden">
+        <div class="rotate-content">
+            <div class="rotate-icon">📱</div>
+            <h3>For the best gaming experience</h3>
+            <p>Please rotate your device to landscape mode</p>
+            <div class="rotate-animation">
+                <div class="phone-portrait">📱</div>
+                <div class="arrow">→</div>
+                <div class="phone-landscape">📲</div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -939,9 +939,9 @@ canvas#webglCanvas {
   text-shadow: 0 0 10px #00ffff;
 }
 
-/* Progress bar */
+/* Progress bar - Enhanced for mobile bottom position */
 .progress-container {
-  width: 200px;
+  width: 100%; /* Full width on mobile when positioned */
   height: 8px;
   background: rgba(0, 255, 255, 0.2);
   border-radius: 4px;
@@ -954,7 +954,7 @@ canvas#webglCanvas {
   background: linear-gradient(90deg, #00ffff, #40ffff, #00ffff);
   border-radius: 4px;
   transition: width 0.3s ease;
-  box-shadow: 0 0 15px #00ffff;
+  box-shadow: 0 0 10px #00ffff;
 }
 
 /* Animations */
@@ -1089,6 +1089,28 @@ canvas#webglCanvas {
     /* Ensure proper touch scrolling for game mode selection */
     -webkit-overflow-scrolling: touch;
     overflow-y: auto;
+  }
+}
+
+@keyframes slideDownUpdate {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpUpdate {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
   }
 }
 
@@ -1404,34 +1426,118 @@ canvas#webglCanvas {
     font-size: 0.8em;
   }
   
-  /* Mobile side HUD - Enhanced for mobile phones */
+  /* Mobile side HUD - MOVED TO TOP of screen */
   #sideHud {
+    /* Move from bottom-right to TOP */
+    top: 80px; /* Below main timer */
+    left: 6px;
     right: 6px;
-    bottom: calc(70px + env(safe-area-inset-bottom, 0px)); /* Above bottom HUD */
-    top: auto;
+    bottom: auto !important; /* Remove bottom positioning */
+    
+    position: fixed;
+    width: auto !important;
+    height: auto !important;
     transform: none;
     margin-top: 0;
-    position: fixed;
     gap: 8px;
-    /* Mobile-optimized styling */
+    
+    /* Enhanced styling for top position */
     background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
     border: 1px solid rgba(0, 255, 255, 0.3);
     border-radius: 10px;
-    padding: 8px;
+    padding: 8px 12px;
     backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(0, 255, 255, 0.15);
+    z-index: 10;
+    
+    /* HORIZONTAL layout for mobile stats */
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    
     /* Ensure proper touch interaction */
     touch-action: manipulation;
     pointer-events: auto;
   }
 
-  /* Enhanced mobile HUD stats */
+  
+  /* Move progress bar to BOTTOM of screen on mobile - ABOVE bottom HUD */
+  #progressBarContainer {
+    position: fixed !important;
+    bottom: calc(75px + env(safe-area-inset-bottom, 0px)); /* Above bottom HUD controls */
+    left: 6px;
+    right: 6px;
+    top: auto !important;
+    width: auto !important;
+    z-index: 5;
+    
+    /* Enhanced bottom styling */
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 8px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(0, 255, 255, 0.15);
+  }
+  
+  #progressBar {
+    height: 6px;
+    border-radius: 3px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+  }
+  
+  /* Enhanced mobile HUD stats - HORIZONTAL layout */
   .hud-stat.vertical {
+    flex: 1; /* Equal width distribution */
+    text-align: center;
     padding: 6px 8px;
-    margin-bottom: 4px;
+    margin-bottom: 0; /* Remove vertical margin */
     border-radius: 6px;
     background: rgba(0, 255, 255, 0.05);
-    min-width: 80px;
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    min-width: 60px;
+    
+    /* Compact mobile typography */
+    font-size: 0.8em;
+    line-height: 1.2;
+  }
+  
+  .hud-stat.vertical .hud-label {
+    font-size: 0.7em;
+    margin-bottom: 2px;
+    opacity: 0.8;
+  }
+  
+  .hud-stat.vertical .hud-value {
+    font-size: 1em;
+    font-weight: 700;
+  }
+  
+  /* HIDE notification feeds on mobile to save space */
+  #bonusNotifications {
+    display: none !important;
+  }
+  
+  #criticalNotifications {
+    display: none !important;
+  }
+  
+  #notificationFeed {
+    display: none !important;
+  }
+  
+  /* Optimize main timer positioning for top HUD */
+  #mainTimer, #reaction {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     text-align: center;
+    z-index: 20; /* Above sideHud */
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 16px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
   }
 
   .hud-stat.vertical .hud-label {
@@ -1444,24 +1550,24 @@ canvas#webglCanvas {
     font-weight: 700;
   }
   
-  /* Mobile bottom HUD - Enhanced for mobile phone usage */
+  /* Mobile bottom HUD - Enhanced for mobile phone usage - ENSURE CLICKABLE */
   #bottomHud {
-    bottom: max(env(safe-area-inset-bottom, 0px), 8px); /* Ensure it's above mobile browsers UI */
-    padding: 8px 10px;
-    gap: 10px;
-    left: 4px;
-    right: 4px;
+    bottom: max(env(safe-area-inset-bottom, 0px), 12px); /* Ensure it's above mobile browsers UI */
+    padding: 10px 15px;
+    gap: 15px;
+    left: 6px;
+    right: 6px;
     transform: none;
     border-radius: 12px;
     flex-wrap: nowrap;
     overflow-x: visible;
     -webkit-overflow-scrolling: touch;
     /* Enhanced visibility for mobile */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(0, 0, 0, 0.85));
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 0, 0, 0.9));
     border: 2px solid #00ffff;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-    z-index: 250; /* Higher priority on mobile */
-    min-height: 50px; /* Larger touch area */
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+    z-index: 350; /* HIGHEST priority on mobile */
+    min-height: 60px; /* Larger touch area */
     /* Mobile-specific enhancements */
     position: fixed;
     display: flex;
@@ -1470,6 +1576,7 @@ canvas#webglCanvas {
     /* Prevent mobile browser interference */
     touch-action: manipulation;
     -webkit-touch-callout: none;
+    pointer-events: auto !important; /* Force clickable */
   }
 
   /* Ensure hud-controls are clickable */
@@ -1482,12 +1589,12 @@ canvas#webglCanvas {
   }
   
   .hud-btn {
-    width: 48px; /* Larger touch target for mobile */
-    height: 48px;
-    font-size: 1.0em;
-    min-width: 48px;
+    width: 52px; /* Larger touch target for mobile */
+    height: 52px;
+    font-size: 1.1em;
+    min-width: 52px;
     flex-shrink: 0;
-    border-radius: 10px;
+    border-radius: 12px;
     /* Enhanced mobile touch interaction */
     touch-action: manipulation;
     -webkit-touch-callout: none;
@@ -1497,18 +1604,18 @@ canvas#webglCanvas {
     -webkit-tap-highlight-color: rgba(0, 255, 255, 0.4);
     user-select: none;
     position: relative;
-    z-index: 350; /* Higher than container */
+    z-index: 400; /* Higher than container */
     /* Enhanced mobile-specific properties */
     -webkit-user-select: none;
     outline: none;
     border: 2px solid #00ffff;
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(0, 0, 0, 0.85));
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 0, 0, 0.9));
     color: #00ffff;
     font-family: 'Orbitron', monospace;
     font-weight: bold;
     transition: all 0.2s ease;
     /* Mobile shadow and glow */
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
     backdrop-filter: blur(5px);
   }
 
@@ -1765,6 +1872,50 @@ canvas#webglCanvas {
   
   .floating-notification.critical {
     font-size: 1.4em;
+  }
+}
+
+/* Very small mobile screens - Enhanced layout */
+@media (max-width: 480px) {
+  #sideHud {
+    top: 75px; /* Slightly higher on very small screens */
+    left: 4px;
+    right: 4px;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  
+  .hud-stat.vertical {
+    font-size: 0.75em;
+    min-width: 50px;
+    padding: 4px 6px;
+  }
+  
+  #progressBarContainer {
+    left: 4px;
+    right: 4px;
+    padding: 6px;
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px)); /* Above bottom HUD */
+  }
+  
+  #bottomHud {
+    left: 4px;
+    right: 4px;
+    padding: 8px 12px;
+    gap: 12px;
+    min-height: 56px;
+  }
+  
+  .hud-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1em;
+  }
+  
+  #mainTimer, #reaction {
+    top: 15px;
+    padding: 6px 12px;
+    font-size: 0.9em;
   }
 }
 
@@ -2583,6 +2734,99 @@ canvas#webglCanvas {
     pointer-events: none;
     font-family: 'Orbitron', monospace;
   }
+}
+
+/* Mobile Rotation Notification */
+.rotate-notification {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  font-family: 'Orbitron', monospace;
+}
+
+.rotate-content {
+  text-align: center;
+  color: #00ffff;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 100, 255, 0.1));
+  border: 2px solid #00ffff;
+  border-radius: 20px;
+  max-width: 320px;
+}
+
+.rotate-icon {
+  font-size: 4em;
+  margin-bottom: 20px;
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+.rotate-content h3 {
+  font-size: 1.3em;
+  margin-bottom: 15px;
+  color: #00ffff;
+  font-weight: 700;
+}
+
+.rotate-content p {
+  font-size: 1em;
+  margin-bottom: 25px;
+  color: #ccc;
+  line-height: 1.4;
+}
+
+.rotate-animation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-size: 1.5em;
+}
+
+.phone-portrait, .phone-landscape {
+  transition: transform 0.3s ease;
+}
+
+.phone-portrait {
+  animation: rotateFromPortrait 2s ease-in-out infinite;
+}
+
+.arrow {
+  color: #ffaa00;
+  font-weight: bold;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.phone-landscape {
+  animation: rotateToLandscape 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+@keyframes rotateFromPortrait {
+  0%, 50% { transform: rotate(0deg); }
+  75%, 100% { transform: rotate(90deg); }
+}
+
+@keyframes rotateToLandscape {
+  0%, 50% { transform: rotate(0deg) scale(1); }
+  75%, 100% { transform: rotate(0deg) scale(1.2); color: #00ffff; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
 }
 
 /* Large Screen Optimizations - Prevent UI spanning */
