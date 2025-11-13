@@ -2180,16 +2180,19 @@ canvas#webglCanvas {
   }
   
   .overlay-menu {
-    position: absolute !important; /* Works better than fixed on iOS */
+    position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    overflow-y: scroll !important; /* Enable vertical scrolling */
+    overflow-y: auto !important; /* Enable vertical scrolling */
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch !important;
-    touch-action: pan-y !important; /* Allow vertical scrolling only */
+    touch-action: pan-y pinch-zoom !important; /* Allow vertical scrolling and pinch zoom */
     z-index: 10000 !important;
+    /* iOS momentum scrolling */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
   
   /* Only disable touch on game canvas, not menus */
@@ -2203,8 +2206,10 @@ canvas#webglCanvas {
   .menu-container {
     max-height: none !important; /* Don't constrain menu height on iOS */
     overflow: visible !important; /* Allow natural content flow */
-    max-height: calc(100vh - 20px);
-    max-height: calc(100dvh - 20px); /* Dynamic viewport height */
+    min-height: auto !important;
+    height: auto !important;
+    /* Let content determine height */
+    box-sizing: border-box;
   }
   
   /* Better iOS button styling */
@@ -2317,26 +2322,45 @@ canvas#webglCanvas {
 /* Responsive adjustments for game modes - Enhanced Mobile */
 @media (max-width: 768px) {
   .overlay-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     padding: 5px;
+    overflow-y: auto !important;
+    overflow-x: hidden;
     /* Better mobile scrolling */
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y pinch-zoom !important;
+    /* Prevent bounce scrolling */
+    overscroll-behavior: contain;
+    z-index: 10000;
   }
   
   .menu-container {
     padding: 15px 12px;
     max-width: 98vw;
     margin: 5px auto;
-    /* Dynamic height for better mobile experience */
-    max-height: calc(100vh - 10px);
-    max-height: calc(100dvh - 10px);
-    overflow-y: auto;
+    /* Remove height constraints to allow full content */
+    max-height: none !important;
+    min-height: auto;
+    height: auto;
+    overflow: visible !important;
     -webkit-overflow-scrolling: touch;
+    /* Ensure container can be taller than viewport */
+    box-sizing: border-box;
   }
   
   .game-modes {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+    width: 100%;
+    /* Ensure proper height for scrolling */
+    min-height: auto;
+    height: auto;
   }
   
   .mode-card {
@@ -2386,13 +2410,25 @@ canvas#webglCanvas {
 
 @media (max-width: 480px) {
   .overlay-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     padding: 3px;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    overscroll-behavior: contain;
   }
   
   .menu-container {
     padding: 12px 8px;
     max-width: 99vw;
     border-radius: 12px;
+    max-height: none !important;
+    height: auto;
+    overflow: visible !important;
   }
   
   .game-title {
