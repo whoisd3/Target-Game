@@ -1466,19 +1466,22 @@ canvas#webglCanvas {
     text-align: center;
   }
   
-  /* Move progress bar to bottom on mobile */
+  /* Move progress bar to center bottom on mobile for better visibility */
   #progressBarContainer {
     position: fixed !important;
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    left: 6px;
-    right: 6px;
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px)); /* Above bottom HUD */
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100vw - 40px);
+    max-width: 300px;
     top: auto !important;
     z-index: 5;
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    border-radius: 10px;
-    padding: 8px;
-    backdrop-filter: blur(8px);
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.8));
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    border-radius: 12px;
+    padding: 6px 12px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
   }
   
   /* Hide notification feed on mobile to save space */

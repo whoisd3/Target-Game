@@ -1424,44 +1424,90 @@ function addTimeBonus(seconds, reason) {
 }
 
 function handleClick(event) {
-  if (currentState !== GameState.PLAYING || isPaused || isShapeChanging) return;
+  // COMPREHENSIVE CLICK DEBUGGING
+  console.log('=== CLICK EVENT DEBUG ===');
+  console.log('Event type:', event.type);
+  console.log('Event target:', event.target);
+  console.log('Current state:', currentState);
+  console.log('Is paused:', isPaused);
+  console.log('Is shape changing:', isShapeChanging);
+  
+  if (currentState !== GameState.PLAYING || isPaused || isShapeChanging) {
+    console.log('❌ Click ignored - game not in playing state');
+    return;
+  }
   
   // Prevent clicks for first 500ms after game start to avoid accidental immediate clicks
   const timeSinceStart = performance.now() - gameStartTime;
   if (timeSinceStart < 500) {
+    console.log('❌ Click ignored - too soon after game start');
     return;
   }
   
   // Check if click is on a HUD element - if so, ignore
   if (event.target && event.target.closest && event.target.closest('.hud-section, .hud-btn, #hud')) {
+    console.log('❌ Click ignored - on HUD element:', event.target.closest('.hud-section, .hud-btn, #hud'));
     return; // Don't process clicks on HUD elements
   }
   
   // Get coordinates from either mouse or touch event
   let clientX, clientY;
+  console.log('Event details:', {
+    type: event.type,
+    touches: event.touches?.length || 0,
+    changedTouches: event.changedTouches?.length || 0,
+    clientX: event.clientX,
+    clientY: event.clientY
+  });
+  
   if (event.type === 'touchstart' || event.type === 'touchend') {
     if (event.touches && event.touches.length > 0) {
       clientX = event.touches[0].clientX;
       clientY = event.touches[0].clientY;
+      console.log('✅ Using touches[0] coordinates:', clientX, clientY);
     } else if (event.changedTouches && event.changedTouches.length > 0) {
       clientX = event.changedTouches[0].clientX;
       clientY = event.changedTouches[0].clientY;
+      console.log('✅ Using changedTouches[0] coordinates:', clientX, clientY);
     } else {
+      console.log('❌ No valid touch data found');
       return; // No valid touch data
     }
   } else {
     clientX = event.clientX;
     clientY = event.clientY;
+    console.log('✅ Using mouse coordinates:', clientX, clientY);
   }
   
   // Ensure we're getting the canvas rect accurately
   const canvas = renderer.domElement;
   const rect = canvas.getBoundingClientRect();
   
+  console.log('Canvas details:', {
+    element: canvas.tagName,
+    rect: {
+      left: rect.left,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
+      width: rect.width,
+      height: rect.height
+    },
+    zIndex: window.getComputedStyle(canvas).zIndex,
+    pointerEvents: window.getComputedStyle(canvas).pointerEvents
+  });
+  
   // Verify click is actually within canvas bounds
   if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) {
+    console.log(`❌ Click outside canvas bounds: (${clientX}, ${clientY}) vs canvas (${rect.left}, ${rect.top}) to (${rect.right}, ${rect.bottom})`);
     return; // Click is outside canvas
   }
+  
+  console.log('✅ Click is within canvas bounds');
+  
+  // Check what element is actually at the click position
+  const elementAtPoint = document.elementFromPoint(clientX, clientY);
+  console.log('Element at click point:', elementAtPoint?.tagName, elementAtPoint?.id, elementAtPoint?.className);
   
   const mouse = new THREE.Vector2(
     ((clientX - rect.left) / rect.width) * 2 - 1,
@@ -1612,14 +1658,18 @@ function handleClick(event) {
     updateUI();
     spawnTarget();
   } else {
-    // Only register miss if click was clearly outside target area (not near-misses)
-    const isClearMiss = clickDistance > (hitRadius * 1.5) && screenDistance > (screenHitRadius * 1.5);
+    // Be more permissive with near misses - only register clear misses
+    const isClearMiss = clickDistance > (hitRadius * 2.0) && screenDistance > (screenHitRadius * 2.0);
+    
+    console.log(`Miss analysis - World distance: ${clickDistance.toFixed(3)} (threshold: ${(hitRadius * 2.0).toFixed(3)}), Screen distance: ${screenDistance.toFixed(1)} (threshold: ${(screenHitRadius * 2.0).toFixed(1)})`);
     
     if (isClearMiss) {
-      console.log(`MISS - Click clearly outside target (World: ${clickDistance.toFixed(3)} > ${(hitRadius * 1.5).toFixed(3)}, Screen: ${screenDistance.toFixed(1)} > ${(screenHitRadius * 1.5).toFixed(1)})`);
+      console.log(`❌ CLEAR MISS - Click far from target`);
       handleMiss();
     } else {
-      console.log(`Near miss ignored - too close to target (World: ${clickDistance.toFixed(3)}, Screen: ${screenDistance.toFixed(1)})`);
+      console.log(`⚠️ Near miss ignored - click too close to target for penalty`);
+      // Don't penalize near misses - just spawn a new target
+      spawnTarget();
     }
   }
 }
@@ -2011,40 +2061,30 @@ document.getElementById('testMiss').addEventListener('click', () => {
 });
 
 // Enhanced mobile touch and click handling
-window.addEventListener('click', handleClick);
-window.addEventListener('touchstart', (e) => {
-  // Only handle touch if it's on the canvas for game clicks
-  const canvas = renderer.domElement;
-  const touch = e.touches[0] || e.changedTouches[0];
-  
-  if (touch && canvas) {
-    const rect = canvas.getBoundingClientRect();
-    const isOnCanvas = touch.clientX >= rect.left && touch.clientX <= rect.right && 
-                      touch.clientY >= rect.top && touch.clientY <= rect.bottom;
-    
-    if (isOnCanvas && currentState === GameState.PLAYING) {
-      e.preventDefault(); // Prevent default touch behavior only on canvas during game
-      handleClick(e);
-    }
-  }
+// Use canvas-specific event listeners for more direct event handling
+const canvas = renderer.domElement;
+
+// Add click listener directly to canvas for better event targeting
+canvas.addEventListener('click', (e) => {
+  console.log('🎯 Canvas click event received');
+  handleClick(e);
 }, { passive: false });
 
-// Also handle touchend for more reliable detection
-window.addEventListener('touchend', (e) => {
-  const canvas = renderer.domElement;
-  const touch = e.changedTouches[0];
-  
-  if (touch && canvas && currentState === GameState.PLAYING) {
-    const rect = canvas.getBoundingClientRect();
-    const isOnCanvas = touch.clientX >= rect.left && touch.clientX <= rect.right && 
-                      touch.clientY >= rect.top && touch.clientY <= rect.bottom;
-    
-    if (isOnCanvas) {
-      e.preventDefault();
-      handleClick(e);
-    }
-  }
+// Handle touch events directly on canvas for mobile
+canvas.addEventListener('touchend', (e) => {
+  console.log('🎯 Canvas touchend event received');
+  e.preventDefault();
+  handleClick(e);
 }, { passive: false });
+
+// Also keep window listener as backup for edge cases
+window.addEventListener('click', (e) => {
+  // Only handle if the click target is the canvas
+  if (e.target === canvas) {
+    console.log('🎯 Window click on canvas');
+    handleClick(e);
+  }
+});
 
 // Add mobile touch optimization with iOS scrolling fixes
 function setupMobileOptimization() {
