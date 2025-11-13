@@ -1,43 +1,92 @@
-const CACHE_NAME = 'target-game-v32';
+const CACHE_NAME = 'target-game-v33';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
-  '/style.css?v=mobile-ui-fix-nov2024',
-  '/script.js?v=mobile-ui-fix-nov2024',
+  '/style.css?v=ultimate-click-fix-v33',
+  '/script.js?v=ultimate-click-fix-v33',
   '/manifest.json',
   'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js',
   'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js',
   'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap'
 ];
 
-// Install event - cache static assets
+// Install event - cache static assets with aggressive cache clearing
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Installing...');
+  console.log('🔄 Service Worker v33: FORCE INSTALLING with complete cache clear');
   
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Service Worker: Caching static assets');
-        return cache.addAll(STATIC_CACHE_URLS);
-      })
-      .then(() => {
-        console.log('Service Worker: Installation complete');
-        return self.skipWaiting();
-      })
-      .catch((error) => {
-        console.error('Service Worker: Installation failed', error);
-      })
+    (async () => {
+      try {
+        // Delete ALL existing caches immediately
+        const cacheNames = await caches.keys();
+        console.log('🗑️ Found existing caches:', cacheNames);
+        
+        await Promise.all(
+          cacheNames.map(cacheName => {
+            console.log('🗑️ Deleting cache:', cacheName);
+            return caches.delete(cacheName);
+          })
+        );
+        
+        // Create fresh cache
+        const cache = await caches.open(CACHE_NAME);
+        console.log('📦 Caching fresh resources for v33...');
+        await cache.addAll(STATIC_CACHE_URLS);
+        console.log('✅ Service Worker v33: Fresh cache installed');
+        
+        // Force immediate activation
+        await self.skipWaiting();
+        console.log('⚡ Service Worker v33: Skipping waiting, activating immediately');
+        
+      } catch (error) {
+        console.error('❌ Service Worker v33: Installation failed', error);
+      }
+    })()
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - force immediate control and clear any remaining caches
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...');
+  console.log('🚀 Service Worker v33: FORCE ACTIVATING and taking control');
   
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
-        return Promise.all(
+    (async () => {
+      try {
+        // Take immediate control of all clients
+        await self.clients.claim();
+        console.log('⚡ Service Worker v33: Claimed all clients');
+        
+        // Final cleanup - delete any remaining old caches
+        const cacheNames = await caches.keys();
+        await Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('🗑️ Final cleanup - deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+        
+        console.log('✅ Service Worker v33: Activated with fresh cache only');
+        
+        // Notify all clients to reload for fresh content
+        const clients = await self.clients.matchAll();
+        console.log(`📢 Notifying ${clients.length} clients to refresh`);
+        
+        clients.forEach(client => {
+          client.postMessage({ 
+            type: 'FORCE_REFRESH', 
+            version: 'v33',
+            message: 'Fresh content available - reloading...'
+          });
+        });
+        
+      } catch (error) {
+        console.error('❌ Service Worker v33: Activation failed', error);
+      }
+    })()
+  );
+});
           cacheNames.map((cacheName) => {
             if (cacheName !== CACHE_NAME) {
               console.log('Service Worker: Deleting old cache', cacheName);

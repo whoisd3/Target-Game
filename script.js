@@ -1,5 +1,44 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js';
 
+// FORCE CACHE REFRESH v33 - Aggressive client-side cache invalidation
+if ('serviceWorker' in navigator) {
+  // Listen for service worker messages
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'FORCE_REFRESH') {
+      console.log('🔄 Service Worker v33 says:', event.data.message);
+      // Force reload with cache bypass
+      window.location.reload(true);
+    }
+  });
+  
+  // Register service worker with no caching and immediate updates
+  navigator.serviceWorker.register('/sw.js', {
+    updateViaCache: 'none',
+    scope: '/'
+  }).then((registration) => {
+    console.log('🔄 Service Worker v33 registered, checking for immediate updates...');
+    
+    // Force immediate update check
+    registration.update().then(() => {
+      console.log('✅ Service Worker v33 update check completed');
+    });
+    
+    // Listen for new service worker waiting
+    registration.addEventListener('updatefound', () => {
+      const newWorker = registration.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          console.log('🔄 New service worker installed, will activate immediately');
+        }
+      });
+    });
+  }).catch(error => {
+    console.error('❌ Service Worker registration failed:', error);
+  });
+}
+
+console.log('🚀 Target Game v33 - Ultimate Click Fix Loading...');
+
 // PWA Installation and Service Worker
 let deferredPrompt;
 let isStandalone = false;
