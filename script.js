@@ -2023,11 +2023,15 @@ function setupMobileOptimization() {
   
   // Only prevent touch behaviors during gameplay, not in menus
   document.addEventListener('touchmove', (e) => {
-    // Allow scrolling in menus for iOS
+    // Allow scrolling in menus for iOS - check if we're in an overlay menu
+    const isInMenu = e.target.closest('.overlay-menu') !== null;
+    
     if (currentState === GameState.PLAYING && e.target.id === 'webglCanvas') {
       e.preventDefault();
+    } else if (isInMenu) {
+      // Always allow scrolling in menu overlays
+      return;
     }
-    // For iOS, allow all other touch moves for scrolling
   }, { passive: false });
   
   // Only prevent multi-touch zoom during gameplay
@@ -2037,16 +2041,26 @@ function setupMobileOptimization() {
     }
   }, { passive: false });
   
-  // Enhanced viewport handling for mobile (but don't block iOS scrolling)
+  // Enhanced viewport handling for mobile with better scrolling
   if (window.innerWidth <= 768) {
     // For iOS, be more permissive with touch actions
     if (isIOS) {
       document.body.style.touchAction = 'pan-y pinch-zoom'; // Allow scrolling
+      document.body.style.webkitOverflowScrolling = 'touch';
+      document.body.style.overflowY = 'auto';
     } else {
       document.body.style.touchAction = 'manipulation';
     }
     document.body.style.userSelect = 'none';
     document.body.style.webkitUserSelect = 'none';
+    
+    // Ensure overlay menus are scrollable
+    const overlayMenus = document.querySelectorAll('.overlay-menu');
+    overlayMenus.forEach(menu => {
+      menu.style.touchAction = 'pan-y';
+      menu.style.webkitOverflowScrolling = 'touch';
+      menu.style.overflowY = 'scroll';
+    });
   }
   
   console.log(`Mobile optimization setup complete. iOS detected: ${isIOS}`);

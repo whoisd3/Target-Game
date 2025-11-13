@@ -2211,12 +2211,19 @@ canvas#webglCanvas {
 /* Responsive adjustments for game modes - Enhanced Mobile */
 @media (max-width: 768px) {
   .overlay-menu {
-    padding: 10px 5px; /* More padding for better button access */
-    /* Better mobile scrolling with iOS support */
-    -webkit-overflow-scrolling: touch;
-    align-items: flex-start; /* Allow content to start at top for scrolling */
-    padding-top: 40px; /* Space at top for better iOS experience */
-    min-height: 100vh; /* Ensure full viewport coverage */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    padding: 20px 5px 60px 5px !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    min-height: 100vh !important;
   }
   
   .menu-container {
@@ -2283,19 +2290,29 @@ canvas#webglCanvas {
 
 @media (max-width: 480px) {
   .overlay-menu {
-    padding: 20px 3px; /* More top padding for iOS */
-    align-items: flex-start; /* Start from top for scrolling */
-    min-height: 100vh; /* Ensure full coverage */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    padding: 20px 3px 70px 3px !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    min-height: 100vh !important;
   }
   
   .menu-container {
     padding: 12px 8px;
     max-width: 99vw;
     border-radius: 12px;
-    /* Remove height constraints for small iOS devices */
-    height: auto;
-    min-height: auto;
-    overflow: visible;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    margin: 10px auto 30px auto !important;
   }
   
   .game-title {
@@ -2409,13 +2426,29 @@ canvas#webglCanvas {
 /* Ultra small screens - 320px and below (small iPhones, Android) */
 @media (max-width: 320px) {
   .overlay-menu {
-    padding: 15px 1px; /* Minimal padding for ultra small screens */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    padding: 15px 1px 80px 1px !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    min-height: 100vh !important;
   }
   
   .menu-container {
     padding: 8px 4px;
     border-radius: 8px;
     max-width: 100vw;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    margin: 10px auto 40px auto !important;
   }
   
   .game-title {
