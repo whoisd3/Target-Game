@@ -1,14 +1,5 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js';
 
-// Simple service worker registration
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(registration => console.log('SW registered'))
-    .catch(error => console.log('SW registration failed'));
-}
-
-console.log('🚀 Target Game - Loading simple version...');
-
 // PWA Installation and Service Worker
 let deferredPrompt;
 let isStandalone = false;
@@ -2361,8 +2352,49 @@ updateUI();
 setState(GameState.MENU);
 handleURLParams(); // Handle URL shortcuts
 
+// Mobile version notification for debugging
+if (window.innerWidth <= 768) {
+  console.log('🎯 TARGET NEXUS v33 - MOBILE VERSION LOADED');
+  console.log('📱 Mobile optimizations active');
+  console.log('🔄 Cache version: v33');
+  // Add visual indicator for mobile version
+  setTimeout(() => {
+    const versionDiv = document.createElement('div');
+    versionDiv.innerHTML = 'v33';
+    versionDiv.style.cssText = `
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,255,255,0.2);
+      color: #00ffff;
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 4px;
+      z-index: 999999;
+      font-family: monospace;
+    `;
+    document.body.appendChild(versionDiv);
+    // Remove after 3 seconds
+    setTimeout(() => versionDiv.remove(), 3000);
+  }, 1000);
+}
+
 // Initialize sound system after page load
 window.addEventListener('load', () => {
+  // Mobile cache clearing for v33
+  if (window.innerWidth <= 768 && 'serviceWorker' in navigator) {
+    console.log('🔄 Mobile detected - Clearing old caches for v33');
+    caches.keys().then(cacheNames => {
+      const oldCaches = cacheNames.filter(name => !name.includes('v33'));
+      return Promise.all(oldCaches.map(cache => {
+        console.log('🗑️ Deleting old mobile cache:', cache);
+        return caches.delete(cache);
+      }));
+    }).then(() => {
+      console.log('✅ Mobile cache cleanup complete - v33 ready');
+    });
+  }
+  
   soundManager.initialize().then(() => {
     console.log('🎵 Sound system ready!');
     // Set initial master volume

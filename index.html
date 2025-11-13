@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, maximum-scale=1.0">
-    <title>Target Nexus - 3D Target Game</title>
+    <title>🎯 Target Nexus - Precision Aim Game</title>
     
-    <!-- NUCLEAR CACHE CONTROL - Prevent ALL caching -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <!-- Mobile cache prevention -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta http-equiv="Last-Modified" content="Wed, 13 Nov 2024 18:47:00 GMT">
-    <meta http-equiv="ETag" content="nuclear-cache-bust-20241113-1847">\n    \n    <!-- PWA Meta Tags -->
+    <meta name="mobile-version" content="v33">
+    
+    <!-- Cache Control for Mobile Updates -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- PWA Meta Tags -->
     <meta name="description" content="A futuristic 3D target shooting game with particle effects and multiple shapes">
     <meta name="keywords" content="game, target, shooting, 3D, WebGL, mobile, PWA">
     <meta name="author" content="Target Nexus">
@@ -83,7 +89,9 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"></noscript>
     
     <!-- Stylesheets with cache busting -->
-    <link rel="stylesheet" href="style.css">
+        
+    <!-- Styles with mobile cache busting -->
+    <link rel="stylesheet" href="style.css?v=mobile-v33">
 </head>
 <body>
     <canvas id="webglCanvas"></canvas>
@@ -363,9 +371,9 @@
     
     <!-- Game Enhancement Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
-    <script src="scripts/particles.js"></script>
-    <script src="scripts/multiplayer.js"></script>
-    <script src="scripts/xr.js"></script>
-    <script type="module" src="script.js"></script>
+    <script src="scripts/particles.js?v=v33"></script>
+    <script src="scripts/multiplayer.js?v=v33"></script>
+    <script src="scripts/xr.js?v=v33"></script>
+    <script type="module" src="script.js?v=improved-clickability-v33"></script>
 </body>
 </html>
