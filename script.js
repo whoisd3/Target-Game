@@ -1,39 +1,53 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js';
 
-// FORCE CACHE REFRESH v33 - Aggressive client-side cache invalidation
-if ('serviceWorker' in navigator) {
-  // Listen for service worker messages
-  navigator.serviceWorker.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'FORCE_REFRESH') {
-      console.log('🔄 Service Worker v33 says:', event.data.message);
-      // Force reload with cache bypass
-      window.location.reload(true);
-    }
+// NUCLEAR CACHE REFRESH v34 - Most aggressive client-side cache invalidation
+console.log('🚨 NUCLEAR CACHE CLEAR v34 - Starting aggressive cache invalidation...');
+
+// Force clear all browser caches
+if ('caches' in window) {
+  caches.keys().then(cacheNames => {
+    console.log('🗑️ Found browser caches:', cacheNames);
+    cacheNames.forEach(cacheName => {
+      caches.delete(cacheName);
+      console.log('🗑️ Deleted browser cache:', cacheName);
+    });
   });
-  
-  // Register service worker with no caching and immediate updates
-  navigator.serviceWorker.register('/sw.js', {
-    updateViaCache: 'none',
-    scope: '/'
-  }).then((registration) => {
-    console.log('🔄 Service Worker v33 registered, checking for immediate updates...');
-    
-    // Force immediate update check
-    registration.update().then(() => {
-      console.log('✅ Service Worker v33 update check completed');
+}
+
+if ('serviceWorker' in navigator) {
+  // Unregister ALL service workers first
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    registrations.forEach(registration => {
+      console.log('🗑️ Unregistering old service worker:', registration.scope);
+      registration.unregister();
     });
     
-    // Listen for new service worker waiting
-    registration.addEventListener('updatefound', () => {
-      const newWorker = registration.installing;
-      newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          console.log('🔄 New service worker installed, will activate immediately');
-        }
+    // Wait a moment then register fresh SW
+    setTimeout(() => {
+      console.log('🔄 Registering fresh service worker...');
+      
+      // Register service worker with nuclear cache settings
+      navigator.serviceWorker.register('/sw.js', {
+        updateViaCache: 'none',
+        scope: '/'
+      }).then((registration) => {
+        console.log('✅ Nuclear SW registered:', registration.scope);
+        
+        // Force immediate update
+        registration.update();
+        
+        // Listen for SW messages
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data && event.data.type === 'FORCE_REFRESH') {
+            console.log('🔄 SW Nuclear Refresh:', event.data.message);
+            window.location.reload(true);
+          }
+        });
+        
+      }).catch(error => {
+        console.error('❌ Nuclear SW registration failed:', error);
       });
-    });
-  }).catch(error => {
-    console.error('❌ Service Worker registration failed:', error);
+    }, 1000);
   });
 }
 

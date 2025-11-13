@@ -1,9 +1,9 @@
-const CACHE_NAME = 'target-game-v33';
+const CACHE_NAME = 'target-game-nuclear-20241113-1847';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
-  '/style.css?v=ultimate-click-fix-v33',
-  '/script.js?v=ultimate-click-fix-v33',
+  '/style.css?v=nuclear-cache-bust-20241113-1847',
+  '/script.js?v=nuclear-cache-bust-20241113-1847',
   '/manifest.json',
   'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js',
   'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js',
@@ -102,57 +102,60 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve cached content when offline
+// Fetch event - NETWORK FIRST for immediate fresh content
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
     return;
   }
-
-  // Skip chrome-extension and other non-http requests
-  if (!event.request.url.startsWith('http')) {
+  
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) {
     return;
   }
-
+  
+  console.log('🌐 SW Nuclear Fetch:', event.request.url);
+  
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version if available
-        if (response) {
-          console.log('Service Worker: Serving from cache', event.request.url);
-          return response;
+    (async () => {
+      try {
+        // NETWORK FIRST - Always try to get fresh content
+        console.log('🌐 Attempting network fetch for:', event.request.url);
+        const networkResponse = await fetch(event.request, {
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
+        
+        if (networkResponse.ok) {
+          console.log('✅ Network fetch successful:', event.request.url);
+          
+          // Update cache with fresh content
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(event.request, networkResponse.clone());
+          
+          return networkResponse;
         }
-
-        // Otherwise fetch from network
-        console.log('Service Worker: Fetching from network', event.request.url);
-        return fetch(event.request)
-          .then((response) => {
-            // Check if response is valid
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response for caching
-            const responseToCache = response.clone();
-
-            // Cache the fetched resource for future use
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                // Only cache GET requests and avoid caching query parameters for dynamic content
-                if (event.request.method === 'GET' && !event.request.url.includes('?')) {
-                  cache.put(event.request, responseToCache);
-                }
-              });
-
-            return response;
-          })
-          .catch(() => {
-            // If network fails and no cache, return offline page or fallback
-            if (event.request.destination === 'document') {
-              return caches.match('/index.html');
-            }
-          });
-      })
+      } catch (error) {
+        console.log('❌ Network fetch failed, trying cache:', error.message);
+      }
+      
+      // Fallback to cache only if network fails
+      const cacheResponse = await caches.match(event.request);
+      if (cacheResponse) {
+        console.log('📦 Serving from cache:', event.request.url);
+        return cacheResponse;
+      }
+      
+      // If no cache, return network error
+      console.log('❌ No cache available for:', event.request.url);
+      return new Response('Network error and no cache available', {
+        status: 503,
+        statusText: 'Service Unavailable'
+      });
+    })()
   );
 });
 
