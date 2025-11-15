@@ -1649,14 +1649,18 @@ function handleClick(event) {
   const targetPos = targetMesh.position;
   const clickDistance = clickWorldPos.distanceTo(targetPos);
   
-  // Enhanced hit zone calculation for mobile
+  // Enhanced hit zone calculation for mobile - MORE GENEROUS
   const targetScale = targetMesh.scale.x; // Current target scale
   const isMobile = window.innerWidth <= 768;
-  const hitRadius = isMobile ? 0.8 * targetScale : 0.6 * targetScale; // Larger hit zone on mobile for better usability
+  const hitRadius = isMobile ? 1.0 * targetScale : 0.6 * targetScale; // Much larger hit zone on mobile
   
-  console.log(`Target at: ${targetPos.x.toFixed(3)}, ${targetPos.y.toFixed(3)}, Click at: ${clickWorldPos.x.toFixed(3)}, ${clickWorldPos.y.toFixed(3)}, Distance: ${clickDistance.toFixed(3)}, Hit radius: ${hitRadius.toFixed(3)}`);
+  // Additional mobile touch tolerance
+  const mobileTouchTolerance = isMobile ? 0.2 : 0;
+  const finalHitRadius = hitRadius + mobileTouchTolerance;
   
-  if (clickDistance <= hitRadius) {
+  console.log(`Target at: ${targetPos.x.toFixed(3)}, ${targetPos.y.toFixed(3)}, Click at: ${clickWorldPos.x.toFixed(3)}, ${clickWorldPos.y.toFixed(3)}, Distance: ${clickDistance.toFixed(3)}, Hit radius: ${finalHitRadius.toFixed(3)}, Mobile: ${isMobile}`);
+  
+  if (clickDistance <= finalHitRadius) {
     console.log('TARGET HIT!');
     const reactionTime = (performance.now() - reactionStart) / 1000;
     currentReactionTime = reactionTime;
