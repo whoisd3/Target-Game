@@ -2140,43 +2140,55 @@ document.getElementById('testMiss').addEventListener('click', () => {
   soundManager.initialize().then(() => soundManager.playMiss());
 });
 
-// Enhanced mobile touch and click handling
+// Enhanced mobile touch and click handling - FIXED for iOS scrolling
 window.addEventListener('click', handleClick);
+
+// CRITICAL FIX: Only prevent touch events during gameplay on canvas
+// This allows iOS Safari to recognize scroll gestures in menus
 window.addEventListener('touchstart', (e) => {
-  e.preventDefault(); // Prevent default touch behavior
-  handleClick(e);
+  // Only handle touch events for game canvas during gameplay
+  if (currentState === GameState.PLAYING && e.target.id === 'webglCanvas') {
+    e.preventDefault(); // Prevent default touch behavior ONLY on game canvas
+    handleClick(e);
+  }
+  // Allow all other touches (like menu scrolling) to work normally
 }, { passive: false });
 
-// Add mobile touch optimization with iOS scrolling fixes
+// Add mobile touch optimization with iOS scrolling fixes - ENHANCED
 function setupMobileOptimization() {
   // Detect iOS Safari specifically
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   
-  // Only prevent touch behaviors during gameplay, not in menus
+  // CRITICAL: Only prevent touch behaviors during gameplay on canvas
   document.addEventListener('touchmove', (e) => {
-    // Allow scrolling in menus for iOS
+    // ONLY prevent scrolling on game canvas during gameplay
     if (currentState === GameState.PLAYING && e.target.id === 'webglCanvas') {
       e.preventDefault();
     }
-    // For iOS, allow all other touch moves for scrolling
+    // Allow ALL other touch moves for menu scrolling
   }, { passive: false });
   
-  // Only prevent multi-touch zoom during gameplay
+  // Only prevent multi-touch zoom during gameplay on canvas
   document.addEventListener('touchstart', (e) => {
-    if (e.touches.length > 1 && currentState === GameState.PLAYING) {
+    if (e.touches.length > 1 && currentState === GameState.PLAYING && e.target.id === 'webglCanvas') {
       e.preventDefault();
     }
+    // Allow all other multi-touch for iOS scrolling
   }, { passive: false });
   
-  // Enhanced viewport handling for mobile (but don't block iOS scrolling)
+  // Enhanced viewport handling for mobile - iOS scroll friendly
   if (window.innerWidth <= 768) {
-    // For iOS, be more permissive with touch actions
-    if (isIOS) {
-      document.body.style.touchAction = 'pan-y pinch-zoom'; // Allow scrolling
-    } else {
-      document.body.style.touchAction = 'manipulation';
+    // For ALL mobile devices, allow scrolling but prevent manipulation during gameplay
+    document.body.style.touchAction = 'pan-y pinch-zoom'; // Always allow scrolling
+    
+    // Only set restrictive touch action on game canvas
+    const gameCanvas = document.getElementById('webglCanvas');
+    if (gameCanvas) {
+      gameCanvas.style.touchAction = 'none'; // Prevent touch on canvas only
     }
+    
+    // Prevent text selection but allow scrolling
     document.body.style.userSelect = 'none';
     document.body.style.webkitUserSelect = 'none';
   }

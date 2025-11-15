@@ -1,4 +1,4 @@
-const CACHE_NAME = 'target-nexus-game-v21-mobile-scroll-fix';
+const CACHE_NAME = 'target-nexus-game-v22-ios-touch-fix';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',

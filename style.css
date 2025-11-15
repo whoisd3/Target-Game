@@ -2203,6 +2203,9 @@ canvas#webglCanvas {
     height: auto !important;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: auto; /* Allow iOS native scroll behaviors */
+    /* CRITICAL: Enable touch scrolling on body */
+    touch-action: pan-y pinch-zoom !important;
+    -webkit-touch-callout: none;
   }
   
   .overlay-menu {
@@ -2226,6 +2229,27 @@ canvas#webglCanvas {
     touch-action: none !important;
     user-select: none !important;
     -webkit-user-select: none !important;
+  }
+  
+  /* CRITICAL: Explicitly allow touch scrolling on menu elements */
+  .overlay-menu, .menu-container, .game-modes, .mode-card {
+    touch-action: pan-y pinch-zoom !important;
+    -webkit-touch-callout: default !important;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Enhanced iOS scrolling for menu elements */
+  .overlay-menu {
+    -webkit-overflow-scrolling: touch !important;
+    /* Force iOS to recognize as scrollable */
+    overflow: auto !important;
+    /* Hardware acceleration for smooth scrolling */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    /* Ensure proper scroll behavior */
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
   }
   
   /* Fix iOS viewport issues */
