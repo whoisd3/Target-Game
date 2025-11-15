@@ -1603,30 +1603,51 @@ function addTimeBonus(seconds, reason) {
   showBonusNotification(`+${seconds}s TIME! ${reason}`, 'time');
 }
 
+// Event deduplication to prevent double handling
+let lastEventTime = 0;
+let lastEventType = '';
+const EVENT_DEBOUNCE_MS = 100; // Prevent duplicate events within 100ms
+
 function handleClick(event) {
   if (currentState !== GameState.PLAYING || isPaused || isShapeChanging) return;
   
+  // Event deduplication - prevent rapid duplicate events
+  const currentTime = performance.now();
+  const eventType = event.type || 'unknown';
+  
+  if (currentTime - lastEventTime < EVENT_DEBOUNCE_MS && eventType !== lastEventType) {
+    console.log(`Ignoring duplicate event: ${eventType} (last: ${lastEventType}, time diff: ${currentTime - lastEventTime}ms)`);
+    return;
+  }
+  
+  lastEventTime = currentTime;
+  lastEventType = eventType;
+  
   // Prevent clicks for first 500ms after game start to avoid accidental immediate clicks
-  const timeSinceStart = performance.now() - gameStartTime;
+  const timeSinceStart = currentTime - gameStartTime;
   if (timeSinceStart < 500) {
     return;
   }
   
-  // Get coordinates from either mouse or touch event
+  // Get coordinates from either mouse or touch event - ENHANCED
   let clientX, clientY;
   if (event.type === 'touchstart' || event.type === 'touchend') {
-    if (event.touches && event.touches.length > 0) {
-      clientX = event.touches[0].clientX;
-      clientY = event.touches[0].clientY;
-    } else if (event.changedTouches && event.changedTouches.length > 0) {
-      clientX = event.changedTouches[0].clientX;
-      clientY = event.changedTouches[0].clientY;
-    } else {
+    const touch = event.touches?.[0] || event.changedTouches?.[0];
+    if (!touch) {
+      console.log('No valid touch data available');
       return; // No valid touch data
     }
+    clientX = touch.clientX;
+    clientY = touch.clientY;
+    console.log(`Touch event: ${event.type}, coordinates: ${clientX}, ${clientY}`);
   } else {
+    if (typeof event.clientX !== 'number' || typeof event.clientY !== 'number') {
+      console.log('No valid click coordinates available');
+      return;
+    }
     clientX = event.clientX;
     clientY = event.clientY;
+    console.log(`Click event: ${event.type}, coordinates: ${clientX}, ${clientY}`);
   }
   
   const rect = renderer.domElement.getBoundingClientRect();
@@ -2147,16 +2168,8 @@ document.getElementById('testMiss').addEventListener('click', () => {
 // Enhanced mobile touch and click handling - FIXED for iOS scrolling
 window.addEventListener('click', handleClick);
 
-// CRITICAL FIX: Only prevent touch events during gameplay on canvas
-// This allows iOS Safari to recognize scroll gestures in menus
-window.addEventListener('touchstart', (e) => {
-  // Only handle touch events for game canvas during gameplay
-  if (currentState === GameState.PLAYING && e.target.id === 'webglCanvas') {
-    e.preventDefault(); // Prevent default touch behavior ONLY on game canvas
-    handleClick(e);
-  }
-  // Allow all other touches (like menu scrolling) to work normally
-}, { passive: false });
+// REMOVED: Duplicate touchstart handler that was causing false misses
+// Touch events are now handled in the single unified handler below
 
 // Add mobile touch optimization with iOS scrolling fixes - ENHANCED
 function setupMobileOptimization() {
@@ -2202,23 +2215,28 @@ function setupMobileOptimization() {
 
 setupMobileOptimization();
 
-// Enhanced mobile touch handling - only for game canvas during gameplay
+// UNIFIED touch handling - prevents duplicate events
 window.addEventListener('touchstart', (e) => {
   // Only handle touches on the game canvas during gameplay
   if (currentState === GameState.PLAYING && !isPaused && e.target.id === 'webglCanvas') {
     e.preventDefault(); // Prevent scrolling and other touch behaviors
-    const touch = e.touches[0];
-    handleClick({ 
-      clientX: touch.clientX, 
-      clientY: touch.clientY,
-      target: e.target 
-    });
+    
+    // Create a synthetic event object for handleClick
+    const syntheticEvent = {
+      type: 'touchstart',
+      touches: e.touches,
+      changedTouches: e.changedTouches,
+      target: e.target,
+      preventDefault: () => e.preventDefault()
+    };
+    
+    handleClick(syntheticEvent);
   }
 }, { passive: false });
 
 // Prevent double-handling on devices that support both touch and mouse
 window.addEventListener('touchend', (e) => {
-  if (currentState === GameState.PLAYING && !isPaused) {
+  if (currentState === GameState.PLAYING && !isPaused && e.target.id === 'webglCanvas') {
     e.preventDefault(); // Prevent mouse events from firing after touch
   }
 }, { passive: false });
