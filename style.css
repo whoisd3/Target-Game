@@ -1404,35 +1404,57 @@ canvas#webglCanvas {
     overflow: hidden; /* Hide overflow instead of scrolling */
   }
   
-  /* Mobile left HUD - Repositioned to accommodate higher bottom HUD */
+  /* Mobile left HUD - POSITIONED BELOW SIDE HUD */
   #leftHud {
-    left: 5px;
-    bottom: calc(120px + env(safe-area-inset-bottom, 0px)); /* Increased significantly */
+    left: 8px;
+    right: 8px;
+    bottom: calc(100px + env(safe-area-inset-bottom, 0px)); /* Below side HUD, above progress bar */
     top: auto;
     transform: none;
+    
+    /* Make it horizontal like side HUD for better space usage */
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    gap: 8px;
+    
+    /* Styling to match side HUD */
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 6px 10px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(0, 255, 255, 0.15);
+    z-index: 10;
+    
+    /* CRITICAL: Allow taps to pass through to game canvas */
+    pointer-events: none !important;
+    touch-action: none !important;
   }
   
   .reaction-meter {
-    min-width: 120px;
-    padding: 10px 12px;
-    border-radius: 10px;
+    min-width: 100px; /* More compact */
+    padding: 6px 8px;
+    border-radius: 6px;
+    margin: 0; /* Remove margins for tighter layout */
   }
   
   .reaction-display {
-    font-size: 1.1em;
+    font-size: 0.9em; /* Smaller for compact layout */
   }
   
   .reaction-best {
-    font-size: 0.8em;
+    font-size: 0.7em;
   }
   
-  /* Mobile side HUD - MOVED TO TOP of screen */
+  /* Mobile side HUD - POSITIONED ABOVE LEFT HUD */
   #sideHud {
-    /* Move from bottom-right to TOP */
-    top: 70px; /* Further up to avoid timer overlap */
+    /* Position above left HUD */
+    top: auto;
+    bottom: calc(170px + env(safe-area-inset-bottom, 0px)); /* Above left HUD */
     left: 8px;
     right: 8px;
-    bottom: auto !important; /* Remove bottom positioning */
     
     position: fixed;
     width: auto !important;
@@ -1441,14 +1463,14 @@ canvas#webglCanvas {
     margin-top: 0;
     gap: 6px;
     
-    /* Enhanced styling for top position */
+    /* Enhanced styling for position above left HUD */
     background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
     border: 1px solid rgba(0, 255, 255, 0.3);
     border-radius: 8px;
     padding: 6px 10px;
     backdrop-filter: blur(8px);
     box-shadow: 0 2px 10px rgba(0, 255, 255, 0.15);
-    z-index: 10;
+    z-index: 15; /* Higher than left HUD */
     
     /* HORIZONTAL layout for mobile stats */
     display: flex !important;

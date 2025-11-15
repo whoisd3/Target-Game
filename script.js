@@ -1670,19 +1670,23 @@ function handleClick(event) {
   const targetPos = targetMesh.position;
   const clickDistance = clickWorldPos.distanceTo(targetPos);
   
-  // Enhanced hit zone calculation for mobile - MORE GENEROUS
+  // OPTIMIZED hit zone calculation - MUCH MORE GENEROUS for accuracy
   const targetScale = targetMesh.scale.x; // Current target scale
   const isMobile = window.innerWidth <= 768;
-  const hitRadius = isMobile ? 1.0 * targetScale : 0.6 * targetScale; // Much larger hit zone on mobile
   
-  // Additional mobile touch tolerance
-  const mobileTouchTolerance = isMobile ? 0.2 : 0;
-  const finalHitRadius = hitRadius + mobileTouchTolerance;
+  // More generous hit zones to ensure users get credit for hits
+  const baseHitRadius = isMobile ? 1.2 * targetScale : 0.8 * targetScale; // Increased for both
   
-  console.log(`Target at: ${targetPos.x.toFixed(3)}, ${targetPos.y.toFixed(3)}, Click at: ${clickWorldPos.x.toFixed(3)}, ${clickWorldPos.y.toFixed(3)}, Distance: ${clickDistance.toFixed(3)}, Hit radius: ${finalHitRadius.toFixed(3)}, Mobile: ${isMobile}`);
+  // Additional tolerance based on device type
+  const mobileTouchTolerance = isMobile ? 0.3 : 0.1; // More generous tolerance
+  
+  // Final hit radius - prioritize user success
+  const finalHitRadius = baseHitRadius + mobileTouchTolerance;
+  
+  console.log(`🎯 Hit Detection - Target: ${targetPos.x.toFixed(2)}, ${targetPos.y.toFixed(2)} | Click: ${clickWorldPos.x.toFixed(2)}, ${clickWorldPos.y.toFixed(2)} | Distance: ${clickDistance.toFixed(3)} | Required: ${finalHitRadius.toFixed(3)} | Mobile: ${isMobile}`);
   
   if (clickDistance <= finalHitRadius) {
-    console.log('TARGET HIT!');
+    console.log('🎯✅ TARGET HIT! - Points awarded');
     const reactionTime = (performance.now() - reactionStart) / 1000;
     currentReactionTime = reactionTime;
     console.log(`Reaction time: ${reactionTime.toFixed(2)}s`);
