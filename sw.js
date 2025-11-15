@@ -1,9 +1,9 @@
-const CACHE_NAME = 'target-nexus-game-v20-enhanced';
+const CACHE_NAME = 'target-nexus-game-v21-mobile-scroll-fix';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
-  '/style.css?v=mobile-opt-nov2024',
-  '/script.js?v=ios-scroll-fix-v20',
+  '/style.css?v=scroll-fix-nov2024',
+  '/script.js?v=mobile-complete-v21',
   '/manifest.json',
   'https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js',
   'https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js',

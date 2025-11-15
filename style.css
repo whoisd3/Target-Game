@@ -2021,8 +2021,18 @@ canvas#webglCanvas {
   }
 }
 
-/* Large mobile/small tablet - Better use of space */
+/* Large mobile/small tablet - Better use of space and scrolling */
 @media (min-width: 481px) and (max-width: 768px) {
+  /* Ensure overlay menu scrolling works in this range */
+  .overlay-menu {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y pinch-zoom !important;
+    /* Prevent conflicts */
+    position: fixed !important;
+    z-index: 10000 !important;
+  }
+  
   .notification-feed {
     top: calc(90px + env(safe-area-inset-top, 0px));
     right: 15px;
@@ -2056,12 +2066,28 @@ canvas#webglCanvas {
   }
 }
 
-/* Touch-specific improvements */
+/* Touch-specific improvements - Enhanced Mobile Scrolling */
 @media (hover: none) and (pointer: coarse) {
+  /* Mobile scrolling optimizations for touch devices */
+  .overlay-menu {
+    /* Ensure touch scrolling works on all mobile devices */
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y pinch-zoom !important;
+    overflow-y: auto !important;
+    /* Better momentum scrolling */
+    scroll-behavior: smooth;
+    overscroll-behavior-y: contain;
+    /* Hardware acceleration */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
   /* Increase touch targets for touch devices */
   .menu-btn {
     min-height: 56px;
     padding: 16px 24px;
+    /* Better touch response */
+    -webkit-tap-highlight-color: rgba(0, 255, 255, 0.2);
   }
   
   .hud-btn {
@@ -2410,16 +2436,25 @@ canvas#webglCanvas {
 
 @media (max-width: 480px) {
   .overlay-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
     padding: 3px;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch !important;
-    touch-action: pan-y !important;
+    touch-action: pan-y pinch-zoom !important;
     overscroll-behavior: contain;
+    /* Ensure proper stacking */
+    z-index: 10000 !important;
+    /* Hardware acceleration for smooth scrolling */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    /* iOS specific fixes */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
   
   .menu-container {
@@ -2427,8 +2462,13 @@ canvas#webglCanvas {
     max-width: 99vw;
     border-radius: 12px;
     max-height: none !important;
-    height: auto;
+    height: auto !important;
     overflow: visible !important;
+    /* Force proper box sizing */
+    box-sizing: border-box !important;
+    /* Ensure proper content flow */
+    min-height: auto;
+    position: relative;
   }
   
   .game-title {
