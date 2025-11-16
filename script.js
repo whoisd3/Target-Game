@@ -1615,7 +1615,8 @@ function handleClick(event) {
   const currentTime = performance.now();
   const eventType = event.type || 'unknown';
   
-  if (currentTime - lastEventTime < EVENT_DEBOUNCE_MS && eventType !== lastEventType) {
+  // Block events of the same type that are too close together
+  if (currentTime - lastEventTime < EVENT_DEBOUNCE_MS && eventType === lastEventType) {
     console.log(`Ignoring duplicate event: ${eventType} (last: ${lastEventType}, time diff: ${currentTime - lastEventTime}ms)`);
     return;
   }
