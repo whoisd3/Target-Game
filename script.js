@@ -1108,6 +1108,7 @@ function startGame() {
   
   // Reset target position tracking to ensure first spawn is random
   lastTargetPosition = { x: -999, y: -999 }; // Far away initial position
+  isProcessingHit = false; // Reset hit processing flag
   
   // Initialize sound system on first user interaction
   soundManager.initialize();
@@ -1646,8 +1647,17 @@ const EVENT_DEBOUNCE_MS = 100; // Prevent duplicate events within 100ms
 let lastTargetPosition = { x: 0, y: 0 };
 const MIN_SPAWN_DISTANCE = 0.8; // Minimum distance between consecutive spawns
 
+// Prevent multiple hits from same user interaction
+let isProcessingHit = false;
+
 function handleClick(event) {
   if (currentState !== GameState.PLAYING || isPaused || isShapeChanging) return;
+  
+  // Prevent multiple hits from being processed simultaneously
+  if (isProcessingHit) {
+    console.log('⏳ Hit already being processed, ignoring additional click');
+    return;
+  }
   
   // Event deduplication - prevent rapid duplicate events
   const currentTime = performance.now();
@@ -1725,6 +1735,9 @@ function handleClick(event) {
   console.log(`🎯 Hit Detection - Target: ${targetPos.x.toFixed(2)}, ${targetPos.y.toFixed(2)} | Click: ${clickWorldPos.x.toFixed(2)}, ${clickWorldPos.y.toFixed(2)} | Distance: ${clickDistance.toFixed(3)} | Required: ${finalHitRadius.toFixed(3)} | Mobile: ${isMobile}`);
   
   if (clickDistance <= finalHitRadius) {
+    // Set processing flag to prevent duplicate hits
+    isProcessingHit = true;
+    
     console.log('🎯✅ TARGET HIT! - Points awarded');
     const reactionTime = (performance.now() - reactionStart) / 1000;
     currentReactionTime = reactionTime;
@@ -1817,6 +1830,12 @@ function handleClick(event) {
     
     updateUI();
     spawnTarget();
+    
+    // Clear processing flag after hit is complete
+    setTimeout(() => {
+      isProcessingHit = false;
+    }, 50); // Short delay to prevent immediate re-processing
+    
   } else {
     // Miss penalty - increment miss counter, lose time, and reset combo
     misses++;
@@ -1904,6 +1923,11 @@ function handleClick(event) {
     }
     
     updateUI();
+    
+    // Clear processing flag after miss handling
+    setTimeout(() => {
+      isProcessingHit = false;
+    }, 50);
   }
 }
 
