@@ -404,70 +404,104 @@ canvas#webglCanvas {
   pointer-events: auto;
 }
 
-/* Top HUD */
+/* Top HUD - Consolidated Layout */
 #topHud {
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 30px;
+  gap: 20px;
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.3));
   border: 1px solid #00ffff40;
   border-radius: 25px;
   padding: 15px 30px;
   backdrop-filter: blur(10px);
-  /* Prevent spanning on large screens */
-  max-width: 600px;
+  /* Expanded for consolidated components */
+  max-width: 900px;
   width: auto;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-/* Left HUD */
+/* Left HUD - HIDDEN (Components moved to Top HUD) */
 #leftHud {
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  /* Prevent spanning on large screens */
-  max-width: 250px;
+  display: none;
 }
 
 /* Decluttered Top HUD - Minimal and clean */
 #topHud.minimal-hud {
-  gap: 15px;
-  padding: 8px 15px;
+  gap: 12px;
+  padding: 8px 20px;
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.25));
   border: 1px solid rgba(0, 255, 255, 0.2);
+  max-width: 1000px; /* Expanded for all components */
 }
 
 .hud-stat.compact {
-  min-width: 70px;
-  padding: 6px 12px;
+  min-width: 60px;
+  padding: 6px 10px;
+  position: relative;
 }
 
 .hud-stat.compact .hud-label {
-  font-size: 0.7em;
+  font-size: 0.65em;
   margin-bottom: 2px;
 }
 
 .hud-stat.compact .hud-value {
-  font-size: 1.3em;
+  font-size: 1.2em;
 }
 
-/* Side HUD - Contains notification feed */
+/* Compact Reaction Time in Top HUD */
+.reaction-time-compact {
+  min-width: 120px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.compact-bar {
+  width: 80px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 3px 0;
+}
+
+.compact-bar .reaction-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff00, #ffff00, #ff6600, #ff0000);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.reaction-best-compact {
+  font-size: 0.6em;
+  color: #ffaa00;
+  text-shadow: 0 0 5px #ffaa00;
+  margin-top: 2px;
+}
+
+/* Side HUD - Simplified (Only notification feed) */
 #sideHud {
   right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 80px; /* Position above bottom HUD */
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-top: 0;
-  position: relative;
+  gap: 15px;
   /* Prevent spanning on large screens */
   max-width: 280px;
   width: auto;
+}
+
+.notification-feed-container {
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.4));
+  border: 1px solid #00ffff40;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  pointer-events: none;
 }
 
 /* Reaction Time Meter */
@@ -512,21 +546,17 @@ canvas#webglCanvas {
   margin-top: 5px;
 }
 
-/* Bonus Notifications - Attached to High Score in Side HUD */
-.notification-feed.attached-to-highscore {
-  position: relative;
-  top: 10px;
-  right: 0;
+/* Notification Feed - Standalone in Side HUD */
+#notificationFeed {
   width: 100%;
   max-height: 150px;
-  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.4));
-  border: 1px solid #00ffff40;
-  border-radius: 8px;
-  backdrop-filter: blur(10px);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  backdrop-filter: none;
   overflow: hidden;
   z-index: 160;
   pointer-events: none;
-  margin-top: 8px;
 }
 
 .high-score-section {
@@ -1315,52 +1345,74 @@ canvas#webglCanvas {
     overflow: hidden; /* Prevent any overflow */
   }
   
-  /* Top HUD - Compact mobile layout - OPTIMIZED for mobile browsers */
+  /* Mobile top HUD - Consolidated layout for all components */
   #topHud {
-    gap: 6px;
-    padding: 4px 8px; /* Minimal padding */
-    top: env(safe-area-inset-top, 2px); /* Use safe area or minimal */
+    gap: 4px;
+    padding: 4px 8px;
+    top: env(safe-area-inset-top, 2px);
     left: 2px;
     right: 2px;
     transform: none;
     max-width: none;
     width: calc(100vw - 4px);
     border-radius: 8px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    /* Minimal visual impact */
+    flex-wrap: wrap; /* Allow wrapping for all components */
+    justify-content: center;
+    overflow: visible;
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(0, 255, 255, 0.3);
     backdrop-filter: blur(5px);
   }
   
-  .hud-stat {
-    min-width: 55px; /* Smaller for mobile */
-    flex-shrink: 0;
+  #topHud.minimal-hud {
+    gap: 4px;
+    padding: 3px 6px;
+    font-size: 0.8em;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.04), rgba(0, 0, 0, 0.15));
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    border-radius: 6px;
+    backdrop-filter: blur(8px);
   }
   
-  .hud-value {
-    font-size: 1.2em; /* Smaller for better fit */
-    line-height: 1.1;
+  .hud-stat.compact {
+    min-width: 45px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    margin: 1px;
   }
   
-  .hud-label {
-    font-size: 0.6em;
+  .hud-stat.compact .hud-label {
+    font-size: 0.5em;
     margin-bottom: 1px;
+    opacity: 0.8;
   }
   
-  /* Mobile notification feed - Optimized for mobile phones */
-  .notification-feed.attached-to-highscore {
-    position: relative;
-    top: 6px;
-    width: 100%;
-    max-height: 70px;
+  .hud-stat.compact .hud-value {
+    font-size: 0.9em;
+    font-weight: 700;
+  }
+  
+  /* Compact reaction time for mobile */
+  .reaction-time-compact {
+    min-width: 80px;
+  }
+  
+  .compact-bar {
+    width: 60px;
+    height: 3px;
+    margin: 1px 0;
+  }
+  
+  .reaction-best-compact {
+    font-size: 0.5em;
+    margin-top: 1px;
+  }
+  
+  /* Mobile notification feed - Simplified for side HUD only */
+  #notificationFeed {
+    max-height: 80px;
     font-size: 0.7em;
     border-radius: 6px;
-    margin-top: 6px;
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.5));
-    border: 1px solid rgba(0, 255, 255, 0.25);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -1379,65 +1431,43 @@ canvas#webglCanvas {
     margin: 1px 0;
     border-radius: 3px;
     background: rgba(0, 255, 255, 0.05);
-  }
-  
-  .feed-title {
-    font-size: 0.6em;
-    padding: 3px 6px;
-    border-radius: 6px 6px 0 0;
-  }
-  
-  .bonus-notification {
-    font-size: 0.7em;
-    padding: 4px 8px;
-    margin: 3px 0;
-    border-radius: 6px;
-    /* Ensure consistent height for predictable layout */
-    min-height: 26px;
+    min-height: 20px;
     display: flex;
     align-items: center;
   }
   
   .bonus-notifications {
-    padding: 8px;
-    max-height: 88px; /* Strictly limit to show max 3 notifications */
-    overflow: hidden; /* Hide overflow instead of scrolling */
+    padding: 4px;
+    max-height: 70px;
+    overflow: hidden;
   }
-  
-  /* Mobile left HUD - POSITIONED BELOW SIDE HUD */
-  #leftHud {
-    left: 8px;
+  /* Mobile side HUD - Only notification feed, positioned above bottom HUD */
+  #sideHud {
     right: 8px;
-    bottom: calc(100px + env(safe-area-inset-bottom, 0px)); /* Below side HUD, above progress bar */
+    left: 8px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     top: auto;
     transform: none;
+    max-width: none;
+    width: auto;
     
-    /* Make it horizontal like side HUD for better space usage */
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-around !important;
-    align-items: center !important;
-    gap: 8px;
-    
-    /* Styling to match side HUD */
     background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
     border: 1px solid rgba(0, 255, 255, 0.3);
     border-radius: 8px;
     padding: 6px 10px;
     backdrop-filter: blur(8px);
     box-shadow: 0 2px 10px rgba(0, 255, 255, 0.15);
-    z-index: 10;
     
-    /* CRITICAL: Allow taps to pass through to game canvas */
     pointer-events: none !important;
     touch-action: none !important;
   }
   
-  .reaction-meter {
-    min-width: 100px; /* More compact */
-    padding: 6px 8px;
-    border-radius: 6px;
-    margin: 0; /* Remove margins for tighter layout */
+  .notification-feed-container {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    backdrop-filter: none;
+  }
   }
   
   .reaction-display {
@@ -1734,7 +1764,6 @@ canvas#webglCanvas {
     /* Miss notifications minimal and fast */
     font-size: 0.9em;
     animation-duration: 0.3s !important;
-  }
   }
   
   /* Mobile settings adjustments */

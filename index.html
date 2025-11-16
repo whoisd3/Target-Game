@@ -297,20 +297,35 @@
                 <span class="hud-label">TIME</span>
                 <span id="reaction" class="hud-value">30</span>
             </div>
-        </div>
-        
-        <div id="leftHud" class="hud-section">
-            <div class="reaction-meter">
-                <div class="hud-label">REACTION TIME</div>
-                <div id="currentReactionTime" class="reaction-display">0.00s</div>
-                <div class="reaction-bar-container">
+            <!-- MOVED FROM LEFT HUD: Reaction Time -->
+            <div class="hud-stat compact reaction-time-compact">
+                <span class="hud-label">REACTION</span>
+                <span id="currentReactionTime" class="hud-value">0.00s</span>
+                <div class="reaction-bar-container compact-bar">
                     <div id="reactionBar" class="reaction-bar"></div>
                 </div>
-                <div class="reaction-best">
+                <div class="reaction-best-compact">
                     Best: <span id="bestReactionTime">0.00s</span>
                 </div>
             </div>
+            <!-- MOVED FROM SIDE HUD: High Score -->
+            <div class="hud-stat compact">
+                <span class="hud-label">HIGH</span>
+                <span id="highScore" class="hud-value">0</span>
+            </div>
+            <!-- MOVED FROM SIDE HUD: Combo -->
+            <div class="hud-stat compact">
+                <span class="hud-label">COMBO</span>
+                <span id="combo" class="hud-value">0</span>
+            </div>
+            <!-- MOVED FROM SIDE HUD: Misses -->
+            <div class="hud-stat compact">
+                <span class="hud-label">MISSES</span>
+                <span id="misses" class="hud-value">0</span>
+            </div>
         </div>
+        
+        <!-- LEFT HUD REMOVED - Components moved to TOP HUD -->
         
         <div id="bottomHud" class="hud-section">
             <div class="hud-controls">
@@ -321,24 +336,14 @@
         </div>
         
         <div id="sideHud" class="hud-section">
-            <div class="hud-stat vertical high-score-section">
-                <span class="hud-label">HIGH SCORE</span>
-                <span id="highScore" class="hud-value">0</span>
-                <!-- Notification Feed Attached Here -->
-                <div id="notificationFeed" class="notification-feed attached-to-highscore">
+            <!-- SIMPLIFIED - Most components moved to TOP HUD -->
+            <div class="notification-feed-container">
+                <div id="notificationFeed" class="notification-feed">
                     <div class="feed-title">ACTIVITY FEED</div>
                     <div id="bonusNotifications" class="bonus-notifications">
                         <!-- Populated by JavaScript -->
                     </div>
                 </div>
-            </div>
-            <div class="hud-stat vertical">
-                <span class="hud-label">COMBO</span>
-                <span id="combo" class="hud-value">0</span>
-            </div>
-            <div class="hud-stat vertical">
-                <span class="hud-label">MISSES</span>
-                <span id="misses" class="hud-value">0</span>
             </div>
             <div id="progressBarContainer" class="progress-container">
                 <div id="progressBar" class="progress-bar"></div>
