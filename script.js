@@ -953,6 +953,7 @@ function spawnTarget() {
   const isMobile = window.innerWidth <= 768;
   const isLandscape = window.innerWidth > window.innerHeight;
   
+  // Updated safe zones after UI consolidation - no more sideHud conflicts
   let safeZone = {
     xMin: -3,
     xMax: 3,
@@ -962,36 +963,66 @@ function spawnTarget() {
   
   if (isMobile) {
     if (isLandscape) {
-      // Landscape mobile: avoid side UI and top/bottom bars
+      // Landscape mobile: only avoid top/bottom HUDs (no side HUD anymore)
       safeZone = {
-        xMin: -2.5,    // Leave space for left HUD
-        xMax: 1.5,     // Leave space for right side HUD and notifications
+        xMin: -2.8,    // More horizontal space now
+        xMax: 2.8,     // More horizontal space now
         yMin: -1.5,    // Leave space for bottom HUD
         yMax: 1.5      // Leave space for top HUD
       };
     } else {
-      // Portrait mobile: more vertical space, less horizontal
+      // Portrait mobile: more space available without side HUD
       safeZone = {
-        xMin: -2,      // Narrower horizontal space
-        xMax: 2,       // Narrower horizontal space
+        xMin: -2.2,    // Wider than before
+        xMax: 2.2,     // Wider than before
         yMin: -1.5,    // Leave space for bottom HUD
-        yMax: 1.5      // Leave space for top HUD and notifications
+        yMax: 1.5      // Leave space for top HUD
       };
     }
   }
   
-  const newX = safeZone.xMin + (Math.random() * (safeZone.xMax - safeZone.xMin));
-  const newY = safeZone.yMin + (Math.random() * (safeZone.yMax - safeZone.yMin));
+  let newX, newY, attempts = 0;
+  const maxAttempts = 50; // Prevent infinite loops
+  
+  // Generate position that's sufficiently far from last position
+  do {
+    newX = safeZone.xMin + (Math.random() * (safeZone.xMax - safeZone.xMin));
+    newY = safeZone.yMin + (Math.random() * (safeZone.yMax - safeZone.yMin));
+    attempts++;
+    
+    // Calculate distance from last position
+    const distance = Math.sqrt(
+      Math.pow(newX - lastTargetPosition.x, 2) + 
+      Math.pow(newY - lastTargetPosition.y, 2)
+    );
+    
+    // Accept position if it's far enough from last position or we've tried too many times
+    if (distance >= MIN_SPAWN_DISTANCE || attempts >= maxAttempts) {
+      break;
+    }
+  } while (attempts < maxAttempts);
+  
+  // Update target position
   targetMesh.position.set(newX, newY, 0);
+  
+  // Store this position as the last position for next spawn
+  const distanceFromLast = Math.sqrt(
+    Math.pow(newX - lastTargetPosition.x, 2) + 
+    Math.pow(newY - lastTargetPosition.y, 2)
+  );
+  
+  console.log(`🎯 Target spawned at (${newX.toFixed(2)}, ${newY.toFixed(2)}) after ${attempts} attempts, distance from last: ${distanceFromLast.toFixed(2)}`);
+  
+  lastTargetPosition = { x: newX, y: newY };
   
   // Adjust target size based on game mode and mobile
   let targetScale = 1;
   if (currentGameMode === GameMode.PRECISION) {
-    targetScale = isMobile ? 0.4 : 0.6; // Smaller targets for precision mode, even smaller on mobile
+    targetScale = isMobile ? 0.4 : 0.6;
   } else if (currentGameMode === GameMode.TIME_ATTACK) {
-    targetScale = isMobile ? 0.8 : 1.2; // Slightly smaller on mobile for time attack
+    targetScale = isMobile ? 0.8 : 1.2;
   } else {
-    targetScale = isMobile ? 0.6 : 1.0; // Standard mobile scaling
+    targetScale = isMobile ? 0.6 : 1.0;
   }
   
   targetMesh.scale.setScalar(targetScale);
@@ -1074,6 +1105,9 @@ function startGame() {
   lives = 3; // Reset lives for all modes
   currentReactionTime = 0;
   gameStartTime = performance.now(); // Record when game started
+  
+  // Reset target position tracking to ensure first spawn is random
+  lastTargetPosition = { x: -999, y: -999 }; // Far away initial position
   
   // Initialize sound system on first user interaction
   soundManager.initialize();
@@ -1607,6 +1641,10 @@ function addTimeBonus(seconds, reason) {
 let lastEventTime = 0;
 let lastEventType = '';
 const EVENT_DEBOUNCE_MS = 100; // Prevent duplicate events within 100ms
+
+// Track last target position to prevent consecutive spawns in same place
+let lastTargetPosition = { x: 0, y: 0 };
+const MIN_SPAWN_DISTANCE = 0.8; // Minimum distance between consecutive spawns
 
 function handleClick(event) {
   if (currentState !== GameState.PLAYING || isPaused || isShapeChanging) return;
