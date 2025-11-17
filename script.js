@@ -2720,7 +2720,6 @@ function initializeMobileSupport() {
   
   console.log('✅ Mobile support initialization complete');
 }
-});
 
 // Also update viewport when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
