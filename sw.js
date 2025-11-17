@@ -1,4 +1,4 @@
-const CACHE_NAME = 'target-game-v38-emergency-override';
+const CACHE_NAME = 'target-game-v39-debug-js';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
