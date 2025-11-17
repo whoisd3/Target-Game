@@ -2641,6 +2641,16 @@ canvas#webglCanvas {
     margin: 0 auto;
     grid-template-columns: repeat(2, 1fr);
     gap: 25px;
+    display: grid !important; /* Ensure it shows on large screens */
+  }
+  
+  /* Ensure mode cards are visible and properly sized on large screens */
+  .mode-card {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 220px;
+    padding: 30px;
   }
   
   /* HUD positioning improvements for large screens */
@@ -2662,8 +2672,14 @@ canvas#webglCanvas {
   
   #bottomHud {
     bottom: 30px;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
     max-width: 600px;
     gap: 30px;
+    /* Ensure centered positioning is maintained */
+    position: fixed !important;
+    right: auto !important;
+    width: auto !important;
   }
   
   /* Notification positioning for large screens */
@@ -2697,6 +2713,7 @@ canvas#webglCanvas {
   .game-modes {
     grid-template-columns: repeat(3, 1fr);
     max-width: 1200px;
+    display: grid !important; /* Ensure visibility */
   }
   
   #topHud {
@@ -2705,5 +2722,37 @@ canvas#webglCanvas {
   
   #bottomHud {
     max-width: 700px;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+/* Desktop HUD positioning - Override mobile styles for screens >= 769px */
+@media (min-width: 769px) {
+  #bottomHud {
+    /* Restore desktop centering - override mobile positioning */
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    max-width: 500px;
+    position: fixed !important;
+    bottom: 20px;
+    /* Restore desktop styling */
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 0, 0, 0.3));
+    border: 1px solid #00ffff40;
+    padding: 15px 30px;
+    gap: 20px;
+  }
+  
+  /* Ensure game modes are visible on desktop */
+  .game-modes {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  
+  .mode-card {
+    display: flex !important;
+    min-height: 200px;
   }
 }
