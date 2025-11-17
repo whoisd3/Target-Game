@@ -2635,22 +2635,26 @@ canvas#webglCanvas {
     padding: 50px;
   }
   
-  /* Game modes grid improvement for large screens */
+  /* Game modes grid improvement for large screens - FORCE VISIBILITY */
   .game-modes {
-    max-width: 1000px;
-    margin: 0 auto;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 25px;
-    display: grid !important; /* Ensure it shows on large screens */
+    max-width: 1000px !important;
+    margin: 0 auto !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 25px !important;
+    display: grid !important;
+    flex-direction: initial !important;
   }
   
   /* Ensure mode cards are visible and properly sized on large screens */
   .mode-card {
     display: flex !important;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 220px;
-    padding: 30px;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    min-height: 220px !important;
+    padding: 30px !important;
+    border-radius: 15px !important;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 128, 255, 0.1)) !important;
+    border: 2px solid #00ffff40 !important;
   }
   
   /* HUD positioning improvements for large screens */
@@ -2745,14 +2749,52 @@ canvas#webglCanvas {
     gap: 20px;
   }
   
-  /* Ensure game modes are visible on desktop */
+  /* CRITICAL: Ensure game modes are visible on desktop - override mobile flex */
   .game-modes {
     display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    flex-direction: initial !important;
+    gap: 20px !important;
+    margin: 30px 0 !important;
   }
   
   .mode-card {
     display: flex !important;
-    min-height: 200px;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    min-height: 200px !important;
+    padding: 25px !important;
+    border-radius: 15px !important;
+  }
+  
+  /* Ensure proper hover effects on desktop */
+  .mode-card:hover {
+    border-color: #00ffff;
+    box-shadow: 0 0 25px #00ffff40;
+    transform: translateY(-5px) scale(1.02);
+  }
+}
+
+/* CRITICAL DESKTOP OVERRIDE - Highest specificity to ensure game mode cards show */
+@media (min-width: 769px) and (max-width: 9999px) {
+  body .overlay-menu .menu-container .game-modes {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    flex-direction: initial !important;
+    gap: 20px !important;
+    margin: 30px 0 !important;
+  }
+  
+  body .overlay-menu .menu-container .game-modes .mode-card {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    min-height: 200px !important;
+    padding: 25px !important;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 128, 255, 0.1)) !important;
+    border: 2px solid #00ffff40 !important;
+    border-radius: 15px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
   }
 }
