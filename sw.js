@@ -1,4 +1,4 @@
-const CACHE_NAME = 'target-game-v36-debug-hover';
+const CACHE_NAME = 'target-game-v37-clean-css';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
