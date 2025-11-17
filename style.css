@@ -2236,30 +2236,6 @@ canvas#webglCanvas {
   }
 }
 
-/* DEBUG MODE - Make cards highly visible on large screens */
-@media (min-width: 769px) {
-  .mode-card {
-    border: 3px solid #ff0000 !important; /* Red border for debugging */
-    background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(0, 255, 255, 0.3)) !important; /* Bright background */
-    color: #ffffff !important;
-    min-height: 250px !important;
-  }
-  
-  .mode-card h3 {
-    color: #ffffff !important;
-    background: rgba(255, 0, 0, 0.5) !important; /* Red background for title */
-    padding: 5px !important;
-    border-radius: 5px !important;
-  }
-  
-  .mode-card p {
-    color: #ffffff !important;
-    background: rgba(0, 0, 0, 0.5) !important; /* Dark background for text */
-    padding: 5px !important;
-    border-radius: 5px !important;
-  }
-}
-
 
 
 @media (max-width: 480px) {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'target-game-v40-selection-fix';
+const CACHE_NAME = 'target-nexus-game-v1.0-production';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',

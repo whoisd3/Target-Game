@@ -829,30 +829,7 @@ function setState(newState) {
       soundManager.playBackgroundMusic('menu');
       break;
     case GameState.MODE_SELECT:
-      console.log('🎯 DEBUG: Showing mode select menu');
-      const modeSelectMenu = document.getElementById('modeSelectMenu');
-      console.log('🎯 DEBUG: Menu element exists:', !!modeSelectMenu);
-      console.log('🎯 DEBUG: Menu classes before:', modeSelectMenu?.className);
-      
       document.getElementById('modeSelectMenu').classList.remove('hidden');
-      
-      console.log('🎯 DEBUG: Menu classes after:', modeSelectMenu?.className);
-      console.log('🎯 DEBUG: Window width:', window.innerWidth);
-      console.log('🎯 DEBUG: Is mobile check:', window.innerWidth <= 768);
-      
-      // Check if game-modes exist
-      const gameModes = document.querySelector('.game-modes');
-      console.log('🎯 DEBUG: Game modes element exists:', !!gameModes);
-      console.log('🎯 DEBUG: Game modes style display:', gameModes ? window.getComputedStyle(gameModes).display : 'N/A');
-      
-      // Check mode cards
-      const modeCards = document.querySelectorAll('.mode-card');
-      console.log('🎯 DEBUG: Found mode cards:', modeCards.length);
-      modeCards.forEach((card, i) => {
-        const computed = window.getComputedStyle(card);
-        console.log(`🎯 DEBUG: Card ${i} display: ${computed.display}, visibility: ${computed.visibility}, opacity: ${computed.opacity}`);
-      });
-      
       soundManager.playBackgroundMusic('menu');
       // Auto-select classic mode if none is selected
       if (!currentGameMode) {
@@ -2748,15 +2725,12 @@ function initializeMobileSupport() {
 document.addEventListener('DOMContentLoaded', () => {
   updateMobileViewport();
   
-  // DEBUG FUNCTION - Force show mode cards on large screens
+  // Force show mode cards on large screens (production solution)
   setTimeout(() => {
-    console.log('🔧 DEBUG: Force showing mode cards');
     const gameModes = document.querySelector('.game-modes');
     const modeCards = document.querySelectorAll('.mode-card');
     
     if (window.innerWidth > 768) {
-      console.log('🔧 DEBUG: Large screen detected, forcing grid layout');
-      
       if (gameModes) {
         gameModes.style.display = 'grid';
         gameModes.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
@@ -2764,7 +2738,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gameModes.style.margin = '30px 0';
         gameModes.style.visibility = 'visible';
         gameModes.style.opacity = '1';
-        console.log('🔧 DEBUG: Applied grid styles to .game-modes');
       }
       
       modeCards.forEach((card, i) => {
@@ -2780,7 +2753,6 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.pointerEvents = 'auto';
         card.style.cursor = 'pointer';
         card.style.transition = 'all 0.3s ease';
-        console.log(`🔧 DEBUG: Applied styles to card ${i}`);
         
         // Add hover effect handler
         card.addEventListener('mouseenter', () => {
