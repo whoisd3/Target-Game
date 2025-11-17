@@ -2015,6 +2015,26 @@ canvas#webglCanvas {
   border-color: #00ffff;
   box-shadow: 0 0 25px #00ffff40;
   transform: translateY(-5px) scale(1.02);
+  /* Enhanced hover text effects for better visibility */
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 128, 255, 0.2)) !important;
+}
+
+.mode-card:hover h3 {
+  color: #ffffff !important;
+  text-shadow: 0 0 10px #00ffff;
+  font-weight: 800;
+}
+
+.mode-card:hover p {
+  color: #f0f0f0 !important;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+}
+
+.mode-card:hover .mode-stats {
+  background: rgba(0, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 8px #00ffff;
+  font-weight: 700;
 }
 
 .mode-card:hover::before {
@@ -2666,6 +2686,38 @@ canvas#webglCanvas {
     gap: 20px !important;
     margin: 30px 0 !important;
   }
+  
+  .mode-card:hover {
+    border-color: #00ffff !important;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 128, 255, 0.3)) !important;
+    transform: translateY(-5px) scale(1.05) !important;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.6) !important;
+  }
+  
+  .mode-card:hover h3 {
+    color: #ffffff !important;
+    text-shadow: 0 0 15px #00ffff !important;
+    font-weight: 900 !important;
+  }
+  
+  .mode-card:hover p {
+    color: #f0f0f0 !important;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5) !important;
+  }
+  
+  .mode-card:hover .mode-stats {
+    background: rgba(0, 255, 255, 0.5) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 10px #00ffff !important;
+    font-weight: 800 !important;
+  }
+  
+  .mode-card:hover .mode-icon {
+    color: #ffffff !important;
+    text-shadow: 0 0 25px #00ffff !important;
+    transform: scale(1.2) !important;
+    transition: all 0.3s ease !important;
+  }
 }
 
 /* ULTRA SPECIFIC DESKTOP OVERRIDE - Maximum CSS specificity */
@@ -2698,6 +2750,31 @@ canvas#webglCanvas {
     border-color: #00ffff !important;
     box-shadow: 0 0 25px #00ffff40 !important;
     transform: translateY(-5px) scale(1.02) !important;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(0, 128, 255, 0.25)) !important;
+  }
+  
+  body .overlay-menu .menu-container .mode-card:hover h3 {
+    color: #ffffff !important;
+    text-shadow: 0 0 15px #00ffff !important;
+    font-weight: 900 !important;
+  }
+  
+  body .overlay-menu .menu-container .mode-card:hover p {
+    color: #f5f5f5 !important;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.4) !important;
+  }
+  
+  body .overlay-menu .menu-container .mode-card:hover .mode-stats {
+    background: rgba(0, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 10px #00ffff !important;
+    font-weight: 800 !important;
+  }
+  
+  body .overlay-menu .menu-container .mode-card:hover .mode-icon {
+    color: #ffffff !important;
+    text-shadow: 0 0 20px #00ffff !important;
+    transform: scale(1.1) !important;
   }
 }
 

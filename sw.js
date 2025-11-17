@@ -1,4 +1,4 @@
-const CACHE_NAME = 'target-game-v34-inline-emergency-fix';
+const CACHE_NAME = 'target-game-v35-hover-effects';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
