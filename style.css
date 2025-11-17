@@ -2152,6 +2152,67 @@ canvas#webglCanvas {
   }
 }
 
+/* EMERGENCY OVERRIDE - Maximum CSS Specificity for Desktop */
+@media screen and (min-width: 769px) {
+  html body .overlay-menu .menu-container .game-modes {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 20px !important;
+    margin: 30px 0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  
+  html body .overlay-menu .menu-container .mode-card {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    min-height: 200px !important;
+    padding: 25px !important;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 128, 255, 0.1)) !important;
+    border: 2px solid #00ffff40 !important;
+    border-radius: 15px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  
+  html body .overlay-menu .menu-container .mode-card:hover {
+    border-color: #00ffff !important;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(255, 255, 255, 0.2)) !important;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.8) !important;
+    transform: translateY(-5px) scale(1.05) !important;
+  }
+  
+  html body .overlay-menu .menu-container .mode-card:hover h3 {
+    color: #ffffff !important;
+    text-shadow: 0 0 20px #00ffff !important;
+    font-weight: 900 !important;
+  }
+  
+  html body .overlay-menu .menu-container .mode-card:hover p {
+    color: #f0f0f0 !important;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.6) !important;
+  }
+  
+  html body .overlay-menu .menu-container .mode-card:hover .mode-stats {
+    background: rgba(0, 255, 255, 0.6) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 15px #00ffff !important;
+    font-weight: 800 !important;
+  }
+  
+  html body .overlay-menu .menu-container .mode-card:hover .mode-icon {
+    color: #ffffff !important;
+    text-shadow: 0 0 30px #00ffff !important;
+    transform: scale(1.3) !important;
+  }
+}
+
 /* Large Screens - 2 Column Layout */
 @media (min-width: 1200px) {
   .game-modes {
@@ -2172,6 +2233,30 @@ canvas#webglCanvas {
   .game-modes {
     grid-template-columns: repeat(3, 1fr);
     max-width: 1200px;
+  }
+}
+
+/* DEBUG MODE - Make cards highly visible on large screens */
+@media (min-width: 769px) {
+  .mode-card {
+    border: 3px solid #ff0000 !important; /* Red border for debugging */
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(0, 255, 255, 0.3)) !important; /* Bright background */
+    color: #ffffff !important;
+    min-height: 250px !important;
+  }
+  
+  .mode-card h3 {
+    color: #ffffff !important;
+    background: rgba(255, 0, 0, 0.5) !important; /* Red background for title */
+    padding: 5px !important;
+    border-radius: 5px !important;
+  }
+  
+  .mode-card p {
+    color: #ffffff !important;
+    background: rgba(0, 0, 0, 0.5) !important; /* Dark background for text */
+    padding: 5px !important;
+    border-radius: 5px !important;
   }
 }
 

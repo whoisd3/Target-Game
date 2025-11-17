@@ -1,4 +1,4 @@
-const CACHE_NAME = 'target-game-v37-clean-css';
+const CACHE_NAME = 'target-game-v38-emergency-override';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
