@@ -2677,6 +2677,40 @@ canvas#webglCanvas {
   }
 }
 
+/* DEBUG: Force mode cards to be visible and hoverable on all large screens */
+@media (min-width: 769px) {
+  .game-modes {
+    display: grid !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  
+  .mode-card {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+  }
+  
+  /* Force hover state to be visible */
+  .mode-card:hover {
+    border: 3px solid #00ffff !important;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(255, 255, 255, 0.1)) !important;
+    transform: scale(1.05) translateY(-5px) !important;
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.8) !important;
+    z-index: 10 !important;
+  }
+  
+  .mode-card:hover * {
+    color: #ffffff !important;
+    text-shadow: 0 0 15px #00ffff !important;
+  }
+}
+
 /* EMERGENCY DESKTOP GRID - HIGHEST PRIORITY */
 @media (min-width: 769px) {
   .game-modes {
