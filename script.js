@@ -2778,7 +2778,129 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.visibility = 'visible';
         card.style.opacity = '1';
         card.style.pointerEvents = 'auto';
+        card.style.cursor = 'pointer';
+        card.style.transition = 'all 0.3s ease';
         console.log(`🔧 DEBUG: Applied styles to card ${i}`);
+        
+        // Add hover effect handler
+        card.addEventListener('mouseenter', () => {
+          if (!card.classList.contains('selected')) {
+            card.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 128, 255, 0.2))';
+            card.style.borderColor = '#00ffff';
+            card.style.boxShadow = '0 0 25px rgba(0, 255, 255, 0.4)';
+            card.style.transform = 'translateY(-5px) scale(1.02)';
+            
+            // Enhanced text effects on hover
+            const h3 = card.querySelector('h3');
+            const p = card.querySelector('p');
+            const stats = card.querySelector('.mode-stats');
+            const icon = card.querySelector('.mode-icon');
+            
+            if (h3) {
+              h3.style.color = '#ffffff';
+              h3.style.textShadow = '0 0 15px #00ffff';
+              h3.style.fontWeight = '900';
+            }
+            if (p) {
+              p.style.color = '#f0f0f0';
+              p.style.textShadow = '0 0 8px rgba(0, 255, 255, 0.5)';
+            }
+            if (stats) {
+              stats.style.background = 'rgba(0, 255, 255, 0.5)';
+              stats.style.color = '#ffffff';
+              stats.style.textShadow = '0 0 10px #00ffff';
+              stats.style.fontWeight = '800';
+            }
+            if (icon) {
+              icon.style.color = '#ffffff';
+              icon.style.textShadow = '0 0 25px #00ffff';
+              icon.style.transform = 'scale(1.2)';
+            }
+          }
+        });
+        
+        card.addEventListener('mouseleave', () => {
+          if (!card.classList.contains('selected')) {
+            card.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 128, 255, 0.1))';
+            card.style.borderColor = '#00ffff40';
+            card.style.boxShadow = 'none';
+            card.style.transform = 'none';
+            
+            // Reset text effects
+            const h3 = card.querySelector('h3');
+            const p = card.querySelector('p');
+            const stats = card.querySelector('.mode-stats');
+            const icon = card.querySelector('.mode-icon');
+            
+            if (h3) {
+              h3.style.color = '#00ffff';
+              h3.style.textShadow = 'none';
+              h3.style.fontWeight = '700';
+            }
+            if (p) {
+              p.style.color = '#ccc';
+              p.style.textShadow = 'none';
+            }
+            if (stats) {
+              stats.style.background = 'rgba(0, 255, 255, 0.1)';
+              stats.style.color = '#00ffff';
+              stats.style.textShadow = 'none';
+              stats.style.fontWeight = '600';
+            }
+            if (icon) {
+              icon.style.color = '';
+              icon.style.textShadow = 'none';
+              icon.style.transform = 'none';
+            }
+          }
+        });
+      });
+      
+      // Add selection state handler
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const card = mutation.target;
+            if (card.classList.contains('selected')) {
+              // Apply selected styling
+              card.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 128, 255, 0.3))';
+              card.style.borderColor = '#00ffff';
+              card.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.6)';
+              card.style.transform = 'none';
+              
+              const h3 = card.querySelector('h3');
+              const p = card.querySelector('p');
+              const stats = card.querySelector('.mode-stats');
+              
+              if (h3) {
+                h3.style.color = '#ffffff';
+                h3.style.textShadow = '0 0 20px #00ffff';
+                h3.style.fontWeight = '900';
+              }
+              if (p) {
+                p.style.color = '#f5f5f5';
+                p.style.textShadow = '0 0 10px rgba(0, 255, 255, 0.6)';
+              }
+              if (stats) {
+                stats.style.background = 'rgba(0, 255, 255, 0.6)';
+                stats.style.color = '#ffffff';
+                stats.style.textShadow = '0 0 15px #00ffff';
+                stats.style.fontWeight = '800';
+              }
+            } else {
+              // Reset to default styling
+              card.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 128, 255, 0.1))';
+              card.style.borderColor = '#00ffff40';
+              card.style.boxShadow = 'none';
+              card.style.transform = 'none';
+            }
+          }
+        });
+      });
+      
+      // Observe all mode cards for class changes
+      modeCards.forEach(card => {
+        observer.observe(card, { attributes: true, attributeFilter: ['class'] });
       });
     }
   }, 1000);
