@@ -947,7 +947,12 @@ let targetMesh = createParticleShape(shapes[shapeIndex], colorMap[0]);
 scene.add(targetMesh);
 
 function spawnTarget() {
-  if (isPaused || currentState !== GameState.PLAYING) return;
+  if (isPaused || currentState !== GameState.PLAYING) {
+    console.log('🚫 spawnTarget called but game not playing or paused');
+    return;
+  }
+  
+  console.log('🎯 spawnTarget() called - generating new position...');
   
   // Calculate safe zone based on screen size and UI elements
   const isMobile = window.innerWidth <= 768;
@@ -1013,6 +1018,12 @@ function spawnTarget() {
   
   console.log(`🎯 Target spawned at (${newX.toFixed(2)}, ${newY.toFixed(2)}) after ${attempts} attempts, distance from last: ${distanceFromLast.toFixed(2)}`);
   
+  // Validate the position was actually set
+  if (targetMesh.position.x !== newX || targetMesh.position.y !== newY) {
+    console.error('🚨 ERROR: Target position not set correctly!');
+    console.log(`Expected: (${newX}, ${newY}), Actual: (${targetMesh.position.x}, ${targetMesh.position.y})`);
+  }
+  
   lastTargetPosition = { x: newX, y: newY };
   
   // Adjust target size based on game mode and mobile
@@ -1033,6 +1044,8 @@ function spawnTarget() {
   }
   
   reactionStart = performance.now();
+  
+  console.log(`✅ Target fully spawned and ready. Position: (${targetMesh.position.x.toFixed(2)}, ${targetMesh.position.y.toFixed(2)}), Scale: ${targetMesh.scale.x.toFixed(2)}`);
 }
 
 function updateUI() {
@@ -1651,7 +1664,12 @@ const MIN_SPAWN_DISTANCE = 0.8; // Minimum distance between consecutive spawns
 let isProcessingHit = false;
 
 function handleClick(event) {
-  if (currentState !== GameState.PLAYING || isPaused || isShapeChanging) return;
+  console.log(`🖱️ handleClick called - Event: ${event.type}, State: ${currentState}, Paused: ${isPaused}, Processing: ${isProcessingHit}`);
+  
+  if (currentState !== GameState.PLAYING || isPaused || isShapeChanging) {
+    console.log('🚫 Click ignored - game not in playing state');
+    return;
+  }
   
   // Prevent multiple hits from being processed simultaneously
   if (isProcessingHit) {
@@ -1717,7 +1735,16 @@ function handleClick(event) {
   
   // Calculate distance from click to target center
   const targetPos = targetMesh.position;
+  
+  // Validate target exists and has valid position
+  if (!targetMesh || !targetPos) {
+    console.error('🚨 ERROR: Target mesh or position not found!');
+    return;
+  }
+  
   const clickDistance = clickWorldPos.distanceTo(targetPos);
+  
+  console.log(`🔍 Target validation - Position exists: ${!!targetPos}, X: ${targetPos.x}, Y: ${targetPos.y}, Scale: ${targetMesh.scale.x}`);
   
   // OPTIMIZED hit zone calculation - MUCH MORE GENEROUS for accuracy
   const targetScale = targetMesh.scale.x; // Current target scale
@@ -1831,10 +1858,9 @@ function handleClick(event) {
     updateUI();
     spawnTarget();
     
-    // Clear processing flag after hit is complete
-    setTimeout(() => {
-      isProcessingHit = false;
-    }, 50); // Short delay to prevent immediate re-processing
+    // Clear processing flag immediately after target spawn
+    isProcessingHit = false;
+    console.log('🎯 Hit processed and flag reset - ready for next target');
     
   } else {
     // Miss penalty - increment miss counter, lose time, and reset combo
@@ -1924,10 +1950,9 @@ function handleClick(event) {
     
     updateUI();
     
-    // Clear processing flag after miss handling
-    setTimeout(() => {
-      isProcessingHit = false;
-    }, 50);
+    // Clear processing flag immediately after miss handling
+    isProcessingHit = false;
+    console.log('❌ Miss processed and flag reset - ready for next target');
   }
 }
 
