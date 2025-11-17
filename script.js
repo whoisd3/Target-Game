@@ -728,7 +728,7 @@ const missesEl = document.getElementById('misses');
 const currentReactionEl = document.getElementById('currentReactionTime');
 const bestReactionEl = document.getElementById('bestReactionTime');
 const reactionBar = document.getElementById('reactionBar');
-const bonusNotifications = document.getElementById('bonusNotifications');
+const bonusNotifications = document.getElementById('bonusNotifications'); // May be null after side HUD removal
 const comboDisplay = document.getElementById('comboDisplay');
 const comboMultiplierEl = document.getElementById('comboMultiplier');
 
@@ -1589,6 +1589,12 @@ function showFloatingNotification(text, type = 'normal') {
 
 // Activity feed notifications (non-intrusive)
 function showBonusNotification(text, type = 'bonus') {
+  // Check if bonusNotifications element exists (removed with side HUD)
+  if (!bonusNotifications) {
+    console.log(`🎆 Bonus: ${text} (${type})`);
+    return; // Gracefully handle missing notification container
+  }
+  
   const notification = document.createElement('div');
   notification.className = `bonus-notification ${type}`;
   
@@ -1613,7 +1619,13 @@ function showBonusNotification(text, type = 'bonus') {
   
   notification.innerHTML = `<span style="margin-right: 5px;">${icon}</span>${text}`;
   
-  bonusNotifications.appendChild(notification);
+  // Safety check before appendChild
+  if (bonusNotifications && bonusNotifications.appendChild) {
+    bonusNotifications.appendChild(notification);
+  } else {
+    console.log(`🎆 Bonus: ${text} (${type})`);
+    return;
+  }
   
   // Auto-remove after 3 seconds with fade animation
   setTimeout(() => {
@@ -1626,9 +1638,11 @@ function showBonusNotification(text, type = 'bonus') {
   }, 3000);
   
   // Keep only the latest 3 notifications (mobile optimized)
-  const notifications = bonusNotifications.children;
-  if (notifications.length > 3) {
-    notifications[0].remove();
+  if (bonusNotifications && bonusNotifications.children) {
+    const notifications = bonusNotifications.children;
+    if (notifications.length > 3) {
+      notifications[0].remove();
+    }
   }
 }
 
