@@ -2459,52 +2459,97 @@ window.addEventListener('orientationchange', () => {
   }, 100);
 });
 
-// Update mobile viewport height dynamically - COMPREHENSIVE mobile support
+// Update mobile viewport height dynamically - Enhanced for iOS Safari and Chrome mobile
 function updateMobileViewport() {
-  // Only run on mobile devices
-  if (window.innerWidth <= 768) {
-    // Set CSS custom property for consistent viewport height
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  // Enhanced mobile detection
+  const isMobile = window.innerWidth <= 768 || 
+                  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  if (isMobile) {
+    // Use dynamic viewport units when supported
+    let viewportHeight = window.innerHeight;
     
-    // Force canvas sizing for mobile
-    const canvas = document.getElementById('webglCanvas');
-    if (canvas) {
-      canvas.style.width = '100vw';
-      canvas.style.height = '100vh';
-      canvas.style.position = 'fixed';
-      canvas.style.top = '0';
-      canvas.style.left = '0';
+    // iOS Safari specific fixes
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+      // Account for iOS Safari's dynamic UI
+      viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     }
     
-    // Optimize HUD positioning for mobile browsers
+    // Set CSS custom properties for both standard and dynamic viewport
+    const vh = viewportHeight * 0.01;
+    const dvh = viewportHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    document.documentElement.style.setProperty('--dvh', `${dvh}px`);
+    
+    // Enhanced canvas sizing for mobile browsers
+    const canvas = document.getElementById('webglCanvas');
+    if (canvas) {
+      canvas.style.cssText = `
+        width: 100vw !important;
+        height: 100vh !important;
+        height: ${viewportHeight}px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 0 !important;
+        touch-action: none !important;
+        -webkit-user-select: none !important;
+        user-select: none !important;
+      `;
+    }
+    
+    // Optimize HUD positioning for different mobile browsers
     const bottomHud = document.getElementById('bottomHud');
     const topHud = document.getElementById('topHud');
     
     if (bottomHud) {
-      // Smart bottom HUD positioning
       const isLandscape = window.innerWidth > window.innerHeight;
-      const viewportHeight = window.innerHeight;
-      const safeAreaBottom = getComputedStyle(document.documentElement).getPropertyValue('--sab') || '0px';
+      const safeAreaBottom = getComputedStyle(document.documentElement)
+        .getPropertyValue('--sab') || 
+        getComputedStyle(document.documentElement)
+        .getPropertyValue('env(safe-area-inset-bottom)') || '0px';
       
-      // Position based on actual viewport and orientation
+      // Enhanced bottom HUD positioning for mobile browsers
+      let bottomOffset = 12;
       if (isLandscape && viewportHeight < 500) {
-        bottomHud.style.bottom = `max(10px, ${safeAreaBottom})`;
+        bottomOffset = 8;
       } else if (viewportHeight < 600) {
-        bottomHud.style.bottom = `max(15px, ${safeAreaBottom})`;
-      } else {
-        bottomHud.style.bottom = `max(20px, ${safeAreaBottom})`;
+        bottomOffset = 10;
       }
       
-      // Ensure buttons are touchable
-      bottomHud.style.pointerEvents = 'auto';
-      bottomHud.style.zIndex = '999';
+      bottomHud.style.cssText += `
+        bottom: max(${bottomOffset}px, ${safeAreaBottom}) !important;
+        pointer-events: none !important;
+        z-index: 999 !important;
+        position: fixed !important;
+        left: 8px !important;
+        right: 8px !important;
+        width: auto !important;
+        background: linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(0, 0, 0, 0.9)) !important;
+        border: 2px solid #00ffff !important;
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.6) !important;
+      `;
+      
+      // Make HUD controls touchable
+      const hudControls = bottomHud.querySelector('.hud-controls');
+      if (hudControls) {
+        hudControls.style.pointerEvents = 'auto';
+        hudControls.style.zIndex = '1000';
+      }
     }
     
     if (topHud) {
-      // Minimize top HUD interference
-      topHud.style.pointerEvents = 'auto';
-      topHud.style.opacity = '0.9';
+      const safeAreaTop = getComputedStyle(document.documentElement)
+        .getPropertyValue('--sat') || 
+        getComputedStyle(document.documentElement)
+        .getPropertyValue('env(safe-area-inset-top)') || '0px';
+      
+      topHud.style.cssText += `
+        top: max(4px, ${safeAreaTop}) !important;
+        pointer-events: auto !important;
+        opacity: 0.95 !important;
+        backdrop-filter: blur(8px) !important;
+      `;
     }
     
     // Force layout recalculation
@@ -2571,8 +2616,110 @@ window.addEventListener('load', () => {
     soundManager.setMasterVolume(gameSettings.volume);
   });
   
-  // Initialize mobile viewport handling
+  // Enhanced mobile initialization
+  initializeMobileSupport();
+});
+
+// Enhanced mobile support initialization
+function initializeMobileSupport() {
+  console.log('📱 Initializing enhanced mobile support...');
+  
+  // Initial mobile viewport setup
   updateMobileViewport();
+  
+  // Enhanced mobile event listeners
+  const isMobile = window.innerWidth <= 768 || 
+                  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  if (isMobile) {
+    console.log('📱 Mobile device detected - applying mobile optimizations');
+    
+    // iOS Safari specific optimizations
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      console.log('🍎 iOS Safari optimizations active');
+      
+      // Prevent iOS Safari zoom on input focus
+      document.addEventListener('touchstart', function(event) {
+        if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+          event.target.style.fontSize = '16px';
+        }
+      });
+      
+      // Handle iOS Safari viewport changes
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+          setTimeout(updateMobileViewport, 150);
+        });
+      }
+    }
+    
+    // Chrome mobile specific optimizations
+    if (/Chrome/.test(navigator.userAgent) && /Mobile/.test(navigator.userAgent)) {
+      console.log('🤖 Chrome mobile optimizations active');
+    }
+    
+    // Enhanced resize handling for mobile
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        updateMobileViewport();
+        // Ensure three.js canvas resizes properly
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }, 200);
+    });
+    
+    // Enhanced orientation change handling
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        updateMobileViewport();
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        // Re-check mobile orientation after orientation change
+        setTimeout(() => {
+          checkMobileOrientation();
+        }, 300);
+      }, 300); // Increased delay for iOS Safari
+    });
+    
+    // Mobile performance optimizations
+    document.body.style.cssText += `
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    `;
+    
+    // Prevent mobile scroll bounce
+    document.addEventListener('touchmove', function(e) {
+      if (e.target === document.body || e.target === document.documentElement) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    // Enhanced touch event handling
+    let touchStartY = 0;
+    document.addEventListener('touchstart', function(e) {
+      touchStartY = e.touches[0].clientY;
+    });
+    
+    document.addEventListener('touchmove', function(e) {
+      const touchY = e.touches[0].clientY;
+      const touchYDelta = touchStartY - touchY;
+      const el = e.target;
+      
+      // Allow scrolling only in scrollable elements
+      if (!el.closest('.overlay-menu, .menu-container, .install-instructions, .leaderboard-list')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+  }
+  
+  console.log('✅ Mobile support initialization complete');
+}
 });
 
 // Also update viewport when DOM is ready

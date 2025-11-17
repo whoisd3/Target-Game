@@ -14,24 +14,45 @@
 }
 
 body {
-  overflow: hidden;
+  /* iOS Safari fix - don't use overflow: hidden */
+  overflow: visible;
   font-family: 'Orbitron', 'Segoe UI', monospace;
   background-color: #000;
   color: #fff;
   user-select: none;
-  /* Use custom property for mobile viewport handling */
-  height: calc(var(--vh, 1vh) * 100);
+  /* Better mobile viewport handling */
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  /* iOS specific fixes */
+  -webkit-overflow-scrolling: touch;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Canvas styling */
 canvas#webglCanvas {
   display: block;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 0;
   border: 2px solid #00ffff;
   box-shadow: 0 0 20px #00ffff40, inset 0 0 20px #00ffff20;
+  /* Mobile optimized sizing */
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important; /* Dynamic viewport height */
+  /* iOS specific fixes */
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+  /* Prevent iOS zoom on double tap */
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Utility classes */
@@ -46,45 +67,52 @@ canvas#webglCanvas {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* Dynamic viewport height */
   background: rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(10px);
   display: flex;
-  align-items: flex-start; /* Changed from center for better iOS scrolling */
+  align-items: flex-start;
   justify-content: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease-out;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 20px 10px;
+  padding: env(safe-area-inset-top, 20px) 10px env(safe-area-inset-bottom, 20px) 10px;
   /* Enhanced mobile scrolling with iOS fixes */
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
-  /* Allow scrolling on iOS */
+  /* Critical for iOS Safari */
   touch-action: pan-y pinch-zoom;
-  /* iOS Safari specific fixes */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
-  /* Ensure scrollable area */
+  /* Better iOS handling */
   min-height: 100vh;
+  min-height: 100dvh;
   box-sizing: border-box;
+  /* Prevent iOS bounce */
+  overscroll-behavior: contain;
 }
 
 .menu-container {
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 100, 255, 0.1));
   border: 2px solid #00ffff;
   border-radius: 15px;
-  padding: 40px;
+  padding: 30px;
   text-align: center;
   box-shadow: 0 0 30px #00ffff40;
   max-width: 90vw;
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  margin: auto;
-  /* Enhanced scrolling for mobile */
+  /* Remove max-height constraints for iOS */
+  min-height: auto;
+  overflow: visible;
+  margin: 10px auto;
+  /* Better mobile scrolling */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: #00ffff transparent;
+  /* iOS safe area support */
+  box-sizing: border-box;
+  position: relative;
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -133,14 +161,14 @@ canvas#webglCanvas {
 }
 
 .menu-btn {
-  padding: 15px 30px;
+  padding: 18px 32px;
   font-size: 1.1em;
   font-weight: 700;
   font-family: 'Orbitron', monospace;
   background: linear-gradient(45deg, #001122, #003344);
   color: #00ffff;
   border: 2px solid #00ffff;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
@@ -152,8 +180,13 @@ canvas#webglCanvas {
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: rgba(0, 255, 255, 0.3);
-  /* Ensure proper z-index for mobile */
+  /* Better mobile touch targets */
+  min-height: 56px;
+  min-width: 120px;
   z-index: 100;
+  /* iOS button fix */
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .menu-btn:disabled, .menu-btn.disabled {
@@ -1139,146 +1172,213 @@ canvas#webglCanvas {
 
 /* Responsive design - COMPREHENSIVE Mobile Optimizations */
 @media (max-width: 768px) {
-  /* Mobile-first adjustments with dynamic viewport handling */
+  /* Better mobile viewport handling */
   html {
-    /* Support dynamic viewport height */
     height: 100dvh;
-    height: 100vh; /* Fallback for browsers without dvh support */
-    /* Prevent zoom on input focus */
-    font-size: 16px; /* Minimum to prevent iOS zoom */
+    height: 100vh; /* Fallback */
+    font-size: 16px; /* Prevent iOS zoom */
+    -webkit-text-size-adjust: 100%;
   }
   
   body {
-    /* iOS scrolling fix - don't use position: fixed or overflow: hidden */
+    /* iOS scrolling fix */
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
-    /* Allow natural document flow for iOS scrolling */
+    /* Better mobile sizing */
     width: 100vw;
     min-height: 100vh;
-    min-height: 100dvh; /* Use dynamic viewport height */
-    /* Remove fixed positioning that blocks iOS scrolling */
+    min-height: 100dvh;
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    /* iOS bounce prevention without blocking scroll */
-    overscroll-behavior: none;
+    overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Canvas adjustments for mobile - FIX UI FITTING */
+  /* Canvas mobile fixes */
   canvas#webglCanvas {
     border: 1px solid #00ffff;
     box-shadow: 0 0 15px #00ffff30;
-    /* Ensure canvas fits properly in mobile viewport */
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw !important;
     height: 100vh !important;
-    /* Use dvh when supported */
     height: 100dvh !important;
     z-index: 0;
   }
 
-  /* Fix overlay menu sizing for mobile with iOS scrolling fixes */
+  /* Mobile overlay menu fixes */
   .overlay-menu {
     width: 100vw;
-    height: auto; /* Allow natural height for content */
+    height: auto;
     min-height: 100vh;
-    min-height: 100dvh; /* Use dynamic height */
-    padding: 20px 10px;
+    min-height: 100dvh;
+    padding: env(safe-area-inset-top, 15px) 10px env(safe-area-inset-bottom, 15px) 10px;
     box-sizing: border-box;
-    /* iOS scrolling specific fixes */
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    /* Align content to top for scrolling */
     align-items: flex-start;
-    padding-top: max(20px, env(safe-area-inset-top));
-    padding-bottom: max(20px, env(safe-area-inset-bottom));
   }
 
   .game-title {
-    font-size: 1.8em; /* Smaller for mobile */
-    margin-bottom: 15px;
+    font-size: 2em;
+    margin-bottom: 20px;
     line-height: 1.1;
   }
   
   .menu-container {
-    padding: 25px 15px; /* Better padding for readability */
-    max-width: 100%;
+    padding: 20px 15px;
+    max-width: 95vw;
     width: 100%;
     margin: 0 auto;
-    /* Remove max-height constraints that block iOS scrolling */
-    min-height: auto; /* Allow flexible height */
-    /* Enhanced smooth scrolling on mobile */
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-    /* Ensure container doesn't get cut off */
-    position: relative;
+    min-height: auto;
     box-sizing: border-box;
-    /* Add margin for iOS safe areas */
-    margin-top: 10px;
-    margin-bottom: 10px;
+    position: relative;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 12px;
   }
   
   .menu-buttons {
-    gap: 12px;
+    gap: 15px;
   }
   
   .menu-btn {
-    padding: 18px 24px; /* Larger padding for better mobile touch */
+    padding: 20px 28px;
     font-size: 1.0em;
-    min-height: 60px; /* Larger touch targets for mobile */
-    border-radius: 12px;
-    /* Enhanced mobile touch response */
+    min-height: 64px;
+    border-radius: 14px;
     -webkit-tap-highlight-color: rgba(0, 255, 255, 0.4);
     touch-action: manipulation !important;
     -webkit-touch-callout: none !important;
     -webkit-user-select: none !important;
     user-select: none !important;
-    /* Stronger visual feedback for mobile */
     background: linear-gradient(45deg, #002244, #004466);
     border: 3px solid #00ffff;
     box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-    /* High z-index for mobile interaction */
     z-index: 200 !important;
     position: relative;
+    /* iOS button fix */
+    -webkit-appearance: none;
+    appearance: none;
   }
   
-  /* MOBILE HUD SYSTEM - FIXED positioning for mobile UI fitting */
+  /* MOBILE HUD SYSTEM - Better positioning and responsiveness */
   
-  /* Mobile top HUD - Decluttered and compact */
-  #topHud.minimal-hud {
+  #hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    pointer-events: none;
+    z-index: 100;
+    font-family: 'Orbitron', monospace;
+    overflow: hidden;
+  }
+  
+  /* Mobile top HUD - Compact and efficient */
+  #topHud {
     gap: 6px;
+    padding: 4px 8px;
+    top: env(safe-area-inset-top, 4px);
+    left: 4px;
+    right: 4px;
+    transform: none;
+    max-width: none;
+    width: calc(100vw - 8px);
+    border-radius: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    backdrop-filter: blur(6px);
+  }
+  
+  #topHud.minimal-hud {
+    gap: 4px;
     padding: 3px 6px;
-    font-size: 0.8em;
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.04), rgba(0, 0, 0, 0.15));
-    border: 1px solid rgba(0, 255, 255, 0.1);
+    font-size: 0.75em;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.05), rgba(0, 0, 0, 0.2));
+    border: 1px solid rgba(0, 255, 255, 0.15);
     border-radius: 6px;
     backdrop-filter: blur(8px);
   }
   
   .hud-stat.compact {
-    min-width: 50px;
+    min-width: 48px;
     padding: 3px 6px;
     border-radius: 4px;
+    margin: 1px;
   }
   
   .hud-stat.compact .hud-label {
-    font-size: 0.55em;
+    font-size: 0.5em;
     margin-bottom: 1px;
-    opacity: 0.8;
+    opacity: 0.9;
   }
   
   .hud-stat.compact .hud-value {
-    font-size: 1.0em;
+    font-size: 0.9em;
     font-weight: 700;
   }
   
-  /* Enhanced mobile button hover and active states */
+  /* Mobile bottom HUD - Enhanced for mobile usage */
+  #bottomHud {
+    bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+    padding: 10px 16px;
+    gap: 16px;
+    left: 8px;
+    right: 8px;
+    transform: none;
+    border-radius: 12px;
+    flex-wrap: nowrap;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 0, 0, 0.85));
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+    z-index: 350;
+    min-height: 60px;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Critical for mobile interaction */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    pointer-events: none !important;
+  }
+
+  /* Ensure HUD controls are touchable */
+  .hud-controls {
+    pointer-events: auto !important;
+    z-index: 360;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .hud-btn {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+    font-size: 1.2em !important;
+    transition: all 0.15s ease;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(0, 0, 0, 0.7));
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    color: #00ffff;
+    /* iOS button fix */
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  /* Enhanced mobile button interactions */
   .menu-btn:hover, .menu-btn:focus {
     background: linear-gradient(45deg, #003366, #006699);
     box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
@@ -1292,7 +1392,6 @@ canvas#webglCanvas {
     border-color: #66ffff;
   }
   
-  /* Primary button enhanced mobile styles */
   .menu-btn.primary {
     background: linear-gradient(45deg, #004422, #006644);
     border-color: #00ff88;
@@ -1305,542 +1404,205 @@ canvas#webglCanvas {
     transform: scale(0.98);
     box-shadow: 0 0 35px rgba(0, 255, 136, 0.8);
   }
-  #hud {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    height: 100dvh; /* Dynamic viewport height */
-    pointer-events: none;
-    z-index: 100;
-    font-family: 'Orbitron', monospace;
-    overflow: hidden; /* Prevent any overflow */
+  
+  .hud-btn:active, .hud-btn:focus {
+    transform: scale(0.92);
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.5), rgba(0, 0, 0, 0.9));
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
   }
   
-  /* Mobile top HUD - Consolidated layout for all components */
-  #topHud {
-    gap: 4px;
-    padding: 4px 8px;
-    top: env(safe-area-inset-top, 2px);
-    left: 2px;
-    right: 2px;
-    transform: none;
-    max-width: none;
-    width: calc(100vw - 4px);
-    border-radius: 8px;
-    flex-wrap: wrap; /* Allow wrapping for all components */
-    justify-content: center;
-    overflow: visible;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    backdrop-filter: blur(5px);
-  }
-  
-  #topHud.minimal-hud {
-    gap: 4px;
-    padding: 3px 6px;
+  .hud-info {
     font-size: 0.8em;
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.04), rgba(0, 0, 0, 0.15));
-    border: 1px solid rgba(0, 255, 255, 0.1);
-    border-radius: 6px;
-    backdrop-filter: blur(8px);
+    white-space: nowrap;
   }
   
-  .hud-stat.compact {
-    min-width: 45px;
-    padding: 2px 4px;
-    border-radius: 4px;
-    margin: 1px;
-  }
-  
-  .hud-stat.compact .hud-label {
-    font-size: 0.5em;
-    margin-bottom: 1px;
-    opacity: 0.8;
-  }
-  
-  .hud-stat.compact .hud-value {
-    font-size: 0.9em;
-    font-weight: 700;
-  }
-  
-  /* Compact reaction time for mobile */
+  /* Compact reaction time display */
   .reaction-time-compact {
-    min-width: 80px;
+    min-width: 85px;
   }
   
   .compact-bar {
-    width: 60px;
+    width: 65px;
     height: 3px;
-    margin: 1px 0;
+    margin: 2px 0;
   }
   
   .reaction-best-compact {
     font-size: 0.5em;
     margin-top: 1px;
   }
-  
-  /* Mobile notification feed - REMOVED with Side HUD */
-  /* Mobile side HUD - REMOVED */
-  }
-  
-  .reaction-display {
-    font-size: 0.9em; /* Smaller for compact layout */
-  }
-  
-  .reaction-best {
-    font-size: 0.7em;
-  }
-  
-  /* Mobile side HUD - POSITIONED ABOVE LEFT HUD */
-  #sideHud {
-    /* Position above left HUD */
-    top: auto;
-    bottom: calc(170px + env(safe-area-inset-bottom, 0px)); /* Above left HUD */
-    left: 8px;
-    right: 8px;
-    
-    position: fixed;
-    width: auto !important;
-    height: auto !important;
-    transform: none;
-    margin-top: 0;
-    gap: 6px;
-    
-    /* Enhanced styling for position above left HUD */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    border-radius: 8px;
-    padding: 6px 10px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 2px 10px rgba(0, 255, 255, 0.15);
-    z-index: 15; /* Higher than left HUD */
-    
-    /* HORIZONTAL layout for mobile stats */
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    
-    /* CRITICAL: Allow taps to pass through to game canvas */
-    pointer-events: none !important;
-    touch-action: none !important;
-  }
-  
-  /* Make only interactive elements clickable */
-  #sideHud > * {
-    pointer-events: none !important;
-  }
-
-  
-  /* Move progress bar to BOTTOM of screen on mobile - ABOVE bottom HUD */
-  #progressBarContainer {
-    position: fixed !important;
-    bottom: calc(70px + env(safe-area-inset-bottom, 0px)); /* Higher above bottom HUD */
-    left: 8px;
-    right: 8px;
-    top: auto !important;
-    width: auto !important;
-    z-index: 5;
-    
-    /* Enhanced bottom styling */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(0, 0, 0, 0.7));
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    border-radius: 8px;
-    padding: 6px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 2px 10px rgba(0, 255, 255, 0.15);
-    
-    /* CRITICAL: Don't block game taps */
-    pointer-events: none !important;
-    touch-action: none !important;
-  }
-  
-  #progressBar {
-    height: 6px;
-    border-radius: 3px;
-    transition: width 0.3s ease, background-color 0.3s ease;
-  }
-  
-  /* Enhanced mobile HUD stats - HORIZONTAL layout */
-  .hud-stat.vertical {
-    flex: 1; /* Equal width distribution */
-    text-align: center;
-    padding: 6px 8px;
-    margin-bottom: 0; /* Remove vertical margin */
-    border-radius: 6px;
-    background: rgba(0, 255, 255, 0.05);
-    border: 1px solid rgba(0, 255, 255, 0.1);
-    min-width: 60px;
-    
-    /* Compact mobile typography */
-    font-size: 0.8em;
-    line-height: 1.2;
-  }
-  
-  .hud-stat.vertical .hud-label {
-    font-size: 0.7em;
-    margin-bottom: 2px;
-    opacity: 0.8;
-  }
-  
-  .hud-stat.vertical .hud-value {
-    font-size: 1em;
-    font-weight: 700;
-  }
-  
-  /* HIDE notification feeds on mobile to save space */
-  #bonusNotifications {
-    display: none !important;
-  }
-  
-  #criticalNotifications {
-    display: none !important;
-  }
-  
-  #notificationFeed {
-    display: none !important;
-  }
-  
-  /* Optimize main timer positioning for top HUD */
-  #mainTimer, #reaction {
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    z-index: 20; /* Above sideHud */
-    background: rgba(0, 0, 0, 0.3);
-    padding: 8px 16px;
-    border-radius: 8px;
-    backdrop-filter: blur(5px);
-  }
-
-  .hud-stat.vertical .hud-label {
-    font-size: 0.6em;
-    opacity: 0.9;
-  }
-
-  .hud-stat.vertical .hud-value {
-    font-size: 1.1em;
-    font-weight: 700;
-  }
-  
-  /* Mobile bottom HUD - Enhanced for mobile phone usage - ENSURE CLICKABLE */
-  #bottomHud {
-    bottom: max(env(safe-area-inset-bottom, 0px), 8px); /* Closer to bottom */
-    padding: 8px 12px;
-    gap: 12px;
-    left: 8px;
-    right: 8px;
-    transform: none;
-    border-radius: 8px;
-    flex-wrap: nowrap;
-    overflow-x: visible;
-    -webkit-overflow-scrolling: touch;
-    /* Enhanced visibility for mobile */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(0, 0, 0, 0.85));
-    border: 1px solid rgba(0, 255, 255, 0.6);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
-    z-index: 350; /* HIGHEST priority on mobile */
-    min-height: 50px; /* Compact touch area */
-    /* Mobile-specific enhancements */
-    position: fixed;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    /* CRITICAL: Container doesn't block taps, only buttons do */
-    touch-action: manipulation;
-    -webkit-touch-callout: none;
-    pointer-events: none !important; /* Container is non-interactive */
-  }
-
-  /* Ensure hud-controls are clickable while container is not */
-  .hud-controls {
-    pointer-events: auto !important;
-    z-index: 360;
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
-  
-  .hud-btn {
-    /* Make buttons explicitly interactive */
-    pointer-events: auto !important;
-    touch-action: manipulation !important;
-    
-    /* Enhanced mobile button styling */
-    min-width: 44px !important;
-    min-height: 44px !important;
-    padding: 8px !important;
-    border-radius: 6px !important;
-    font-size: 1.1em !important;
-    
-    /* Better mobile touch feedback */
-    transition: all 0.15s ease;
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 0, 0, 0.6));
-    border: 1px solid rgba(0, 255, 255, 0.4);
-    color: #00ffff;
-  }
-  
-  .hud-btn:active, .hud-btn:focus {
-    transform: scale(0.95);
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(0, 0, 0, 0.8));
-    box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
-  }
-
-  /* Enhanced mobile pause button */
-  #pauseButton {
-    z-index: 400 !important;
-    pointer-events: auto !important;
-    touch-action: manipulation !important;
-    -webkit-touch-callout: none !important;
-  }
-
-  /* Button hover and active states for mobile feedback */
-  .hud-btn:hover, .hud-btn:focus {
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(0, 0, 0, 0.9));
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
-    transform: scale(1.05);
-  }
-
-  .hud-btn:active, .hud-btn:focus:active {
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.6), rgba(0, 0, 0, 1));
-    transform: scale(0.95);
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
-  }
-  
-  /* Mobile-specific bottom HUD backup positioning - SIMPLIFIED */
-  @supports not (bottom: env(safe-area-inset-bottom)) {
-    #bottomHud {
-      /* Fallback for browsers without safe-area support */
-      bottom: 20px !important;
-    }
-  }
-  
-  .hud-info {
-    font-size: 0.85em;
-    white-space: nowrap;
-  }
-  
-  /* Mobile combo display - Better positioning adjusted */
+  /* Mobile combo display - Optimized positioning */
   .combo-display {
-    top: 35px; /* Adjusted to new topHud position */
-    right: 5px;
-    /* Move down when notifications are showing */
+    top: calc(50px + env(safe-area-inset-top, 0px));
+    right: 8px;
+    /* Smaller for mobile */
   }
   
   .combo-text {
-    font-size: 1.6em;
+    font-size: 1.4em;
   }
   
   .combo-streak {
-    font-size: 0.75em;
+    font-size: 0.7em;
   }
   
-  /* Mobile critical notifications - Optimized to not interfere with gameplay */
+  /* Mobile critical notifications - Less intrusive */
   .critical-notifications-zone {
-    top: 70px; /* Move lower to avoid blocking top HUD */
-    left: 10px;
-    right: 10px; /* Make responsive to screen width */
+    top: calc(60px + env(safe-area-inset-top, 0px));
+    left: 8px;
+    right: 8px;
     width: auto;
-    max-width: 250px;
-    max-height: 80px; /* Smaller height to reduce interference */
-    z-index: 150; /* Lower z-index during gameplay */
+    max-width: 240px;
+    max-height: 70px;
+    z-index: 150;
   }
   
   .critical-notification {
-    font-size: 0.95em; /* Smaller text for mobile */
-    padding: 6px 10px; /* More compact padding */
-    border-radius: 8px;
-    margin-bottom: 4px; /* Less spacing between notifications */
-    /* Faster animations for less distraction */
-    animation-duration: 0.4s !important;
-    /* Semi-transparent background for less visual interference */
-    background: linear-gradient(135deg, rgba(255, 102, 0, 0.15), rgba(255, 0, 102, 0.15)) !important;
-    backdrop-filter: blur(2px);
-    /* Auto-hide faster on mobile */
-    animation-fill-mode: both;
-  }
-  
-  .critical-notification.mega {
-    font-size: 1.1em; /* Smaller mega notifications */
-    padding: 8px 12px;
-    /* Shorter display time for mega notifications */
-    animation-duration: 0.6s !important;
-  }
-  
-  .critical-notification.level {
-    /* Level notifications can be slightly larger */
-    font-size: 1.0em;
-  }
-  
-  .critical-notification.miss {
-    /* Miss notifications minimal and fast */
-    font-size: 0.9em;
+    font-size: 0.85em;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-bottom: 3px;
     animation-duration: 0.3s !important;
+    background: linear-gradient(135deg, rgba(255, 102, 0, 0.1), rgba(255, 0, 102, 0.1)) !important;
+    backdrop-filter: blur(3px);
   }
   
-  /* Mobile settings adjustments */
+  /* Mobile settings and forms */
   .settings-options {
-    gap: 15px;
+    gap: 12px;
   }
   
   .settings-options label {
-    font-size: 0.95em;
+    font-size: 0.9em;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
   
   .settings-options input[type="text"] {
-    padding: 12px 10px;
-    font-size: 0.95em;
-    min-height: 44px;
+    padding: 14px 12px;
+    font-size: 0.9em;
+    min-height: 48px;
+    border-radius: 8px;
+    /* iOS input fix */
+    -webkit-appearance: none;
+    appearance: none;
   }
   
   .settings-options input[type="range"] {
-    min-height: 44px;
+    min-height: 48px;
   }
   
   .sound-test-buttons {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 6px;
   }
   
   .test-btn {
-    min-height: 48px;
-    font-size: 0.9em;
-    padding: 12px 16px;
-    border-radius: 8px;
+    min-height: 52px;
+    font-size: 0.85em;
+    padding: 14px 18px;
+    border-radius: 10px;
+    /* iOS button fix */
+    -webkit-appearance: none;
+    appearance: none;
   }
   
   /* Installation instructions mobile */
   .install-instructions {
-    max-height: 250px;
-    font-size: 0.9em;
+    max-height: 240px;
+    font-size: 0.85em;
     -webkit-overflow-scrolling: touch;
   }
   
   .install-section {
-    padding: 12px;
-    margin-bottom: 12px;
-    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
   }
   
   .install-section h3 {
-    font-size: 1.1em;
-  }
-
-/* Portrait orientation specific - Very important for mobile */
-@media (max-width: 480px) and (orientation: portrait) {
-  /* Enhanced viewport handling for portrait mobile */
-  html, body {
-    height: 100dvh; /* Dynamic viewport for better mobile browser compatibility */
-    height: 100vh; /* Fallback */
-  }
-  
-  .game-title {
-    font-size: 1.6em;
-    margin-bottom: 12px;
-  }
-  
-  .menu-container {
-    padding: 15px 12px;
-    max-height: calc(100dvh - 40px); /* Account for safe areas */
-    max-height: calc(100vh - 40px); /* Fallback */
-  }
-  
-  #topHud {
-    gap: 6px;
-    padding: 4px 8px; /* Even more compact for portrait */
-    font-size: 0.85em; /* Smaller font for portrait to reduce interference */
-    top: 1px; /* Even closer to top */
-    /* Make even more transparent for portrait mode */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.03), rgba(0, 0, 0, 0.15));
-    border: 1px solid rgba(0, 255, 255, 0.15);
-  }
-  
-  .hud-stat {
-    min-width: 55px;
-  }
-  
-  .hud-value {
-    font-size: 1.2em;
-  }
-  
-  .hud-label {
-    font-size: 0.6em;
-  }
-  
-  .notification-feed {
-    width: 160px;
-    max-height: 80px; /* Limited for portrait */
-    top: calc(35px + env(safe-area-inset-top, 0px)); /* Above side HUD */
-    right: 5px;
-    font-size: 0.75em;
-    z-index: 170; /* Above side HUD */
-    border-radius: 6px 6px 0 0; /* Connected styling */
-    border-bottom: 1px solid #00ffff25;
-  }
-  
-  .bonus-notification {
-    font-size: 0.65em;
-    padding: 3px 6px;
-  }
-  
-  .bonus-notifications {
-    max-height: 72px; /* Strictly limit to 2-3 notifications in portrait */
-    overflow: hidden;
-  }
-  
-  .reaction-meter {
-    min-width: 100px;
-    padding: 8px 10px;
-  }
-  
-  .reaction-display {
     font-size: 1em;
   }
 
-  #sideHud {
-    right: 5px;
-    bottom: calc(160px + env(safe-area-inset-bottom, 0px)); /* Below notification feed, above bottom HUD */
-    top: auto;
-    transform: none;
+/* Portrait orientation specific - Optimized for mobile */
+@media (max-width: 480px) and (orientation: portrait) {
+  /* Better viewport handling for portrait mobile */
+  html, body {
+    height: 100dvh;
+    height: 100vh; /* Fallback */
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  .game-title {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+  }
+  
+  .menu-container {
+    padding: 18px 12px;
+    max-height: calc(100dvh - 30px);
+    max-height: calc(100vh - 30px); /* Fallback */
+  }
+  
+  #topHud {
+    gap: 4px;
+    padding: 3px 6px;
+    font-size: 0.7em;
+    top: env(safe-area-inset-top, 2px);
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.02), rgba(0, 0, 0, 0.15));
+    border: 1px solid rgba(0, 255, 255, 0.1);
+  }
+  
+  .hud-stat.compact {
+    min-width: 42px;
+    padding: 2px 4px;
+  }
+  
+  .hud-value {
+    font-size: 1.1em;
+  }
+  
+  .hud-label {
+    font-size: 0.45em;
+  }
+  
+  .reaction-time-compact {
+    min-width: 75px;
   }
   
   #bottomHud {
-    padding: 6px 10px;
-    gap: 8px;
-    bottom: calc(50px + env(safe-area-inset-bottom, 0px)); /* Even higher for portrait mobile */
-    /* Enhanced mobile browser visibility */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 0, 0, 0.9));
+    padding: 8px 12px;
+    gap: 10px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(0, 0, 0, 0.9));
     border: 2px solid #00ffff;
     box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
-    z-index: 250; /* Highest priority for portrait */
+    z-index: 400;
   }
   
   .hud-btn {
-    width: 44px;
-    height: 44px;
-    font-size: 0.9em;
+    width: 48px;
+    height: 48px;
+    font-size: 1em;
+    border-radius: 8px;
+    min-width: 48px !important;
+    min-height: 48px !important;
   }
   
   .combo-text {
-    font-size: 1.4em;
-  }
-  
-  /* Floating notifications adjustments */
-  .floating-notification {
-    font-size: 0.9em;
-  }
-  
-  .floating-notification.combo {
     font-size: 1.2em;
   }
   
+  .floating-notification {
+    font-size: 0.8em;
+  }
+  
+  .floating-notification.combo {
+    font-size: 1.1em;
+  }
+  
   .floating-notification.critical {
-    font-size: 1.4em;
+    font-size: 1.3em;
   }
 }
 
@@ -1888,105 +1650,79 @@ canvas#webglCanvas {
   }
 }
 
-/* Landscape orientation specific - For phones in landscape */
+/* Landscape orientation specific - Optimized for phones in landscape */
 @media (max-height: 500px) and (orientation: landscape) {
-  /* Enhanced landscape mobile handling */
+  /* Better landscape mobile handling */
   html, body {
     height: 100dvh;
     height: 100vh; /* Fallback */
   }
   
   .menu-container {
-    max-height: calc(100dvh - 20px);
-    max-height: calc(100vh - 20px); /* Fallback */
+    max-height: calc(100dvh - 15px);
+    max-height: calc(100vh - 15px); /* Fallback */
     overflow-y: auto;
-    padding: 12px;
+    padding: 10px;
   }
   
   .game-title {
-    font-size: 1.4em;
-    margin-bottom: 10px;
+    font-size: 1.3em;
+    margin-bottom: 8px;
   }
   
   .menu-buttons {
-    gap: 8px;
+    gap: 6px;
   }
   
   .menu-btn {
-    padding: 10px 16px;
-    font-size: 0.9em;
-    min-height: 44px;
+    padding: 12px 18px;
+    font-size: 0.85em;
+    min-height: 48px;
   }
   
   #topHud {
-    top: 1px; /* Minimal top spacing for landscape */
-    padding: 4px 10px; /* Compact padding */
-    gap: 6px;
-    /* Ultra-transparent for landscape to minimize target interference */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.02), rgba(0, 0, 0, 0.1));
-    border: 1px solid rgba(0, 255, 255, 0.1);
+    top: env(safe-area-inset-top, 2px);
+    padding: 3px 8px;
+    gap: 4px;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.02), rgba(0, 0, 0, 0.12));
+    border: 1px solid rgba(0, 255, 255, 0.08);
   }
   
   .hud-value {
-    font-size: 1.3em;
-  }
-  
-  .notification-feed {
-    top: 30px; /* Above side HUD in landscape */
-    right: 8px;
-    max-height: 60px; /* Very limited for landscape */
-    width: 150px; /* Compact for landscape */
-    font-size: 0.7em;
-    border-radius: 6px 6px 0 0; /* Connected styling */
-    border-bottom: 1px solid #00ffff20;
-  }
-
-  .bonus-notifications {
-    max-height: 45px; /* Max 2 notifications in landscape */
-    overflow: hidden;
-  }
-
-  #leftHud {
-    bottom: calc(100px + env(safe-area-inset-bottom, 0px)); /* Adjusted for higher bottom HUD */
-  }
-
-  #sideHud {
-    bottom: calc(85px + env(safe-area-inset-bottom, 0px)); /* Below notification feed in landscape */
-    top: auto;
-    transform: none;
-    right: 8px;
+    font-size: 1.2em;
   }
   
   #bottomHud {
-    bottom: calc(25px + env(safe-area-inset-bottom, 0px)); /* Higher for landscape visibility */
-    padding: 5px 12px;
-    /* Enhanced visibility for landscape */
-    background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(0, 0, 0, 0.85));
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
+    padding: 6px 14px;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 0, 0, 0.9));
     border: 2px solid #00ffff;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-    z-index: 220;
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+    z-index: 380;
+  }
+  
+  .hud-btn {
+    width: 46px;
+    height: 46px;
+    font-size: 0.95em;
   }
   
   .combo-display {
-    top: 25px; /* Adjusted for new topHud position */
+    top: calc(env(safe-area-inset-top, 0px) + 20px);
   }
   
   .combo-text {
-    font-size: 1.3em;
+    font-size: 1.2em;
   }
   
   .critical-notifications-zone {
-    top: 25px; /* Adjusted for new topHud position */
-    max-height: 60px; /* Reduced for landscape */
+    top: calc(env(safe-area-inset-top, 0px) + 20px);
+    max-height: 50px;
   }
   
   .critical-notification {
-    font-size: 1em;
-    padding: 6px 10px;
-  }
-
-  #bottomHud {
-    bottom: calc(25px + env(safe-area-inset-bottom, 0px)); /* Higher for landscape visibility */
+    font-size: 0.9em;
+    padding: 4px 8px;
   }
 }
 
@@ -2035,79 +1771,94 @@ canvas#webglCanvas {
   }
 }
 
-/* Touch-specific improvements - Enhanced Mobile Scrolling */
+/* Touch-specific improvements - Enhanced Mobile Touch Targets */
 @media (hover: none) and (pointer: coarse) {
-  /* Mobile scrolling optimizations for touch devices */
+  /* Enhanced touch scrolling for all mobile devices */
   .overlay-menu {
-    /* Ensure touch scrolling works on all mobile devices */
     -webkit-overflow-scrolling: touch !important;
     touch-action: pan-y pinch-zoom !important;
     overflow-y: auto !important;
-    /* Better momentum scrolling */
     scroll-behavior: smooth;
     overscroll-behavior-y: contain;
-    /* Hardware acceleration */
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
   
-  /* Increase touch targets for touch devices */
+  /* Enhanced touch targets for better mobile interaction */
   .menu-btn {
-    min-height: 56px;
-    padding: 16px 24px;
+    min-height: 64px;
+    padding: 20px 28px;
+    -webkit-tap-highlight-color: rgba(0, 255, 255, 0.25);
     /* Better touch response */
-    -webkit-tap-highlight-color: rgba(0, 255, 255, 0.2);
+    transition: all 0.2s ease;
   }
   
   .hud-btn {
-    min-width: 48px;
-    min-height: 48px;
+    min-width: 52px;
+    min-height: 52px;
+    padding: 12px;
+    /* Enhanced touch feedback */
+    -webkit-tap-highlight-color: rgba(0, 255, 255, 0.3);
   }
   
   .test-btn {
-    min-height: 48px;
-    padding: 14px 20px;
+    min-height: 56px;
+    padding: 16px 22px;
   }
   
-  /* Better button press feedback */
+  /* Better button press feedback for touch devices */
   .menu-btn:active {
-    transform: scale(0.98);
-    background: linear-gradient(45deg, #003344, #00ffff30);
+    transform: scale(0.96);
+    background: linear-gradient(45deg, #003366, #00ffff25);
+    transition: all 0.1s ease;
   }
   
   .hud-btn:active {
-    transform: scale(0.95);
-    background: linear-gradient(45deg, #00ffff30, #003344);
+    transform: scale(0.92);
+    background: linear-gradient(45deg, #00ffff25, #003366);
+    transition: all 0.1s ease;
   }
   
-  /* Force bottom HUD visibility on touch devices */
+  /* Enhanced bottom HUD visibility and interaction */
   #bottomHud {
     position: fixed !important;
     z-index: 999 !important;
-    /* Ensure it's above mobile browser UI */
-    bottom: max(40px, calc(20px + env(safe-area-inset-bottom, 0px))) !important;
+    bottom: max(env(safe-area-inset-bottom, 0px), 12px) !important;
+    padding: 12px 20px;
+    border: 2px solid #00ffff;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 0, 0, 0.9));
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
   }
   
-  .hud-btn:active {
-    transform: scale(0.95);
-    background: linear-gradient(45deg, #00ffff30, #003344);
-  }
-  
-  /* Prevent text selection on touch */
+  /* Prevent text selection on touch devices */
   * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
   }
   
+  /* Allow selection only for input elements */
   input[type="text"], input[type="range"], textarea {
     -webkit-user-select: auto;
     user-select: auto;
   }
   
-  /* iOS specific touch improvements */
+  /* Enhanced iOS touch highlighting */
   .menu-btn, .hud-btn, .test-btn {
     -webkit-tap-highlight-color: rgba(0, 255, 255, 0.2);
+  }
+  
+  /* Input improvements for touch devices */
+  input[type="text"] {
+    font-size: 16px; /* Prevent iOS zoom */
+    min-height: 48px;
+    padding: 14px 16px;
+    border-radius: 8px;
+  }
+  
+  input[type="range"] {
+    min-height: 48px;
+    padding: 12px 0;
   }
 }
 
@@ -2164,71 +1915,55 @@ canvas#webglCanvas {
 
 /* iOS Safari specific improvements - Fixed scrolling */
 @supports (-webkit-touch-callout: none) {
+  html {
+    height: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+  
   body {
-    /* Allow scrolling instead of fixed positioning */
+    /* Critical iOS fix - allow natural document flow */
     position: static !important;
-    overflow: visible !important;
-    width: 100% !important;
     height: auto !important;
+    overflow: visible !important;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: auto; /* Allow iOS native scroll behaviors */
-    /* CRITICAL: Enable touch scrolling on body */
-    touch-action: pan-y pinch-zoom !important;
+    /* Better iOS viewport */
+    min-height: 100vh;
+    min-height: 100dvh;
+    /* iOS touch improvements */
+    touch-action: manipulation;
     -webkit-touch-callout: none;
-  }
-  
-  .overlay-menu {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    overflow-y: auto !important; /* Enable vertical scrolling */
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    touch-action: pan-y pinch-zoom !important; /* Allow vertical scrolling and pinch zoom */
-    z-index: 10000 !important;
-    /* iOS momentum scrolling */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
-  
-  /* Only disable touch on game canvas, not menus */
-  #webglCanvas {
-    touch-action: none !important;
-    user-select: none !important;
-    -webkit-user-select: none !important;
-  }
-  
-  /* CRITICAL: Explicitly allow touch scrolling on menu elements */
-  .overlay-menu, .menu-container, .game-modes, .mode-card {
-    touch-action: pan-y pinch-zoom !important;
-    -webkit-touch-callout: default !important;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  
-  /* Enhanced iOS scrolling for menu elements */
-  .overlay-menu {
-    -webkit-overflow-scrolling: touch !important;
-    /* Force iOS to recognize as scrollable */
-    overflow: auto !important;
-    /* Hardware acceleration for smooth scrolling */
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-    /* Ensure proper scroll behavior */
-    scroll-behavior: smooth;
     overscroll-behavior: contain;
   }
   
-  /* Fix iOS viewport issues */
+  .overlay-menu {
+    /* Critical for iOS scrolling */
+    position: fixed !important;
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y pinch-zoom !important;
+    /* Better iOS performance */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  
   .menu-container {
-    max-height: none !important; /* Don't constrain menu height on iOS */
-    overflow: visible !important; /* Allow natural content flow */
-    min-height: auto !important;
+    /* Remove height constraints on iOS */
+    max-height: none !important;
     height: auto !important;
-    /* Let content determine height */
-    box-sizing: border-box;
+    overflow: visible !important;
+    /* iOS margin fixes */
+    margin: env(safe-area-inset-top, 10px) auto env(safe-area-inset-bottom, 10px) auto;
+  }
+  
+  /* Canvas fixes for iOS */
+  #webglCanvas {
+    position: fixed !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    touch-action: none !important;
   }
   
   /* Better iOS button styling */
@@ -2236,12 +1971,6 @@ canvas#webglCanvas {
     -webkit-appearance: none;
     appearance: none;
     border-radius: 12px;
-  }
-  
-  /* iOS input improvements */
-  input[type="text"], input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
   }
 }
 
