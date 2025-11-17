@@ -2657,6 +2657,17 @@ canvas#webglCanvas {
   }
 }
 
+/* EMERGENCY DESKTOP GRID - HIGHEST PRIORITY */
+@media (min-width: 769px) {
+  .game-modes {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    flex-direction: row !important;
+    gap: 20px !important;
+    margin: 30px 0 !important;
+  }
+}
+
 /* ULTRA SPECIFIC DESKTOP OVERRIDE - Maximum CSS specificity */
 @media screen and (min-width: 769px) {
   body .overlay-menu .menu-container .game-modes {
